@@ -1,0 +1,7 @@
+{
+    "require": {
+        "katzgrau/klogger": "dev-master",
+        "inouet/file-cache": "dev-master",
+        "guzzlehttp/guzzle": "^7.5"
+    }
+}
