@@ -53,7 +53,7 @@
   text-decoration: none;
 }
 
-#maps .hex-pop .item.static
+#maps .item.static
 {
   position: absolute;
   background-color: rgba( 0, 0, 0, .7 );
@@ -63,7 +63,7 @@
   border-radius: 100%;
 }
 
-#maps .hex-pop .item.static .label
+#maps .item.static .label
 {
   position: absolute;
   left: 50%;
@@ -78,18 +78,18 @@
   z-index: 1;
 }
 
-#maps .hex-pop .item.static.Major
+#maps .item.static.Major
 {
   background-color: rgba( 0, 0, 0, .9 );
 }
 
-#maps .hex-pop .item.static.Major .label
+#maps .item.static.Major .label
 {
   font-weight: bold;
   z-index: 2;
 }
 
-#maps .hex-pop .item.static:before
+#maps .item.static:before
 {
   content: "";
   display: block;
@@ -104,7 +104,7 @@
   border-bottom: 7px solid rgba( 255, 255, 255, .6 );
 }
 
-#maps .hex-pop .item.dynamic
+#maps .item.dynamic
 {
   position: absolute;
   width: 20px;
@@ -115,17 +115,17 @@
   transition: opacity .5s;
 }
 
-#maps .hex-pop.loaded .item.dynamic
+#maps .loaded .item.dynamic
 {
   opacity: 1;
 }
 
-#maps .hex-pop .item.dynamic.team-WARDENS
+#maps .item.dynamic.team-WARDENS
 {
   filter: sepia(100%) hue-rotate(190deg) saturate(300%) ;
 }
 
-#maps .hex-pop .item.dynamic.team-COLONIALS
+#maps .item.dynamic.team-COLONIALS
 {
   filter: sepia(100%) saturate(300%) hue-rotate(70deg);
 }
@@ -134,21 +134,6 @@
 {
   opacity: .5;
   pointer-events: none;
-}
-
-#maps .hex-pop .item.icon-8
-{
-  background: url( /assets/images/icons/MapIconForwardBase1.png );
-}
-
-#maps .hex-pop .item.icon-8.team-WARDENS
-{
-  background: url( /assets/images/icons/MapIconForwardBase1Warden.png );
-}
-
-#maps .hex-pop .item.icon-8.team-COLONIALS
-{
-  background: url( /assets/images/icons/MapIconForwardBase1Colonial.png );
 }
 
 #fatt-root:not(.has-pop) #maps .hex-pop

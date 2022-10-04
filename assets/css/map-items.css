@@ -52,7 +52,6 @@
   transition: opacity .5s;
   letter-spacing: 1px;
   margin: 0;
-  z-index: 10;
 }
 
 #maps .hex:hover .title,

@@ -67,7 +67,7 @@
     {
       $value = str_replace( ' ', '', $value );
       $none = '/assets/images/icons/MapIcon' . $value . '.png';
-      echo '#maps .hex-pop .item.icon-' . $key . ' { background-image: url( ' . $none . ' ); } ';
+      echo '#maps .item.icon-' . $key . ' { background-image: url( ' . $none . ' ); } ';
       //echo '#maps .hex-pop .item.team-WARDENS.icon-' . $key . ' { background-image: url( ' . $none . ' ), url( /assets/images/icons/MapIcon' . $value . 'Warden.png ); } ';
       //echo '#maps .hex-pop .item.team-COLONIALS.icon-' . $key . ' { background-image: url( ' . $none . '), url( /assets/images/icons/MapIcon' . $value . 'Colonial.png ); } ';
     }

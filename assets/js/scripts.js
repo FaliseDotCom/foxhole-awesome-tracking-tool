@@ -64,6 +64,7 @@
     window.addEventListener( 'resize', resizeMap );
     setTimeout( resizeMap, 100 );
     $maps.addEventListener( 'mousedown', startDrag );
+    $maps.addEventListener( 'touchstart', startDrag );
   }
 
   const resizeMap = () =>
@@ -74,18 +75,23 @@
   // start map drag
   const startDrag = e =>
   {
-    // get event
-    e = e || window.event;
-    // set start coordinates
-    start_x = e.clientX;
-    start_y = e.clientY;
-    // set inital map coordinates
-    map_x = parseInt( $maps.style.left || 0 );
-    map_y = parseInt( $maps.style.top || 0 );
-    // add events
-    document.addEventListener( 'mouseup', stopDrag );
-    document.addEventListener( 'mousemove', doDrag );
-    // prevent default stuff
+    if ( !dragging )
+    {
+      // set start coordinates
+      const coords = getEventCoords( e );
+      start_x = coords.x;
+      start_y = coords.y;
+      // set inital map coordinates
+      map_x = parseInt( $maps.style.left || 0 );
+      map_y = parseInt( $maps.style.top || 0 );
+      // add events
+      document.addEventListener( 'mouseup', stopDrag );
+      document.addEventListener( 'touchend', stopDrag );
+      document.addEventListener( 'mousemove', doDrag );
+      document.addEventListener( 'touchmove', doDrag );
+    }
+
+    // prevent default stuff like picking up an image
     e.preventDefault();
   }
 
@@ -94,7 +100,9 @@
   {
     // remove drag events
     document.removeEventListener( 'mouseup', stopDrag );
+    document.removeEventListener( 'touchend', stopDrag );
     document.removeEventListener( 'mousemove', doDrag );
+    document.removeEventListener( 'touchmove', doDrag );
 
     // disable dragging with a short delay, otherwise it might be considered a hex click
     setTimeout( () =>
@@ -106,12 +114,10 @@
   // handle map dragging
   const doDrag = e =>
   {
-    // get event
-    e = e || window.event;
-
     // get new coordinates
-    drag_x = e.clientX
-    drag_y = e.clientY;
+    const coords = getEventCoords( e );
+    drag_x = coords.x;
+    drag_y = coords.y;
 
     const diff_x = drag_x - start_x,
           diff_y = drag_y - start_y;
@@ -130,6 +136,21 @@
 
     // prevent default stuff
     e.preventDefault();
+  }
+
+  // get coordinates from an event
+  const getEventCoords = e =>
+  {
+    e = e || window.event;
+    x = e.clientX;
+    y = e.clientY;
+    if ( e.type.indexOf( 'touch') === 0 )
+    {
+        var touch = e.touches[0];
+        x = touch.clientX;
+        y = touch.clientY;
+    }
+    return { x: x, y: y };
   }
 
   // set map zoom
@@ -228,7 +249,10 @@
           // pan to center on hex location
           animateMap( o_x, o_y, w / 2 - x , h / 2 - y );
 
-          //showHex( data )
+          // fill with data
+          loadHex( data );
+
+          // stop click thru
           e.stopPropagation();
         }
       } );
@@ -236,6 +260,36 @@
     // reset the map for good measure
     resizeMap();
   };
+
+  // load hex data
+  const loadHex = data =>
+  {
+    // load details if missing
+    if ( !data.mapItems || !data.mapItems.length )
+    {
+      fetch( '/api.php?details=' + data.hex + '&shard=' + shard )
+        .then( data => data.json() )
+        .then( json => {
+          // add details to data object
+          data.mapItems = json.mapItems;
+          // rebuild hex
+          fillHex( data );
+        } );
+     }
+  }
+
+  // fill hex with data
+  const fillHex = data =>
+  {
+    const $t = tmplEl( 'tmplMap', data ),
+          $hex = document.getElementById( data.name );
+
+    $hex.innerHTML = $t.innerHTML;
+    setTimeout( () =>
+    {
+      $hex.classList.add( 'loaded' );
+    }, 10 );
+  }
 
   // show hex details with popup
   const showHex = data =>
