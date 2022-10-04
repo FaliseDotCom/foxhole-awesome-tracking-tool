@@ -12,7 +12,6 @@
       shard = 'able',
       $root,
       $maps,
-      $pop,
       $shards,
       map_x = 0,
       map_y = 0,
@@ -196,7 +195,6 @@
   // load map details from API
   const loadMap = () =>
   {
-    closePop();
     const response = fetch( '/api.php?map&shard=' + shard )
       .then( data => data.json() )
       .then( json => {
@@ -284,93 +282,16 @@
     const $t = tmplEl( 'tmplMap', data ),
           $hex = document.getElementById( data.name );
 
+    // use inner html
     $hex.innerHTML = $t.innerHTML;
+
+    // fade in
     setTimeout( () =>
     {
       $hex.classList.add( 'loaded' );
     }, 10 );
   }
 
-  // show hex details with popup
-  const showHex = data =>
-  {
-    // remove existing
-    removePop();
-
-    // load from template and add to page
-    $pop = tmplEl( 'tmplPop', data );
-    $maps.appendChild( $pop );
-
-    // close button
-    $pop.querySelector( '.close' ).addEventListener( 'click', e => {
-      e.preventDefault();
-      closePop();
-    });
-
-    // fade in
-    setTimeout( () => {
-      $root.classList.add( 'has-pop' );
-    }, 10 );
-
-    // load details if missing
-    if ( !data.mapItems || !data.mapItems.length )
-    {
-      fetch( '/api.php?details=' + data.hex + '&shard=' + shard )
-        .then( data => data.json() )
-        .then( json => {
-          // add details to data object
-          data.mapItems = json.mapItems;
-          // rebuild popup
-          showHex( data );
-          // fadein
-          setTimeout( () =>
-          {
-            if ( $pop )
-            {
-              $pop.classList.add( 'loaded' );
-            }
-          }, 100 );
-        } );
-     }
-     else
-     {
-        setTimeout( () =>
-        {
-          if ( $pop )
-          {
-            $pop.classList.add( 'loaded' );
-          }
-        }, 100 );
-     }
-  };
-
-  // close popup
-  const closePop = e => {
-    $root.classList.remove( 'has-pop' );
-    setTimeout( () => {
-      removePop();
-    }, 600 );
-  };
-
-  // remove popup element
-  const removePop = () =>
-  {
-    // remove existing
-    if ( $pop && $pop.parentNode )
-    {
-      $pop.parentNode.removeChild( $pop );
-    }
-    $pop = null;
-  }
-
   document.addEventListener( "DOMContentLoaded", docReady );
-
-  document.addEventListener( 'click', e =>
-  {
-    if ( $pop && !$pop.contains( e.target ) )
-    {
-      closePop();
-    }
-  });
 
 })();

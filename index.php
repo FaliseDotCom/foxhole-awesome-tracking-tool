@@ -74,7 +74,6 @@
     <?php
       // add JS templates
       require( 'templates/map.php' );
-      require( 'templates/pop.php' );
     ?>
 
   </body>

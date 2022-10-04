@@ -1,58 +1,3 @@
-
-#maps .hex-pop
-{
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate( -50%, -50% );
-  width: 90%;
-  filter: drop-shadow( 0 0 15px rgba( 0, 0, 0, .6 ) );
-  opacity: 1;
-  transition: opacity .5s;
-}
-
-#maps .hex-pop img
-{
-  width: 100%;
-  height: auto;
-}
-
-#maps .hex-pop .title,
-#maps .hex-pop .close
-{
-  font-family: var( --font-header );
-  position: absolute;
-  text-align: center;
-  left: 50%;
-  top: -50px;
-  transform: translateX( -50% );
-  font-size: 30px;
-  background: rgba( 255, 255, 255, .6 );
-  padding: 0 10px;
-  border-radius: 6px;
-  height: 30px;
-  line-height: 30px;
-  margin: 0;
-  color: rgba( 0, 0, 0, .9 );
-}
-
-#maps .hex-pop .title
-{
-  letter-spacing: 1px;
-}
-
-#maps .hex-pop .close
-{
-  width: 30px;
-  border-radius: 100%;
-  left: auto;
-  right: 18%;
-  padding: 0;
-  vertical-align: middle;
-  cursor: pointer;
-  text-decoration: none;
-}
-
 #maps .item.static
 {
   position: absolute;
@@ -128,16 +73,4 @@
 #maps .item.dynamic.team-COLONIALS
 {
   filter: sepia(100%) saturate(300%) hue-rotate(70deg);
-}
-
-#fatt-root.has-pop #maps .hex
-{
-  opacity: .5;
-  pointer-events: none;
-}
-
-#fatt-root:not(.has-pop) #maps .hex-pop
-{
-  opacity: 0;
-  pointer-events: none;
 }
