@@ -6,6 +6,14 @@
   $api = new FoxholeApi();
   $maps = $api->get_map_list();
   $shards = $api->get_shards();
+
+  // load hex grid
+  $grid = json_decode( file_get_contents( 'hex-grid.json' ), true );
+  $hex_width = 1024;
+  $hex_height = 888;
+  $grid_width = $hex_width / 1.333;
+  $grid_height = $hex_height / 2;
+
 ?>
 <html lang="en">
   <head>
@@ -57,21 +65,47 @@
       </div>
 
       <div id="fatt-map">
-        <div id="map">
-          <?php
-            foreach ( $maps as $map )
-            {
-              $name = $api->map_name( $map );
-              $title = $api->map_title( $map );
-              ?>
-                <div id="<?php echo $name; ?>" class="hex">
-                  <h4 class="title"><?php echo $title; ?></h4>
-                  <img class="map" src="/assets/images/maps/Map<?php echo $name; ?>Hex.png" alt="<?php echo $title; ?>"/>
-                </div>
-              <?php
-            }
-          ?>
-        </div>
+        <?php if ( !isset( $_GET[ 'svg' ] ) ) { ?>
+          <div id="map">
+            <?php
+              foreach ( $maps as $map )
+              {
+                $name = $api->map_name( $map );
+                $title = $api->map_title( $map );
+                ?>
+                  <div id="<?php echo $name; ?>" class="hex">
+                    <h4 class="title"><?php echo $title; ?></h4>
+                    <img class="map" src="/assets/images/maps/Map<?php echo $name; ?>Hex.png" alt="<?php echo $title; ?>"/>
+                  </div>
+                <?php
+              }
+            ?>
+          </div>
+        <?php } else { ?>
+          <svg id="map" width="6144" height="6216" viewbox=" 0 0 6144 6216" preserveAspectRatio="xMinYMid meet" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto;">
+             <?php
+              foreach ( $grid as $name => $coords )
+              {
+                $title = $api->map_title( $name );
+                ?>
+                <svg
+                  height="<?php echo $hex_height; ?>px"
+                  width="<?php echo $hex_width; ?>px"
+                  x="<?php echo $coords[ 0 ] * $grid_width; ?>px"
+                  y="<?php echo $coords[ 1 ] * $grid_height; ?>px"
+                  class="hex"
+                  id="<?php echo $name; ?>"
+                >
+                  <image href="/assets/images/maps/Map<?php echo $name; ?>Hex.png" height="100%" width="100%" class="hex-bg" />
+                  <text x="50%"  y="50%"  dominant-baseline="middle" text-anchor="middle" class="hex-title" >
+                    <?php echo $title; ?>
+                  </text>
+                </svg>
+                  <?php
+              }
+            ?>
+          </svg>
+        <?php } ?>
       </div>
     </div>
 

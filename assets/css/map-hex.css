@@ -3,11 +3,19 @@
   margin: 0;
   position: relative;
   width: 100%;
+  height: auto;
   user-select: none;
   filter: drop-shadow( 0 0 5px rgba( 0, 0, 0, .6 ) );
 }
 
-#map .hex
+svg#map .hex-title
+{
+  font-family: var( --font-header );
+  font-size: 80px;
+  fill: #00000090;
+}
+
+#map:not(svg) .hex
 {
   position: absolute;
   width: var( --hex-width );

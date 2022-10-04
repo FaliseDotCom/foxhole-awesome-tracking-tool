@@ -34,7 +34,7 @@
   {
     // get elements
     $root = document.getElementById( 'fatt-root' );
-    $map = $root.querySelector( '#map' );
+    $map = $root.querySelector( 'div#map' );
     $header = $root.querySelector( '.header' );
     $shards = $header.querySelectorAll( '.shard-picker .shards label' );
     $zoom_in = $header.querySelector( '.zoom-in' );

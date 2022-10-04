@@ -6,17 +6,6 @@
 
   require_once( 'inc.php' );
 
-  /**
-   * Debug output to screen
-   * @return [type] [description]
-   */
-  if ( !function_exists( 'epr' ) )
-  {
-    function epr()
-    {
-      echo '<pre>' . print_r( func_get_args(), true ) . '</pre>';
-    }
-  }
   // init classes
   $api = new FoxholeApi();
 
