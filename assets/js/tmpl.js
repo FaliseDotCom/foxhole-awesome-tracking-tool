@@ -34,3 +34,14 @@
     return data ? fn( data ) : fn;
   };
 })();
+
+
+
+// create an element from a template and some data
+const tmplEl = ( name, data ) =>
+{
+  const t = tmpl( name, data ),
+        e = document.createElement( 'div' );
+  e.innerHTML = t.trim();
+  return e.firstChild;
+};

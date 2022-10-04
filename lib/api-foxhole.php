@@ -10,13 +10,6 @@ use Psr\Log\LogLevel;
  */
 class FoxholeApi
 {
-  /**
-   * API endpoints root
-   * Live-1 : https://war-service-live.foxholeservices.com/api/
-   * Live-2 : https://war-service-live-2.foxholeservices.com/api/
-   */
-  private $api_url = 'https://war-service-live.foxholeservices.com/api/';
-
   // File logger instance
   private $logger;
 
@@ -31,6 +24,20 @@ class FoxholeApi
 
   // Default cache duration = 24 hours
   private $cache_duration = 24 * 60 * 60;
+
+  /**
+   * API roots
+   * Live-1 / Able  : https://war-service-live.foxholeservices.com/api/
+   * Live-2 / Baker : https://war-service-live-2.foxholeservices.com/api/
+   * Live-3 / Dev   : https://war-service-live-2.foxholeservices.com/api/
+   */
+  private $shards = [
+    'able'  => 'https://war-service-live.foxholeservices.com/api/',
+    'baker' => 'https://war-service-live-2.foxholeservices.com/api/',
+    'dev'   => 'https://war-service-live-3.foxholeservices.com/api/'
+  ];
+
+  private $shard = 'able';
 
   // class constructor
   function __construct()
@@ -54,9 +61,31 @@ class FoxholeApi
       $this->api_url = FOXHOLE_API_URL;
     }
 
-    // init guzzle client
+    // init guzzle client by setting a shard
+    $this->set_shard();
+  }
+
+  /**
+   * Get a list of shards / server names
+   * @return [type] [description]
+   */
+  public function get_shards()
+  {
+    return array_keys( $this->shards );
+  }
+
+  /**
+   * Set shard / server name
+   * @param string $shard [description]
+   */
+  public function set_shard( string $shard = '' )
+  {
+    // save shard
+    $this->shard = isset( $this->shards[ $shard ] ) ? $shard : array_keys( $this->shards )[ 0 ];
+
+    // (re)init guzzle client
     $this->client = new GuzzleHttp\Client( [
-      'base_uri' => $this->api_url
+      'base_uri' => $this->shards[ $this->shard ]
     ] );
   }
 
@@ -67,7 +96,7 @@ class FoxholeApi
    */
   public function get( string $what = '', int $cache_duration = 0, bool $force = false ) : array
   {
-    $key = md5( $what );
+    $key = $this->shard . '-' . $what;
     $data = $this->getCache( $key );
     if ( !$data || $force )
     {
@@ -141,6 +170,26 @@ class FoxholeApi
   }
 
   /**
+   * Cleanup map name
+   * @param  string $name [description]
+   * @return [type]       [description]
+   */
+  public function map_name( string $name )
+  {
+    return str_replace( 'Hex', '', $name );
+  }
+
+  /**
+   * Convert map name to title
+   * @param  string $name [description]
+   * @return [type]       [description]
+   */
+  public function map_title( string $name )
+  {
+    return trim( join( ' ', preg_split('/(?=[A-Z])/', $this->map_name( $name ) ) ) );
+  }
+
+  /**
    * Get stuff for entire map
    * @return [type]      [description]
    */
@@ -156,21 +205,19 @@ class FoxholeApi
 
     // get map names and go over each
     $maps = $this->get_map_list();
-    foreach ( $maps as $name )
+    foreach ( $maps as $name)
     {
       // get static stuff
       $map = $this->get_static_map( $name );
 
+      // store original name
       $map[ 'hex' ] = $name;
 
       // clean up name
-      $name = str_replace( 'Hex', '', $name );
-
-      // clean up some more and call it a title
-      $title = preg_split('/(?=[A-Z])/', str_replace( 'Hex', '', $name ) );
+      $name = $this->map_name( $name );
 
       // add some custom stuff
-      $map[ 'title' ] = trim( join( ' ', $title ) );
+      $map[ 'title' ] = $this->map_title( $name );
       $map[ 'name' ] = $name;
 
       // add it to the array
@@ -181,6 +228,8 @@ class FoxholeApi
     $this->saveCache( $key, $data, 5 * 60 );
     return $data;
   }
+
+
 
   /**
    * Remove compression postfix from map file names

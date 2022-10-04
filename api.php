@@ -4,18 +4,7 @@
    * Internal api handler
    */
 
-  // make sure all errors are reported
-  @ini_set( 'display_errors', 1 );
-  @ini_set( 'display_startup_errors', 1 );
-  error_reporting( E_ALL );
-
-  // log errors to daily error log in our logs dir
-  @ini_set( 'error_log', 'logs/error-' . date( 'Y-m-d' ) . '.log');
-
-  require_once( 'config.php' );
-  require_once( 'vendor/autoload.php' );
-  require_once( 'lib/cache.php' );
-  require_once( 'lib/api-foxhole.php' );
+  require_once( 'inc.php' );
 
   /**
    * Debug output to screen
@@ -37,6 +26,18 @@
     header( 'Content-Type: application/json; charset=utf-8' );
     echo trim( json_encode( $data, true ) );
     die;
+  }
+
+  // get a list of shards / server
+  if ( isset( $_GET[ 'shards' ] ) )
+  {
+    json( $api->get_shards() );
+  }
+
+  // set a shars / server
+  if ( isset( $_GET[ 'shard' ] ) )
+  {
+    $api->set_shard( $_GET[ 'shard' ] );
   }
 
   // get a list of the entire map data

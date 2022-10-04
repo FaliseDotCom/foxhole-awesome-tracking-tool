@@ -1,0 +1,70 @@
+#maps
+{
+  margin: 0 auto;
+  position: relative;
+  width: 100%;
+  user-select: none;
+  filter: drop-shadow( 0 0 5px rgba( 0, 0, 0, .6 ) );
+}
+
+#maps .hex
+{
+  position: absolute;
+  width: var( --hex-width );
+  transform: translateX( -50% );
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity .5s;
+}
+
+#maps .hex .map
+{
+  opacity: 1;
+  transition: opacity .5s;
+}
+
+#maps.blur .hex .map
+{
+  opacity: .7;
+}
+
+#maps.blur .hex:hover .map
+{
+  opacity: 1;
+}
+
+#maps .hex .map
+{
+  width: 100%;
+  height: auto;
+}
+
+#maps .hex .title
+{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate( -50%, -50% );
+  text-align: center;
+  color: black;
+  opacity: .6;
+  line-height: 1em;
+  transition: opacity .5s;
+  letter-spacing: 1px;
+  margin: 0;
+  z-index: 10;
+}
+
+#maps .hex:hover .title,
+#maps.blur .hex:hover .title
+{
+  opacity: 1;
+}
+
+@media screen and ( max-width: 1014px )
+{
+  #maps .hex .title
+  {
+    font-size: 1.6vw;
+  }
+}

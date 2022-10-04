@@ -2,25 +2,181 @@
 (function() {
 
   const api_url = '/api.php',
-        x_range = 109199.999997,
-        y_range = 94499.99999580906968410989;
+        map_aspect = 1000/985,
+        drag_min = 10,
+        zoom_min = .1,
+        zoom_max = 10,
+        zoom_click = 4;
 
   let map_data,
+      shard = 'able',
       $root,
-      $map,
-      $hex,
-      $pop;
+      $maps,
+      $pop,
+      $shards,
+      map_x = 0,
+      map_y = 0,
+      start_x,
+      start_y,
+      drag_x,
+      drag_y,
+      dragging = false;
 
+  // document ready
   const docReady = () =>
   {
     $root = document.getElementById( 'fatt-root' );
     $maps = document.getElementById( 'maps' );
+    $shards = document.querySelectorAll( '.shard-picker .shards label' );
+
+    initShards();
+    initMap();
     loadMap();
   };
 
+  // init shard selector
+  const initShards = () =>
+  {
+    $shards.forEach( $shard =>
+    {
+      $shard.addEventListener( 'click', e =>
+      {
+        // get value
+        const value = $shard.querySelector( 'input' ).value;
+        // make sure if differs
+        if ( value !== shard )
+        {
+          // set shard
+          shard = value;
+          // reload the map
+          loadMap();
+        }
+      });
+    });
+
+    // check the first one
+    $shards[ 0 ].querySelector( 'input' ).checked = true;
+  }
+
+  // init map resize
+  const initMap = () =>
+  {
+    window.addEventListener( 'resize', resizeMap );
+    setTimeout( resizeMap, 100 );
+    $maps.addEventListener( 'mousedown', startDrag );
+  }
+
+  const resizeMap = () =>
+  {
+    $maps.style.height = $maps.offsetWidth / map_aspect + 'px';
+  }
+
+  // start map drag
+  const startDrag = e =>
+  {
+    // get event
+    e = e || window.event;
+    // set start coordinates
+    start_x = e.clientX;
+    start_y = e.clientY;
+    // set inital map coordinates
+    map_x = parseInt( $maps.style.left || 0 );
+    map_y = parseInt( $maps.style.top || 0 );
+    // add events
+    document.addEventListener( 'mouseup', stopDrag );
+    document.addEventListener( 'mousemove', doDrag );
+    // prevent default stuff
+    e.preventDefault();
+  }
+
+  // stop map drag
+  const stopDrag = e =>
+  {
+    // remove drag events
+    document.removeEventListener( 'mouseup', stopDrag );
+    document.removeEventListener( 'mousemove', doDrag );
+
+    // disable dragging with a short delay, otherwise it might be considered a hex click
+    setTimeout( () =>
+    {
+      dragging = false;
+    }, 10 );
+  }
+
+  // handle map dragging
+  const doDrag = e =>
+  {
+    // get event
+    e = e || window.event;
+
+    // get new coordinates
+    drag_x = e.clientX
+    drag_y = e.clientY;
+
+    const diff_x = drag_x - start_x,
+          diff_y = drag_y - start_y;
+
+    // set dragging based on minimum drag distance
+    if ( !dragging )
+    {
+      dragging = Math.abs( diff_x ) > drag_min || Math.abs( diff_y ) > drag_min;
+    }
+
+    // move map
+    if ( dragging )
+    {
+      panMap( map_x + diff_x, map_y + diff_y );
+    }
+
+    // prevent default stuff
+    e.preventDefault();
+  }
+
+  // set map zoom
+  const zoomMap = z =>
+  {
+    z = Math.max( zoom_min, z );
+    z = Math.min( zoom_max, z );
+    $maps.style.width = z * 100 + '%';
+    resizeMap();
+  }
+
+  // set map pan
+  const panMap = ( x = 0, y = 0 ) =>
+  {
+    $maps.style.left = x + 'px';
+    $maps.style.top = y + 'px';
+  }
+
+  // animate map map
+  const animateMap = ( from_x = 0, from_y = 0, to_x = 0, to_y = 0 ) =>
+  {
+    const dx = from_x - to_x,
+          dy = from_y - to_y,
+          s = 1000, // pixels per second
+          d = Math.sqrt( dx * dx + dy * dy ),
+          t = parseInt( d/s * 1000 ); // time it takes to animate in ms
+
+    // reset transition
+    $maps.style.transition = '';
+    // move to starting position
+    panMap( from_x, from_y );
+    // set transition
+    $maps.style.transition = 'left ' + t + 'ms, top ' + t + 'ms';
+    // move to end position
+    panMap( to_x, to_y );
+    // reset transition
+    setTimeout( () =>
+    {
+      $maps.style.transition = '';
+    }, t );
+  }
+
+  // load map details from API
   const loadMap = () =>
   {
-    const response = fetch( '/api.php?map' )
+    closePop();
+    const response = fetch( '/api.php?map&shard=' + shard )
       .then( data => data.json() )
       .then( json => {
         map_data = json;
@@ -29,37 +185,63 @@
     );
   };
 
+  // get hex image from name
   const getHexImage = name => '/assets/images/maps/Map' + name + 'Hex.png';
 
   // build the map
   const buildMap = () =>
   {
+    // clear map
+    $maps.innerHTML = '';
+
+    // replace with loaded data
     for ( const [ name, data ] of Object.entries( map_data ) )
     {
+      // render template and add to map
       const $t = tmplEl( 'tmplMap', data );
       $maps.appendChild( $t );
-      $t.addEventListener( 'mouseover', e => $maps.classList.add( 'blur' ) );
-      $t.addEventListener( 'mouseleave', e => maps.classList.remove( 'blur' ) );
-      $t.addEventListener( 'click', e => {
-        showHex( data )
-        e.stopPropagation();
+      // add blur events
+      $t.addEventListener( 'mouseover',  e => $maps.classList.add( 'blur' ) );
+      $t.addEventListener( 'mouseleave', e => $maps.classList.remove( 'blur' ) );
+      // click event
+      $t.addEventListener( 'click', e =>
+      {
+        if ( !dragging )
+        {
+          // zoom into detail level first
+          zoomMap( zoom_click );
+
+          // get original location
+          const o_x = parseInt( $maps.style.left || 0 ),
+                o_y = parseInt( $maps.style.top || 0 );
+
+          // reset map position
+          panMap( 0, 0 );
+
+          // get stuff for calc
+          const rect = $t.getBoundingClientRect(),
+                w = window.innerWidth,
+                h = window.innerHeight,
+                x = rect.x + rect.width / 2,
+                y = rect.y + rect.height / 2;
+
+          // pan to center on hex location
+          animateMap( o_x, o_y, w / 2 - x , h / 2 - y );
+
+          //showHex( data )
+          e.stopPropagation();
+        }
       } );
     }
+    // reset the map for good measure
+    resizeMap();
   };
 
-  // create an element from a template and some data
-  const tmplEl = ( name, data ) =>
-  {
-    const t = tmpl( name, data ),
-          e = document.createElement( 'div' );
-    e.innerHTML = t.trim();
-    return e.firstChild;
-  };
-
+  // show hex details with popup
   const showHex = data =>
   {
     // remove existing
-    if ( $pop ) $maps.removeChild( $pop );
+    removePop();
 
     // load from template and add to page
     $pop = tmplEl( 'tmplPop', data );
@@ -70,15 +252,16 @@
       e.preventDefault();
       closePop();
     });
+
     // fade in
     setTimeout( () => {
       $root.classList.add( 'has-pop' );
-    }, 1 );
+    }, 10 );
 
     // load details if missing
     if ( !data.mapItems || !data.mapItems.length )
     {
-      fetch( '/api.php?details=' + data.hex )
+      fetch( '/api.php?details=' + data.hex + '&shard=' + shard )
         .then( data => data.json() )
         .then( json => {
           // add details to data object
@@ -88,7 +271,10 @@
           // fadein
           setTimeout( () =>
           {
-            $pop.classList.add( 'loaded' );
+            if ( $pop )
+            {
+              $pop.classList.add( 'loaded' );
+            }
           }, 100 );
         } );
      }
@@ -96,18 +282,32 @@
      {
         setTimeout( () =>
         {
-          $pop.classList.add( 'loaded' );
+          if ( $pop )
+          {
+            $pop.classList.add( 'loaded' );
+          }
         }, 100 );
      }
   };
 
+  // close popup
   const closePop = e => {
     $root.classList.remove( 'has-pop' );
     setTimeout( () => {
-      $maps.removeChild( $pop );
-      $pop = null;
+      removePop();
     }, 600 );
   };
+
+  // remove popup element
+  const removePop = () =>
+  {
+    // remove existing
+    if ( $pop && $pop.parentNode )
+    {
+      $pop.parentNode.removeChild( $pop );
+    }
+    $pop = null;
+  }
 
   document.addEventListener( "DOMContentLoaded", docReady );
 
