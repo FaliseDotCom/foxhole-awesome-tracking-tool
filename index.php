@@ -15,8 +15,8 @@
     <title>F.A.T.T. - a Foxhole Artillery Targeting Tool</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/map-grid.css">
-    <link rel="stylesheet" href="/assets/css/map-items.css">
-    <link rel="stylesheet" href="/assets/css/hex-pop.css">
+    <link rel="stylesheet" href="/assets/css/map-hex.css">
+    <link rel="stylesheet" href="/assets/css/map-item.css">
     <link rel="stylesheet" href="/assets/css/icons.css.php">
   </head>
   <body>
@@ -29,9 +29,9 @@
           <h2>Foxhole Artillery Targeting Tool</h2>
         </div>
 
-        <div class="shard-picker">
+        <div class="shard-picker block">
           <div class="legend">Pick a shard, any shard:</div>
-          <div class="shards">
+          <div class="inner shards">
             <?php
               foreach ( $shards as $shard )
               {
@@ -45,10 +45,19 @@
             ?>
           </div>
         </div>
+
+        <div class="map-zoom block">
+          <div class="legend">Map zoom:</div>
+          <div class="inner">
+            <button class="zoom-out">-</button>
+            <div class="zoom-level">88</div>
+            <button class="zoom-in">+</button>
+          </div>
+        </div>
       </div>
 
       <div id="fatt-map">
-        <div id="maps">
+        <div id="map">
           <?php
             foreach ( $maps as $map )
             {

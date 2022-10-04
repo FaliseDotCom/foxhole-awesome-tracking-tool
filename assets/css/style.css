@@ -15,9 +15,9 @@
 
   --world-aspect: 98%;
   --hex-width: 16%;
-  --hex-col-aspect: 1.34; /* smaller number is wider apart */
+  --hex-col-aspect: 1.334; /* smaller number is wider apart */
   --col-width: calc( var( --hex-width ) / var( --hex-col-aspect ) );
-  --col-row-aspect: 1.7;
+  --col-row-aspect: 1.71;
   --row-height: calc( var( --col-width ) / var( --col-row-aspect ) );
 
   --clr-colonials-light: #d5f1b6;
@@ -67,13 +67,13 @@ h1, h2, h3, h4, h5, h6
 
 .header > *
 {
-  margin-right: 30px;
+  margin-right: 10px;
 }
 
 .header .logo
 {
   font-size: 12px;
-  margin-top: 2px;
+  margin: 2px 20px 0 0;
 }
 
 .header h1,
@@ -97,20 +97,22 @@ h1, h2, h3, h4, h5, h6
   letter-spacing: .05em;
 }
 
-.shard-picker
+.block
 {
   border: none;
-  background: rgba( 0, 0, 0, .1 );
+  background: #999;
   border-radius: 6px;
   padding: 5px 15px;
 }
 
-.shard-picker .legend
+.block .legend
 {
   margin: 2px 0 4px 0;
+  text-align: center;
+  width: 100%;
 }
 
-.shards
+.block .inner
 {
   display: flex;
   flex-wrap: nowrap;
@@ -123,6 +125,7 @@ h1, h2, h3, h4, h5, h6
   cursor: pointer;
   overflow: hidden;
   color: var( --clr-white );
+  height: 24px;
 }
 
 .shards label:first-of-type
@@ -160,13 +163,48 @@ h1, h2, h3, h4, h5, h6
   color: var( --clr-black );
 }
 
+.map-zoom button
+{
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  font-weight: bold;
+  background: var( --clr-white );
+  cursor: pointer;
+  transition: background .5s;
+}
+
+.map-zoom button:hover
+{
+  background: white;
+}
+
+.map-zoom .zoom-in
+{
+  cursor: zoom-in;
+}
+
+.map-zoom .zoom-out
+{
+  cursor: zoom-out;
+}
+
+.map-zoom .zoom-level
+{
+  width: 30px;
+  padding-top: 4px;
+  text-align: center;
+  color: var( --clr-white );
+}
+
 #fatt-map
 {
   position: absolute;
   display: block;
   width: 100vw;
   height: 100vh;
-  margin: 0 auto;
-  padding-top: 100px;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
 }

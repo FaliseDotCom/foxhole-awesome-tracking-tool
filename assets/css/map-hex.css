@@ -1,45 +1,44 @@
-#maps
+#map
 {
-  margin: 0 auto;
+  margin: 0;
   position: relative;
   width: 100%;
   user-select: none;
   filter: drop-shadow( 0 0 5px rgba( 0, 0, 0, .6 ) );
 }
 
-#maps .hex
+#map .hex
 {
   position: absolute;
   width: var( --hex-width );
   transform: translateX( -50% );
   cursor: pointer;
-  opacity: 1;
-  transition: opacity .5s;
 }
 
-#maps .hex .map
+#map .hex .bg
 {
   opacity: 1;
   transition: opacity .5s;
 }
 
-#maps.blur .hex .map
+#map.blur.small .hex .bg
 {
   opacity: .7;
 }
 
-#maps.blur .hex:hover .map
+#map.blur.small .hex:hover .bg
 {
   opacity: 1;
 }
 
-#maps .hex .map
+#map .hex .bg
 {
   width: 100%;
   height: auto;
+  z-index: 0;
 }
 
-#maps .hex .title
+#map .hex .title
 {
   position: absolute;
   left: 50%;
@@ -52,18 +51,22 @@
   transition: opacity .5s;
   letter-spacing: 1px;
   margin: 0;
+  font-size: calc( var( --map-width ) / 80 );
+  color: rgba( 0, 0, 0, .5 );
 }
 
-#maps .hex:hover .title,
-#maps.blur .hex:hover .title
+#map .hex:hover .title,
+#map.blur .hex:hover .title
 {
   opacity: 1;
 }
 
-@media screen and ( max-width: 1014px )
+#map:not(.small) .hex
 {
-  #maps .hex .title
-  {
-    font-size: 1.6vw;
-  }
+  pointer-events: none;
+}
+
+#map:not(.small)
+{
+  cursor: move;
 }
