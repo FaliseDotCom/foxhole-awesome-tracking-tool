@@ -96,7 +96,7 @@ class FoxholeApi
    */
   public function get( string $what = '', int $cache_duration = 0, bool $force = false ) : array
   {
-    $key = $this->shard . '-' . $what;
+    $key = 'get-' . $this->shard . '-' . $what;
     $data = $this->getCache( $key );
     if ( !$data || $force )
     {
@@ -155,7 +155,9 @@ class FoxholeApi
    */
   public function get_static_map( string $map )
   {
-    return $this->get( 'worldconquest/maps/' . $map . '/static' );
+    // return only the mapTextItems
+    $data = $this->get( 'worldconquest/maps/' . $map . '/static' );
+    return isset( $data[ 'mapTextItems' ] ) ? $data[ 'mapTextItems' ] : array();
   }
 
   /**
@@ -163,10 +165,35 @@ class FoxholeApi
    * @param  string $map [description]
    * @return [type]      [description]
    */
-  public function get_dynamic_map( string $map )
+  public function get_dynamic_map( string $map, bool $force = false, int $cache = 300 ) : array
   {
-    // get dynamic map stuff, cache for 5 minutes
-    return $this->get( 'worldconquest/maps/' . $map . '/dynamic/public', 5 * 60 );
+    // try to load from cache
+    $key = 'get-dynamic-map-' . $this->shard . '-' . $map;
+    $data = $this->getCache( $key );
+    // maybe rebuild
+    if ( !$data || $force )
+    {
+      // get raw data from cache
+      $raw = $this->get( 'worldconquest/maps/' . $map . '/dynamic/public', $cache, $force );
+      // find the items, skip the rest
+      $items = isset( $raw[ 'mapItems' ] ) ? $raw[ 'mapItems' ] : array();
+      // clean up data
+      $data = array_map( function( $item )
+      {
+        return [
+          // only return the first team letter, skip the NONE team
+          't' => $item[ 'teamId' ] != 'NONE' ? substr( $item[ 'teamId' ], 0, 1 ) : '',
+          'i' => $item[ 'iconType' ],
+          'x' => $item[ 'x' ],
+          'y' => $item[ 'y' ],
+          'f' => $item[ 'flags' ]
+        ];
+      }, $items );
+      // store in cache
+      $this->saveCache( $key, $data, $cache );
+    }
+    // return the data
+    return $data;
   }
 
   /**
@@ -190,46 +217,58 @@ class FoxholeApi
   }
 
   /**
-   * Get stuff for entire map
+   * Get static info for entire world map
    * @return [type]      [description]
    */
-  public function get_map()
+  public function get_static_world( bool $force = false ) : array
   {
     // first try to get data from cache
-    $key = 'entire-map';
+    $key = 'get-static-world';
     $data = $this->getCache( $key );
-    if ( $data ) return $data;
+    if ( $data && !$force ) return $data;
 
     // otherwise build from scratch
     $data = [];
 
     // get map names and go over each
     $maps = $this->get_map_list();
-    foreach ( $maps as $name)
+    foreach ( $maps as $id )
     {
-      // get static stuff
-      $map = $this->get_static_map( $name );
-
-      // store original name
-      $map[ 'hex' ] = $name;
-
-      // clean up name
-      $name = $this->map_name( $name );
-
-      // add some custom stuff
-      $map[ 'title' ] = $this->map_title( $name );
-      $map[ 'name' ] = $name;
-
-      // add it to the array
-      $data[ $name ] = $map;
+      $name = $this->map_name( $id );
+      $data[ $name ] = $this->get_static_map( $id );
     }
 
-    // store in cache for 5 minutes and return data
-    $this->saveCache( $key, $data, 5 * 60 );
+    // store in cache for 24 hours
+    $this->saveCache( $key, $data );
     return $data;
   }
 
+  /**
+   * Get dynamic info for entire world map
+   * @return [type]      [description]
+   */
+  public function get_dynamic_world( bool $force = false ) : array
+  {
+    // first try to get data from cache
+    $key = 'get-dynamic-world-' . $this->shard;
+    $data = $this->getCache( $key );
+    if ( $data && !$force ) return $data;
 
+    // otherwise build from scratch
+    $data = [];
+
+    // get map names and go over each
+    $maps = $this->get_map_list();
+    foreach ( $maps as $id )
+    {
+      $name = $this->map_name( $id );
+      $data[ $name ] = $this->get_dynamic_map( $id, $force );
+    }
+
+    // store in cache for 5 minutes
+    $this->saveCache( $key, $data, 5 * 60 );
+    return $data;
+  }
 
   /**
    * Remove compression postfix from map file names

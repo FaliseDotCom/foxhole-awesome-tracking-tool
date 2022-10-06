@@ -17,6 +17,9 @@
     die;
   }
 
+  // cache buster
+  $force = isset( $_GET[ 'force' ] );
+
   // get a list of shards / server
   if ( isset( $_GET[ 'shards' ] ) )
   {
@@ -29,16 +32,22 @@
     $api->set_shard( $_GET[ 'shard' ] );
   }
 
-  // get a list of the entire map data
-  if ( isset( $_GET[ 'map' ] ) )
+  // get static world info
+  if ( isset( $_GET[ 'static' ] ) )
   {
-    json( $api->get_map() );
+    json( $api->get_static_world( $force ) );
+  }
+
+   // get dynamic world info
+  if ( isset( $_GET[ 'dynamic' ] ) )
+  {
+    json( $api->get_dynamic_world( $force ) );
   }
 
   // get details for a certain area
   if ( isset( $_GET[ 'details' ] ) )
   {
-    json( $api->get_dynamic_map( $_GET[ 'details' ] ) );
+    json( $api->get_dynamic_map( $_GET[ 'details' ], $force ) );
   }
 
   // clear map asset file names

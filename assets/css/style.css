@@ -1,17 +1,29 @@
 @font-face {
     font-family: 'ARMY RUST';
     src: url('/assets/fonts/ARMYRUST.woff2') format('woff2'),
-        url('/assets/fonts/ARMYRUST.woff') format('woff'),
-        url('/assets/fonts/ARMYRUST.ttf') format('truetype');
+         url('/assets/fonts/ARMYRUST.woff') format('woff'),
+         url('/assets/fonts/ARMYRUST.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'Renner';
+    src: url('/assets/fonts/Renner.woff2') format('woff2'),
+         url('/assets/fonts/Renner.woff') format('woff'),
+         url('/assets/fonts/Renner.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+
 :root
 {
   --font-header: 'ARMY RUST', sans-serif;
-  --font-body: sans, sans-serif;
+  --font-body: 'Renner', sans-serif;
 
   --world-aspect: 98%;
   --hex-width: 16%;
@@ -31,6 +43,7 @@
   --clr-black: #222;
   --clr-white: #eee;
   --clr-focus: orange;
+  --clr-olive: #4b5320;
 }
 
 html, body

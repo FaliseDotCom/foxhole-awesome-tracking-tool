@@ -2,49 +2,48 @@
 (function() {
 
   const api_url = '/api.php',
-        map_aspect = 1000/985,
-        drag_min = 10,
-        zoom_max = 50,
-        zoom_step = .1,
-        zoom_width = 1000,
-        zoom_click = 4;
+        zoom_min = .08,
+        zoom_max = 7,
+        zoom_step = .5,
+        zoom_click = 1;
 
-  let map_data,
+  let dynamic_data,
       shard = 'able',
       $root,
       $hex,
       $map,
       $shards,
       $header,
-      map_x = 0,
-      map_y = 0,
-      start_x,
-      start_y,
-      drag_x,
-      drag_y,
-      dragging = false,
-      zoom = 1,
-      zoom_min = .1,
       $zoom_in,
       $zoom_out,
-      $zoom_level;
+      $zoom_level,
+      map_control,
+      // svg layers
+      $backgrounds,
+      $borders,
+      $statics,
+      $dynamics;
 
   // document ready
   const docReady = () =>
   {
     // get elements
     $root = document.getElementById( 'fatt-root' );
-    $map = $root.querySelector( 'div#map' );
+    $map = $root.querySelector( '#map' );
     $header = $root.querySelector( '.header' );
     $shards = $header.querySelectorAll( '.shard-picker .shards label' );
     $zoom_in = $header.querySelector( '.zoom-in' );
     $zoom_out = $header.querySelector( '.zoom-out' );
     $zoom_level = $header.querySelector( '.zoom-level' );
+    $backgrounds = $map.querySelector( '#backgrounds' );
+    $borders = $map.querySelector( '#borders' );
+    $statics = $map.querySelector( '#statics' );
+    $dynamics = $map.querySelector( '#dynamics' );
 
     // begin stuff
     initShards();
-    initZoom();
     initMap();
+    initZoom();
     loadMap();
   };
 
@@ -75,75 +74,66 @@
   // init zoom buttomns
   const initZoom = () =>
   {
-    // calculate zoom factors
-    const zoom_in =  1 + zoom_step,
-          zoom_out = 1 - zoom_step;
-
     // zoom in / out
-    $zoom_in.addEventListener( 'click', () => zoomMap( zoom * zoom_in ) );
-    $zoom_out.addEventListener( 'click', () => zoomMap( zoom * zoom_out ) );
+    $zoom_in.addEventListener( 'click', () => zoomMapBy( 1 + zoom_step, true ) );
+    $zoom_out.addEventListener( 'click', () => zoomMapBy( 1 - zoom_step, true ) );
+
+    // update zoom after a touch
+    document.addEventListener( 'touchend', updateZoom );
   };
 
   // init map resize
   const initMap = () =>
   {
+    map_control = panzoom( $map, {
+      minZoom: zoom_min,
+      maxZoom: zoom_max
+    });
+
     // fit map in screen and center it
     fitMap();
-    centerMap();
-
-    // listen to window resize and do an initial resize
-    window.addEventListener( 'resize', resizeMap );
-    setTimeout( resizeMap, 100 );
-
-    // add drag events
-    $map.addEventListener( 'mousedown', startDrag );
-    $map.addEventListener( 'touchstart', startDrag );
-
-    // get all hexes in the map
-    $hex = $map.querySelectorAll( '.hex' );
   };
 
-  // fit map in screen
+  // get zoom level
+  const getZoom = () => map_control.getTransform().scale;
+
+  // update zoom interface level
+  const updateZoom = () =>
+  {
+    const zoom = getZoom();
+    $zoom_level.innerHTML = zoom > 10 ? Math.round( zoom ) : String( zoom ).substring( 0, 3 );
+  }
+
+  // fit map in screen, do this ONCE
   const fitMap = () =>
   {
     // fit in screen
     const ww = window.innerWidth,
           hh = $header.offsetHeight,
           wh = window.innerHeight - hh,
-          m = 10,
+          mr = $map.getBoundingClientRect(),
+          ma = mr.width / mr.height,
           wa = ww / wh,
-          mz = ( wa > map_aspect )
-                ? ( wh - 10 ) * map_aspect
-                : ( ww - m  );
+          zw = ( wa > ma ) ? wh * ma : ww,
+          zf = ( wa > ma ) ? .9 * zw / mr.width : zw / mr.width;
 
-    zoomMap( mz / zoom_width );
-    zoom_min = zoom;
+    zoomMapTo( zf );
+
+    // get bounds again and center map
+    const r = getMapBounds();
+    panMapTo( ww / 2 - r.width / 2, $header.offsetHeight );
   };
 
-  // center map on screen
-  const centerMap = () =>
+  const getMapBounds = () =>
   {
-    // center
-    const ww = window.innerWidth,
-          hh = $header.offsetHeight,
-          wh = window.innerHeight - hh,
-          mw = $map.offsetWidth,
-          mh = $map.offsetHeight;
+    const r = $map.getBoundingClientRect(),
+          s = map_control.getTransform().scale,
+          width = r.width * s,
+          height = r.height * s,
+          x = r.x,
+          y = r.y;
 
-    panMap( ( ww - mw ) / 2, ( wh - mh ) / 2 + hh );
-  }
-
-  // resize the map
-  const resizeMap = () =>
-  {
-    const w = $map.offsetWidth;
-    $map.style.height = w / map_aspect + 'px';
-    $map.style.setProperty( '--map-width', w + 'px');
-
-    // set labels based on min width
-    w < 3000
-      ? $map.classList.add( 'small' )
-      : $map.classList.remove( 'small' );
+    return { x, y, width, height };
   };
 
   // get hex in centre
@@ -152,234 +142,76 @@
 
   };
 
-  // start map drag
-  const startDrag = e =>
+  // set map zoom
+  const zoomMapBy = ( z = 1, smooth = false,) =>
   {
-    if ( !dragging )
-    {
-      // get coordinates
-      const ec = getEventCoords( e ),
-            mc = mapCoords();
-      // set start coordinates
-      start_x = ec.x;
-      start_y = ec.y;
-      // set inital map coordinates
-      map_x = mc.x
-      map_y = mc.y
-      // add events
-      document.addEventListener( 'mouseup', stopDrag );
-      document.addEventListener( 'touchend', stopDrag );
-      document.addEventListener( 'mousemove', doDrag );
-      document.addEventListener( 'touchmove', doDrag );
-      // break off any animation
-      $map.style.transition = 'none';
-    }
+    // get rect so we can apply center
+    const r = $map.getBoundingClientRect(),
+          x = r.x + r.width / 2,
+          y = r.y + r.height / 2;
 
-    // prevent default stuff like picking up an image
-    e.preventDefault();
-  }
+    // zoom to desired level
+    smooth
+      ? map_control.smoothZoom( x, y, z )
+      : map_control.zoomTo( x, y, z );
 
-  // stop map drag
-  const stopDrag = e =>
-  {
-    // remove drag events
-    document.removeEventListener( 'mouseup', stopDrag );
-    document.removeEventListener( 'touchend', stopDrag );
-    document.removeEventListener( 'mousemove', doDrag );
-    document.removeEventListener( 'touchmove', doDrag );
-
-    // disable dragging with a short delay, otherwise it might be considered a hex click
-    setTimeout( () =>
-    {
-      dragging = false;
-    }, 10 );
-  }
-
-  // handle map dragging
-  const doDrag = e =>
-  {
-    // get new coordinates
-    const coords = getEventCoords( e );
-    drag_x = coords.x;
-    drag_y = coords.y;
-
-    const diff_x = drag_x - start_x,
-          diff_y = drag_y - start_y;
-
-    // set dragging based on minimum drag distance
-    if ( !dragging )
-    {
-      dragging = Math.abs( diff_x ) > drag_min || Math.abs( diff_y ) > drag_min;
-    }
-
-    // move map
-    if ( dragging )
-    {
-      panMap( map_x + diff_x, map_y + diff_y );
-    }
-
-    // prevent default stuff
-    e.preventDefault();
-  }
-
-  // get coordinates from an event
-  const getEventCoords = e =>
-  {
-    e = e || window.event;
-    x = e.clientX;
-    y = e.clientY;
-    if ( e.type.indexOf( 'touch') === 0 )
-    {
-        var touch = e.touches[0];
-        x = touch.clientX;
-        y = touch.clientY;
-    }
-    return { x: x, y: y };
+    updateZoom();
   }
 
   // set map zoom
-  const zoomMap = ( z = 1, nopan = false ) =>
+  const zoomMapTo = ( z = 1, smooth = false,) =>
   {
-    // apply zoom bounds
-    zoom = Math.min( zoom_max, Math.max( zoom_min, z || 1 ) );
+    // get rect so we can apply center
+    const r = getMapBounds();
 
-    // get original width and position and new size
-    const ow = parseFloat( $map.style.width ),
-          oh = parseFloat( $map.style.height ),
-          oc = mapCoords(),
-          w = zoom * zoom_width,
-          h = w / map_aspect;
+    // zoom to desired level
+    smooth
+      ? map_control.smoothZoomAbs( r.width / 2, r.height / 2, z )
+      : map_control.zoomAbs( r.width / 2, r.height / 2, z );
 
-    // set zoom level display
-    $zoom_level.innerHTML = zoom < 10 ? String( zoom ).substring( 0, 3 ) : Math.round( zoom );
-
-    // set width in pixels
-    $map.style.width = w + 'px';
-    // pan to counter zoom
-    if ( !nopan )
-    {
-      panMap( oc.x - ( w - ow ) / 2, oc.y - ( h - oh ) / 2 );
-    }
-    // resize the map
-    resizeMap();
+    updateZoom();
   }
 
-  // get map coordinates
-  const mapCoords = () =>
+  // pan map by
+  const panMapBy = ( x = 0, y = 0, smooth = false ) =>
   {
-    const x = parseFloat( $map.style.left || 0 ),
-          y = parseFloat( $map.style.top || 0 );
-    return { x: x, y: y };
+    map_control.moveBy( x, y, smooth );
   }
 
-  // set map pan
-  const panMap = ( x = 0, y = 0 ) =>
+  // pan map to
+  const panMapTo = ( x = 0, y = 0, smooth = false ) =>
   {
-    $map.style.left = x + 'px';
-    $map.style.top = y + 'px';
-  }
+    smooth
+      ? map_control.smoothMoveTo( x, y )
+      : map_control.moveTo( x, y);
+  };
 
-  // load map details from API
+
+  // load dynamic world details from API
   const loadMap = () =>
   {
-    const response = fetch( '/api.php?map&shard=' + shard )
+    const response = fetch( '/api.php?dynamic&shard=' + shard )
       .then( data => data.json() )
-      .then( json => {
-        map_data = json;
-        buildMap()
-      }
-    );
+      .then( json => buildMap( json ) )
+    ;
   };
 
-  // set map animation mode
-  const animateMap = ( size = false, pos = false, time = 500 ) =>
+  // (re)build the entire map
+  const buildMap = ( data ) =>
   {
-    let transition = [];
-    if ( ( size || pos ) && time > 0 )
+    // store for later reference
+    dynamic_data = data;
+
+    // replace loaded data
+    for ( const [ name, items ] of Object.entries( data ) )
     {
-      // set duration string
-      const duration = time + 'ms';
-      // add size and pos
-      if ( size )
-      {
-        transition.push( 'width ' + duration );
-        transition.push( 'height ' + duration );
-      }
-      if ( pos )
-      {
-        transition.push( 'left ' + duration );
-        transition.push( 'top ' + duration );
-      }
-      // remove when done
-      setTimeout( () => {
-        $map.style.transition = 'none';
-      }, time );
+      const $new = tmplEl( 'tmplDynamic', { name, items, getIcon: getIcon } ),
+            $old = $dynamics.querySelector( 'svg.' + name );
+      if ( $new && $old ) $old.innerHTML = $new.innerHTML;
     }
-    else
-    {
-      transition = 'none';
-    }
-    $map.style.transition = transition.join(', ');
   };
 
-  // build the map
-  const buildMap = () =>
-  {
-    // clear map
-    $map.innerHTML = '';
-
-    // replace with loaded data
-    for ( const [ name, data ] of Object.entries( map_data ) )
-    {
-      // render template and add to map
-      const $t = tmplEl( 'tmplMap', data );
-      $map.appendChild( $t );
-      // add blur events
-      $t.addEventListener( 'mouseover',  e => $map.classList.add( 'blur' ) );
-      $t.addEventListener( 'mouseleave', e => $map.classList.remove( 'blur' ) );
-      // click event
-      $t.addEventListener( 'click', e =>
-      {
-        if ( !dragging )
-        {
-          // fill with data
-          loadHex( data );
-
-          // start animation
-          // animateMap( true, true );
-
-          // zoom into detail level if needed
-          if ( zoom < zoom_click )
-          {
-            zoomMap( zoom_click, true );
-          }
-
-          // get map coordinates
-          const oc = mapCoords();
-
-          // get stuff for calc
-          const rect = $t.getBoundingClientRect(),
-                ww = window.innerWidth,
-                hh = $header.offsetHeight,
-                wh = window.innerHeight - hh,
-                x = rect.x + rect.width / 2,
-                y = rect.y + rect.height / 2;
-
-          // pan to center on hex location
-          panMap( oc.x + ( ww / 2 - x ) , oc.y + ( wh / 2 - y ) + hh );
-
-
-
-          // stop click throughs
-          e.stopPropagation();
-        }
-      } );
-    }
-    // get hexes inside the map
-    $hex = $map.querySelectorAll( '.hex' );
-    // reset the map for good measure
-    resizeMap();
-  };
+  const getIcon = ( id ) => dynamic_icons[ id ];
 
   // load hex data
   const loadHex = data =>

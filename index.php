@@ -2,17 +2,46 @@
 <?php
 
   require_once( 'inc.php' );
+  require_once( 'lib/grid.php' );
+  require_once( 'lib/icons.php' );
 
   $api = new FoxholeApi();
-  $maps = $api->get_map_list();
+  $map = $api->get_static_world( true );
   $shards = $api->get_shards();
+  $grid = new Grid( 'hex-grid.json' );
 
-  // load hex grid
-  $grid = json_decode( file_get_contents( 'hex-grid.json' ), true );
-  $hex_width = 1024;
-  $hex_height = 888;
-  $grid_width = $hex_width / 1.333;
-  $grid_height = $hex_height / 2;
+  // background tiles
+  $backgrounds = $grid->renderSvg( function( $x, $y, $w, $h, $n ) use ( $api )
+  {
+    ?>
+      <image href="/assets/images/maps/Map<?php echo $n; ?>Hex.png" height="100%" width="100%"></image>
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">
+        <?php echo $api->map_title( $n ); ?>
+      </text>
+    <?php
+  } );
+
+  // border tiles
+  $borders = $grid->renderSvg( function( $x, $y, $w, $h, $n )
+  {
+    ?><polygon points="255,0 770,0 1024,444 770,888 255,888 0,444"></polygon><?php
+  } );
+
+  // static tyles
+  $statics = $grid->renderSvg( function( $x, $y, $w, $h, $n ) use ( $map )
+  {
+    $items = isset( $map[ $n ] ) ? $map[ $n ] : array();
+    foreach ( $items as $item )
+    {
+      ?><text x="<?php echo $item[ 'x' ] * $w; ?>" y="<?php echo $item[ 'y' ] * $h; ?>" dominant-baseline="middle" text-anchor="middle"><?php echo $item[ 'text' ]; ?></text><?php
+    }
+  } );
+
+  // blank tiles
+  $hexes = $grid->renderSvg();
+
+  // get map dimensions
+  $map_size = $grid->getMapSize();
 
 ?>
 <html lang="en">
@@ -22,10 +51,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>F.A.T.T. - a Foxhole Artillery Targeting Tool</title>
     <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/map-grid.css">
-    <link rel="stylesheet" href="/assets/css/map-hex.css">
     <link rel="stylesheet" href="/assets/css/map-item.css">
-    <link rel="stylesheet" href="/assets/css/icons.css.php">
+    <script>
+      <?php // list of icons for the dynamic layer ?>
+      var dynamic_icons = <?php echo json_encode( Icons::getIcons() ); ?>;
+    </script>
   </head>
   <body>
     <div id="fatt-root">
@@ -65,58 +95,23 @@
       </div>
 
       <div id="fatt-map">
-        <?php if ( !isset( $_GET[ 'svg' ] ) ) { ?>
-          <div id="map">
-            <?php
-              foreach ( $maps as $map )
-              {
-                $name = $api->map_name( $map );
-                $title = $api->map_title( $map );
-                ?>
-                  <div id="<?php echo $name; ?>" class="hex">
-                    <h4 class="title"><?php echo $title; ?></h4>
-                    <img class="map" src="/assets/images/maps/Map<?php echo $name; ?>Hex.png" alt="<?php echo $title; ?>"/>
-                  </div>
-                <?php
-              }
-            ?>
-          </div>
-        <?php } else { ?>
-          <svg id="map" width="6144" height="6216" viewbox=" 0 0 6144 6216" preserveAspectRatio="xMinYMid meet" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto;">
-             <?php
-              foreach ( $grid as $name => $coords )
-              {
-                $title = $api->map_title( $name );
-                ?>
-                <svg
-                  height="<?php echo $hex_height; ?>px"
-                  width="<?php echo $hex_width; ?>px"
-                  x="<?php echo $coords[ 0 ] * $grid_width; ?>px"
-                  y="<?php echo $coords[ 1 ] * $grid_height; ?>px"
-                  class="hex"
-                  id="<?php echo $name; ?>"
-                >
-                  <image href="/assets/images/maps/Map<?php echo $name; ?>Hex.png" height="100%" width="100%" class="hex-bg" />
-                  <text x="50%"  y="50%"  dominant-baseline="middle" text-anchor="middle" class="hex-title" >
-                    <?php echo $title; ?>
-                  </text>
-                </svg>
-                  <?php
-              }
-            ?>
-          </svg>
-        <?php } ?>
+        <svg id="map" width="<?php echo $map_size[ 0 ]; ?>" height="<?php echo $map_size[ 1 ]; ?>" viewbox=" 0 0 <?php echo join( ' ', $map_size ); ?>" preserveAspectRatio="xMinYMid meet" xmlns="http://www.w3.org/2000/svg">
+          <svg id="backgrounds"><?php echo $backgrounds; ?></svg>
+          <svg id="borders"><?php echo $borders; ?></svg>
+          <svg id="dynamics"><?php echo $hexes; ?></svg>
+          <svg id="statics"><?php echo $statics; ?></svg>
+        </svg>
       </div>
     </div>
 
     <?php // add JS ?>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src='https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js'></script>
     <script src="/assets/js/tmpl.js"></script>
     <script src="/assets/js/scripts.js"></script>
 
     <?php
       // add JS templates
-      require( 'templates/map.php' );
+      require( 'templates/dynamic.php' )
     ?>
 
   </body>

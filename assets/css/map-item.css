@@ -1,97 +1,30 @@
-#map
+#map #backgrounds text
 {
-  --map-width: 1000px;
+  font-family: var( --font-header );
+  fill: rgba( 0, 0, 0, .4 );
+  font-size: 80px;
 }
 
-#map .item
+#map #borders polygon
 {
-  z-index: 10;
+  stroke: #111;
+  stroke-width: 2;
+  fill: none;
 }
 
-#map .item.static
+#map #statics text
 {
-  --dot_size: calc( var( --map-width ) / 750 );
-  position: absolute;
-  background-color: rgba( 0, 0, 0, .7 );
-  width: var( --dot_size );
-  height: var( --dot_size );
-  min-width: 1px;
-  min-height: 1px;
-  max-width: 6px;
-  max-height: 6px;
-  transform: translate( -50%, -50% );
-  border-radius: 100%;
-}
-
-#map .item.static .label
-{
-  position: absolute;
-  left: 50%;
-  top: 15px;
-  transform: translateX( -50% );
-  text-align: center;
-  white-space: nowrap;
+  font-family: var( --font-body );
   font-size: 11px;
-  background: rgba( 255, 255, 255, .6 );
-  border-radius: 3px;
-  padding: 2px 6px;
-  z-index: 1;
+  fill: var( --clr-white );
+  filter: drop-shadow( 0 0 2px black );
 }
-
-#map .item.static.Major
-{
-  background-color: rgba( 0, 0, 0, .9 );
-}
-
-#map .item.static.Major .label
-{
-  font-weight: bold;
-  z-index: 2;
-}
-
-#map .item.static:before
-{
-  content: "";
-  display: block;
-  position: absolute;
-  left: 50%;
-  top: 8.7px;
-  margin-left: -6px;
-  width: 0;
-  height: 0;
-  border-left: 7px solid transparent;
-  border-right: 7px solid transparent;
-  border-bottom: 7px solid rgba( 255, 255, 255, .6 );
-}
-
-#map.small .item.static .label,
-#map.small .item.static:before
-{
-  display: none;
-}
-
-#map .item.dynamic
-{
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background-size: contain;
-  margin: -10px 0 0 -10px;
-  opacity: 0;
-  transition: opacity .5s;
-}
-
-#map .loaded .item.dynamic
-{
-  opacity: 1;
-}
-
-#map .item.dynamic.team-WARDENS
+#map #dynamics image.W
 {
   filter: sepia(100%) hue-rotate(190deg) saturate(300%) ;
 }
 
-#map .item.dynamic.team-COLONIALS
+#map #dynamics image.C
 {
   filter: sepia(100%) saturate(300%) hue-rotate(70deg);
 }

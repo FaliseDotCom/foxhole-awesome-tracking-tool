@@ -35,8 +35,6 @@
   };
 })();
 
-
-
 // create an element from a template and some data
 const tmplEl = ( name, data ) =>
 {

@@ -6,13 +6,16 @@
 # Node artifact files
 node_modules/
 dist/
-docs/warapi-master/
+.org/
 
 # vendor files, run composer install instead
 vendor/*
 
 # logs dir
 logs/*
+
+# cache dir
+cache/*
 
 # Compiled Java class files
 *.class
