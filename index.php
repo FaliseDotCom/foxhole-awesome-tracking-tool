@@ -33,7 +33,7 @@
     $items = isset( $map[ $n ] ) ? $map[ $n ] : array();
     foreach ( $items as $item )
     {
-      ?><text x="<?php echo $item[ 'x' ] * $w; ?>" y="<?php echo $item[ 'y' ] * $h; ?>" dominant-baseline="middle" text-anchor="middle"><?php echo $item[ 'text' ]; ?></text><?php
+      ?><text x="<?php echo $item[ 'x' ] * $w; ?>" y="<?php echo $item[ 'y' ] * $h; ?>" dominant-baseline="middle" text-anchor="middle" class="<?php echo $item[ 'mapMarkerType' ]; ?>"><?php echo $item[ 'text' ]; ?></text><?php
     }
   } );
 
@@ -88,7 +88,6 @@
           <div class="legend">Map zoom:</div>
           <div class="inner">
             <button class="zoom-out">-</button>
-            <div class="zoom-level">88</div>
             <button class="zoom-in">+</button>
           </div>
         </div>

@@ -1,6 +1,8 @@
 <?php
 
 use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
+use Kevinrob\GuzzleCache\CacheMiddleware;
 use Katzgrau\KLogger\Logger;
 use Psr\Log\LogLevel;
 
@@ -24,6 +26,8 @@ class FoxholeApi
 
   // Default cache duration = 24 hours
   private $cache_duration = 24 * 60 * 60;
+
+  private $stack;
 
   /**
    * API roots
@@ -55,11 +59,8 @@ class FoxholeApi
       [ 'filename' => 'foxhole-' . date( 'Y-m-d' ) . '.log' ]
     );
 
-    // maybe overwrite api url from config
-    if ( defined( 'FOXHOLE_API_URL' ) && FOXHOLE_API_URL)
-    {
-      $this->api_url = FOXHOLE_API_URL;
-    }
+    $this->stack = HandlerStack::create();
+    $this->stack->push( new CacheMiddleware(), 'cache' );
 
     // init guzzle client by setting a shard
     $this->set_shard();
@@ -85,7 +86,8 @@ class FoxholeApi
 
     // (re)init guzzle client
     $this->client = new GuzzleHttp\Client( [
-      'base_uri' => $this->shards[ $this->shard ]
+      'base_uri' => $this->shards[ $this->shard ],
+      'handler' => $this->stack
     ] );
   }
 
@@ -167,6 +169,9 @@ class FoxholeApi
    */
   public function get_dynamic_map( string $map, bool $force = false, int $cache = 300 ) : array
   {
+    // maybe fix hex missing from name
+    // if ( strpos( $map, 'Hex' ) === false ) $map .= 'Hex';
+
     // try to load from cache
     $key = 'get-dynamic-map-' . $this->shard . '-' . $map;
     $data = $this->getCache( $key );
@@ -271,19 +276,24 @@ class FoxholeApi
   }
 
   /**
-   * Remove compression postfix from map file names
-   * @return [type] [description]
+   * Clean up PNG assets; remove multiple versions and keep the smallest file
+   * @param  string $dir [description]
+   * @return [type]      [description]
    */
-  public function clear_map_files()
+  private function clean_png_assets( string $dir )
   {
-    $dir = ASSETS_DIR . 'images/maps/';
+    // dir MUST be inside assets
+    if ( strrpos( $dir, ASSETS_DIR ) === false ) return;
+
     $objects = scandir( $dir );
     foreach ( $objects as $object )
     {
-      if ( $object != "." && $object != ".." && !is_dir( $object ) )
+      if ( $object != "." && $object != ".." && !is_dir( $object ) && strpos( $object, '.png' ) !== false )
       {
         $name = str_replace( '-fs8', '', $object );
         $name = str_replace( '-or8', '', $name );
+        $name = str_replace( 'MapIcon', '', $name );
+        $name = strtolower( $name );
         if ( $name !== $object )
         {
           // if new filename already exists, keep the smallest
@@ -307,4 +317,23 @@ class FoxholeApi
       }
     }
   }
+
+  /**
+   * Remove compression postfix from map file names
+   * @return [type] [description]
+   */
+  public function clean_map_assets()
+  {
+    $this->clean_png_assets( ASSETS_DIR . 'images/maps/' );
+  }
+
+  /**
+   * Remove compression postfix from icon file names
+   * @return [type] [description]
+   */
+  public function clean_icon_assets()
+  {
+    $this->clean_png_assets( ASSETS_DIR . 'images/icons/' );
+  }
+
 }

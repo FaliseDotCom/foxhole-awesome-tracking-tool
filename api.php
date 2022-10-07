@@ -33,6 +33,12 @@
   }
 
   // get static world info
+  if ( isset( $_GET[ 'maps' ] ) )
+  {
+    json( $api->get_map_list() );
+  }
+
+  // get static world info
   if ( isset( $_GET[ 'static' ] ) )
   {
     json( $api->get_static_world( $force ) );
@@ -50,8 +56,17 @@
     json( $api->get_dynamic_map( $_GET[ 'details' ], $force ) );
   }
 
-  // clear map asset file names
-  if ( isset( $_GET[ 'clear_map_files' ] ) )
+  // clean asset files
+  if ( isset( $_GET[ 'clean' ] ) )
   {
-    $api->clear_map_files();
+    $clean = trim( $_GET[ 'clean' ] );
+    if ( 'map' == $clean || !$clean )
+    {
+      $api->clean_map_assets();
+    }
+
+    if ( 'icon' == $clean || !$clean )
+    {
+      $api->clean_icon_assets();
+    }
   }

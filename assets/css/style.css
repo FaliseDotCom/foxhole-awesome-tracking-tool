@@ -18,8 +18,6 @@
     font-display: swap;
 }
 
-
-
 :root
 {
   --font-header: 'ARMY RUST', sans-serif;
@@ -120,7 +118,7 @@ h1, h2, h3, h4, h5, h6
 
 .block .legend
 {
-  margin: 2px 0 4px 0;
+  margin: 0 0 4px 0;
   text-align: center;
   width: 100%;
 }
@@ -130,6 +128,11 @@ h1, h2, h3, h4, h5, h6
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
+}
+
+.shard-picker
+{
+  min-width: 150px;
 }
 
 .shards label
@@ -159,7 +162,7 @@ h1, h2, h3, h4, h5, h6
 .shards label div
 {
   background: rgba( 0, 0, 0, .3 );
-  padding: 4px;
+  padding: 2px 0 4px 0;
   text-align: center;
   text-transform: capitalize;
   transition: all .5s;
@@ -186,6 +189,7 @@ h1, h2, h3, h4, h5, h6
   background: var( --clr-white );
   cursor: pointer;
   transition: background .5s;
+  margin: 0 5px;
 }
 
 .map-zoom button:hover
@@ -203,12 +207,12 @@ h1, h2, h3, h4, h5, h6
   cursor: zoom-out;
 }
 
-.map-zoom .zoom-level
+@media screen and ( max-width: 500px )
 {
-  width: 30px;
-  padding-top: 4px;
-  text-align: center;
-  color: var( --clr-white );
+  .map-zoom
+  {
+    display: none;
+  }
 }
 
 #fatt-map

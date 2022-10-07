@@ -1,0 +1,43 @@
+.map
+{
+  width: 100%;
+  height: auto;
+}
+
+.backgrounds text
+{
+  font-family: var( --font-header );
+  fill: rgba( 0, 0, 0, .4 );
+  font-size: 80px;
+}
+
+.borders polygon
+{
+  stroke: #111;
+  stroke-width: 2;
+  fill: none;
+}
+
+.statics text
+{
+  font-family: var( --font-body );
+  font-size: 11px;
+  fill: var( --clr-white );
+  filter: drop-shadow( 0 0 2px black );
+}
+
+.statics text.Major
+{
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.dynamics image.WARDENS
+{
+  filter: sepia(100%) hue-rotate(190deg) saturate(300%) ;
+}
+
+.dynamics image.COLONIALS
+{
+  filter: sepia(100%) saturate(300%) hue-rotate(70deg);
+}

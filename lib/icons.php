@@ -26,19 +26,19 @@ class Icons
     20 => "Salvage",
     21 => "Components",
     22 => "FuelField",
-    23 => "SulfurField",
+    23 => "Sulfur",
     24 => "World Map Tent",
     25 => "Travel Tent",
     26 => "Training Area",
-    27 => "Special Base",
+    //27 => "Special Base",
     28 => "Observation Tower",
     29 => "Fort",
     30 => "Troop Ship",
 
     32 => "Sulfur Mine",
-    33 => "torage Facility",
+    33 => "Storage Facility",
     34 => "Factory",
-    35 => "Garrison Station",
+    //35 => "Garrison Station",
     36 => "Ammo Factory",
     37 => "Rocket Site",
     38 => "Salvage Mine",
@@ -62,11 +62,11 @@ class Icons
     59 => "Storm Cannon",
     60 => "Intel Center",
 
-    61 => "Coal Field",
+    //61 => "Coal Field",
     62 => "OilWell", // "Oil Field" doesn't exist
   ];
 
-  private static $path = '/assets/images/icons/MapIcon';
+  private static $path = '/assets/images/icons/';
   private static $ext = '.png';
 
   function __construct(  )
@@ -114,7 +114,7 @@ class Icons
   private static function getName( string $name, bool $bare = false )
   {
     // remove spaces ( I was lazy with the copy/paste )
-    $name = trim( str_replace( ' ', '', $name ) );
+    $name = strtolower( trim( str_replace( ' ', '', $name ) ) );
     // return full path
     if ( $name && !$bare ) return self::$path . $name . self::$ext;
     // return bare name

@@ -19,6 +19,13 @@
   fill: var( --clr-white );
   filter: drop-shadow( 0 0 2px black );
 }
+
+#map #statics text.Major
+{
+  font-size: 14px;
+  font-weight: bold;
+}
+
 #map #dynamics image.W
 {
   filter: sepia(100%) hue-rotate(190deg) saturate(300%) ;
