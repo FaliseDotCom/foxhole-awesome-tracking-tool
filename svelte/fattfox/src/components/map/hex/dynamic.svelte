@@ -1,12 +1,14 @@
 <script>
+	import { afterUpdate } from 'svelte';
   import { fly } from 'svelte/transition';
 	import DataHex from './data.svelte'
   // import icons from '@stores/icons'
   export let name = ''
+
+  // data will change as its loaded from server
   let data = null
-  const url = `worldconquest/maps/${name}/dynamic/public`,
-        time = 10,
-        size = 25,
+
+  const size = 25,
         icons = {
           5 : "StaticBase1",
           6 : "StaticBase2",
@@ -69,13 +71,13 @@
           // 62 : "OilWell", // "Oil Field" doesn't exist
         }
 
+  // get icon from ID
   const getIcon = id => ( id in icons )  ? `/icons/${ icons[ id ].replaceAll( ' ', '' ).toLowerCase() }.png` : ''
 
-        //icons.url( item.iconType )
 </script>
 
-<DataHex bind:data={ data } { name } { url } { time } class={ `dynamic ${$$props.class || ''}` }>
-  { #if data }
+<DataHex bind:data={ data } { name } class={ `dynamic ${$$props.class || ''}` }>
+  { #if data && Array.isArray( data.mapItems ) }
     { #each data.mapItems as item ( `${item.x}-${item.y}` ) }
       <image 
         x={ `${ item.x * 100 }%` } 

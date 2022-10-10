@@ -7,7 +7,7 @@
 <svg class={ `layer ${$$props.class || ''}` }>
   <!-- explicit set slot on svg otherwise children won't be added -->
   <slot>
-    {#if component }
+    {#if component && grid && Array.isArray( grid.items ) }
       {#each grid.items as n ( n ) }
         <svelte:component this={ component } name={ n }/>
       {/each}

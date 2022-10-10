@@ -1,6 +1,7 @@
 <?php
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
 use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Katzgrau\KLogger\Logger;
@@ -26,8 +27,6 @@ class FoxholeApi
 
   // Default cache duration = 24 hours
   private $cache_duration = 24 * 60 * 60;
-
-  private $stack;
 
   /**
    * API roots
@@ -59,11 +58,8 @@ class FoxholeApi
       [ 'filename' => 'foxhole-' . date( 'Y-m-d' ) . '.log' ]
     );
 
-    $this->stack = HandlerStack::create();
-    $this->stack->push( new CacheMiddleware(), 'cache' );
-
     // init guzzle client by setting a shard
-    $this->set_shard();
+    $this->set_shard( 'baker' );
   }
 
   /**
@@ -86,8 +82,7 @@ class FoxholeApi
 
     // (re)init guzzle client
     $this->client = new GuzzleHttp\Client( [
-      'base_uri' => $this->shards[ $this->shard ],
-      'handler' => $this->stack
+      'base_uri' => $this->shards[ $this->shard ]
     ] );
   }
 
@@ -98,15 +93,25 @@ class FoxholeApi
    */
   public function get( string $what = '', int $cache_duration = 0, bool $force = false ) : array
   {
+    // get data from cache
     $key = 'get-' . $this->shard . '-' . $what;
     $data = $this->getCache( $key );
+
+    // (re)load from server when there's no data
     if ( !$data || $force )
     {
+      // get a response
       $response = $this->client->get( $what );
+
+      // get data as JSON
       $body = $response->getBody();
       $data = json_decode( $body, true );
+
+      // store in cache
       $this->saveCache( $key, $data, $cache_duration );
     }
+
+    // always return an array
     return $data ?: array();
   }
 
@@ -138,7 +143,26 @@ class FoxholeApi
    */
   private function saveCache( string $key, $data, int $duration = 0 )
   {
-    $this->cache->save( $this->cache_prefix . '-' . $key, $data, $duration ?: $this->cache_duration );
+    try
+    {
+      $this->cache->save( $this->cache_prefix . '-' . $key, $data, $duration ?: $this->cache_duration );
+    }
+    catch( exception $e )
+    {
+      $this->logger->error( 'saveCache failed for ' . $key . ', error: ' . $e->getMessage() );
+    }
+  }
+
+  /**
+   * Strip private keys from data array, private keys start with __ (double underscore)
+   * @param  array  $data [description]
+   * @return [type]       [description]
+   */
+  private function strip_private_data( array $data = array() )
+  {
+     return array_filter( $data, function( $key ) {
+        return strpos( $key, '__' ) !== 0;
+    }, ARRAY_FILTER_USE_KEY );
   }
 
   /**
@@ -147,7 +171,7 @@ class FoxholeApi
    */
   public function get_map_list()
   {
-    return $this->get( 'worldconquest/maps' );
+    return $this->strip_private_data( $this->get( 'worldconquest/maps' ) );
   }
 
   /**
@@ -157,43 +181,25 @@ class FoxholeApi
    */
   public function get_static_map( string $map )
   {
-    // return only the mapTextItems
-    $data = $this->get( 'worldconquest/maps/' . $map . '/static' );
-    return isset( $data[ 'mapTextItems' ] ) ? $data[ 'mapTextItems' ] : array();
+    // store static map for 24 hours
+    return $this->get( 'worldconquest/maps/' . $map . '/static', 24 * 60 * 60 );
   }
 
   /**
-   * Get Dynamic map stuff for one area
+   * Get Dynamic map stuff for one area, cache for 10 seconds
    * @param  string $map [description]
    * @return [type]      [description]
    */
-  public function get_dynamic_map( string $map, bool $force = false, int $cache = 300 ) : array
+  public function get_dynamic_map( string $map, bool $force = false, int $cache = 10 ) : array
   {
-    // maybe fix hex missing from name
-    // if ( strpos( $map, 'Hex' ) === false ) $map .= 'Hex';
-
     // try to load from cache
     $key = 'get-dynamic-map-' . $this->shard . '-' . $map;
     $data = $this->getCache( $key );
     // maybe rebuild
     if ( !$data || $force )
     {
-      // get raw data from cache
-      $raw = $this->get( 'worldconquest/maps/' . $map . '/dynamic/public', $cache, $force );
-      // find the items, skip the rest
-      $items = isset( $raw[ 'mapItems' ] ) ? $raw[ 'mapItems' ] : array();
-      // clean up data
-      $data = array_map( function( $item )
-      {
-        return [
-          // only return the first team letter, skip the NONE team
-          't' => $item[ 'teamId' ] != 'NONE' ? substr( $item[ 'teamId' ], 0, 1 ) : '',
-          'i' => $item[ 'iconType' ],
-          'x' => $item[ 'x' ],
-          'y' => $item[ 'y' ],
-          'f' => $item[ 'flags' ]
-        ];
-      }, $items );
+      // get data, possibly from cache
+      $data = $this->get( 'worldconquest/maps/' . $map . '/dynamic/public', $cache, $force );
       // store in cache
       $this->saveCache( $key, $data, $cache );
     }
@@ -252,7 +258,7 @@ class FoxholeApi
    * Get dynamic info for entire world map
    * @return [type]      [description]
    */
-  public function get_dynamic_world( bool $force = false ) : array
+  public function get_dynamic_world( bool $force = false, int $cache = 10 ) : array
   {
     // first try to get data from cache
     $key = 'get-dynamic-world-' . $this->shard;
@@ -267,11 +273,88 @@ class FoxholeApi
     foreach ( $maps as $id )
     {
       $name = $this->map_name( $id );
-      $data[ $name ] = $this->get_dynamic_map( $id, $force );
+      $data[ $name ] = $this->get_dynamic_map( $id, $force, $cache  );
     }
 
-    // store in cache for 5 minutes
-    $this->saveCache( $key, $data, 5 * 60 );
+    // store in cache for 10 seconds
+    $this->saveCache( $key, $data, $cache );
+    return $data;
+  }
+
+  public function async_dynamics()
+  {
+    $this->logger->debug( 'Starting async' );
+    $maps = $this->get_map_list();
+    $promises = array();
+
+    foreach ( $maps as $map )
+    {
+      $name = $this->map_name( $map );
+      $promises[ $name  ] = $this->client->getAsync( 'worldconquest/maps/' . $map . '/dynamic/public' );
+    }
+
+    $data = array();
+    $responses = Promise\Utils::unwrap( $promises );
+    foreach ( $responses as $name => $response )
+    {
+      $data[ $name ] = json_decode( $response->getBody(), true );
+    }
+    return $data;
+  }
+
+  /**
+   * Get update to a single dynamic map
+   * @return [type] [description]
+   */
+  public function get_dynamic_map_updates( string $map = '', string $version = '', bool $force = false ) : array
+  {
+    // bail if we have missing params
+    if ( !$map ) return array();
+
+    // get all maps to check against
+    $maps = $this->get_map_list();
+
+    // bail if the map name is invalid
+    if ( !in_array( $map, $maps ) ) return array();
+
+    // allow force to skip etag
+    $options = array();
+    if ( !$force && $version )
+    {
+      $options = [ 'headers' => [
+        'If-None-Match' => '"' . $version . '"'
+      ] ];
+    }
+
+     // get a response, adding an etag means we might get statuscode 304 when nothing was changed
+    $response = $this->client->get( 'worldconquest/maps/' . $map . '/dynamic/public/', $options );
+
+    // only return data on status code 200
+    if ( $response->getStatusCode() == 200 )
+    {
+      return json_decode( $response->getBody(), true );
+    }
+
+    // return empty array in all other cases
+    return array();
+  }
+
+
+  /**
+   * Get updates to the dynamic world map
+   * @return [type] [description]
+   */
+  public function get_dynamic_world_updates( array $maps = array(), bool $force = false ) : array
+  {
+    $data = array();
+    foreach ( $maps as $map => $version  )
+    {
+      $map_data = $this->get_dynamic_map_updates( $map, $version, $force );
+      if ( $map_data )
+      {
+        $data[ $map ] = $map_data;
+      }
+    }
     return $data;
   }
 

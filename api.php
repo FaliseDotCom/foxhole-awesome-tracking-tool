@@ -56,6 +56,27 @@
     json( $api->get_dynamic_map( $_GET[ 'details' ], $force ) );
   }
 
+  // get details for a certain area
+  if ( isset( $_GET[ 'updates' ] ) )
+  {
+    json( $api->get_dynamic_world_updates( explode(',', $_GET[ 'updates' ] ),$force ) );
+  }
+
+  // get details for a certain area
+  if ( isset( $_GET[ 'update' ] ) && isset( $_GET[ 'map' ] )  )
+  {
+    json( $api->get_dynamic_map_updates(
+      $_GET[ 'map' ],
+      isset( $_GET[ 'version' ] ) ? $_GET[ 'version' ] : ''
+    ) );
+  }
+
+  // async test
+  if ( isset( $_GET[ 'async' ] ) )
+  {
+    json( $api->async_dynamics() );
+  }
+
   // clean asset files
   if ( isset( $_GET[ 'clean' ] ) )
   {
