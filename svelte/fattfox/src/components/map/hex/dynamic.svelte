@@ -1,5 +1,5 @@
 <script>
-	import { afterUpdate } from 'svelte';
+	import { afterUpdate, beforeUpdate } from 'svelte';
   import { fly } from 'svelte/transition';
 	import DataHex from './data.svelte'
   // import icons from '@stores/icons'
@@ -73,6 +73,16 @@
 
   // get icon from ID
   const getIcon = id => ( id in icons )  ? `/icons/${ icons[ id ].replaceAll( ' ', '' ).toLowerCase() }.png` : ''
+
+  beforeUpdate( () =>
+  {
+
+  })
+
+  afterUpdate( () =>
+  {
+
+  })
 
 </script>
 
