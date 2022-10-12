@@ -41,3 +41,52 @@
 {
   filter: sepia(100%) saturate(300%) hue-rotate(70deg);
 }
+
+.dynamics .flasher
+{
+  transition: fill .3s;
+  fill: rgba( 255, 255, 255, 0 );
+}
+
+.dynamics .flasher.on
+{
+  animation: flash .5s;
+}
+
+@keyframes flash 
+{
+  0%
+  {
+    fill: rgba( 255, 255, 255, 0 );
+  }
+
+  20%
+  {
+    fill: rgba( 255, 255, 255, .5);
+  }
+
+  40%
+  {
+    fill: rgba( 255, 255, 255, .0);
+  }
+
+  50%
+  {
+    fill: rgba( 255, 255, 255, .5);
+  }
+
+  60%
+  {
+    fill: rgba( 255, 255, 255, .0);
+  }
+
+  80%
+  {
+    fill: rgba( 255, 255, 255, .5 );
+  }
+
+  100% 
+  {
+    fill: rgba( 255, 255, 255, 0 );
+  }
+}

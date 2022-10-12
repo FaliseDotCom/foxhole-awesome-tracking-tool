@@ -19,52 +19,70 @@
 
   onMount( () =>
   {
-    document.addEventListener( 'keyup', e =>
+    document.addEventListener( 'keyup', onKeyUp );
+    window.addEventListener( 'resize', onResize );
+    onResize()
+  } )
+
+  const onResize = () =>
+  {
+    if ( !root || !pz ) return;
+  }
+
+  // listen to keyboard events for pan & zoom
+  const onKeyUp = e =>
+  {
+    if ( !root || !pz ) return;
+    switch ( e.code )
     {
-      if ( !root || !pz ) return;
-      switch ( e.code )
-      {
-        case 'Equal':
-        case 'NumpadAdd':
-          return zoomIn( e );
-        case 'Minus':
-        case 'NumpadSubtract':
-          return zoomOut( e );
-        case 'ArrowLeft':
-        case 'Numpad4':
-        case 'KeyA':
-          return panRight( e );
-        case 'ArrowRight':
-        case 'Numpad6':
-        case 'KeyD':
-          return panLeft( e );
-        case 'ArrowUp':
-        case 'Numpad8':
-        case 'KeyW':
-          return panDown( e );
-        case 'ArrowDown':
-        case 'Numpad2':
-        case 'KeyS':
-          return panUp( e );
-        case 'Numpad7':
-          return panDownRight( e );
-        case 'Numpad9':
-          return panDownLeft( e );
-        case 'Numpad1':
-          return panUpRight( e );
-        case 'Numpad3':
-          return panUpLeft( e );
-        case 'Numpad5':
-          // return panCenter( e );
-      }
-    });
-  })
+      case 'Equal':
+      case 'NumpadAdd':
+        return zoomIn( e );
+      case 'Minus':
+      case 'NumpadSubtract':
+        return zoomOut( e );
+      case 'ArrowLeft':
+      case 'Numpad4':
+      case 'KeyA':
+        return panRight( e );
+      case 'ArrowRight':
+      case 'Numpad6':
+      case 'KeyD':
+        return panLeft( e );
+      case 'ArrowUp':
+      case 'Numpad8':
+      case 'KeyW':
+        return panDown( e );
+      case 'ArrowDown':
+      case 'Numpad2':
+      case 'KeyS':
+        return panUp( e );
+      case 'Numpad7':
+        return panDownRight( e );
+      case 'Numpad9':
+        return panDownLeft( e );
+      case 'Numpad1':
+        return panUpRight( e );
+      case 'Numpad3':
+        return panUpLeft( e );
+      case 'Numpad5':
+        //return panCenter( e );
+    }
+  }
 
   // this one is buggy!
   const panCenter = e =>
   {
-    // const c = getMapBounds();
-    // panTo( c.x + c.width / 2, c.y + c.height / 2, true );
+    const r = root.getBoundingClientRect(),
+          p = pz.getTransform(),
+          w = window.innerWidth,
+          h = window.innerHeight,
+          left = 0,
+          top = 0,
+          x = -( r.left + r.width / 2) * p.scale + w / 2 + left,
+          y = -( r.top + r.height / 2) * p.scale + h / 2 + top;
+
+    panTo( x, y,  true );
     return cancelEvent( e );
   };
 
@@ -138,18 +156,14 @@
     return false;
   }
 
-  const getZoom = () => pz.getTransform().scale;
-
   // set map zoom
   const zoomBy = ( z = 1, smooth = false,) =>
   {
     if ( isNaN( z ) ) return;
 
-    // get rect so we can apply center
-    const r = root.getBoundingClientRect(),
-          s = getZoom(),
-          x = r.x - ( r.width / 2 ) / s,
-          y = r.y - ( r.height / 2 ) / s
+    // zoom in to centre of window
+    const x = window.innerWidth / 2,
+          y = window.innerHeight / 2
 
     // zoom to desired level
     smooth
@@ -161,13 +175,15 @@
   const zoomTo = ( z = 1, smooth = false,) =>
   {
     if ( isNaN( z ) ) return;
-    // get rect so we can apply center
-    const r = root.getBoundingClientRect()
+
+    // zoom in to centre of window
+    const x = window.innerWidth / 2,
+          y = window.innerHeight / 2
 
     // zoom to desired level
     smooth
-      ? pz.smoothZoomAbs( r.width / 2, r.height / 2, z )
-      : pz.zoomAbs( r.width / 2, r.height / 2, z );
+      ? pz.smoothZoomAbs( x, y, z )
+      : pz.zoomAbs( x, y, z);
   }
 
   // pan map by

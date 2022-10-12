@@ -4,6 +4,7 @@
 	import Hex from './hex.svelte';
 
   export let name = '',
+             once = false,
              data = {}
 
   // only update hex data with matching name
@@ -13,10 +14,20 @@
 	})
 
   onDestroy( unsubscribe )
+
+  afterUpdate( () => 
+  {
+    // static data needs no updates 
+    // so when once is true AND we've received data 
+    // we can unsubscribe from the store
+    if ( once && data ) 
+    {
+      unsubscribe()
+    }
+  })
              
 </script>
 
 <Hex class={ `data ${$$props.class || ''}` } { name }>
-  <!-- explicit set slot on svg otherwise children won't be added -->
   <slot></slot>
 </Hex>

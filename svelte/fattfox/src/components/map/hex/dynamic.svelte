@@ -2,11 +2,16 @@
 	import { afterUpdate, beforeUpdate } from 'svelte';
   import { fly } from 'svelte/transition';
 	import DataHex from './data.svelte'
+	import Polygon from './polygon.svelte';
   // import icons from '@stores/icons'
   export let name = ''
 
-  // data will change as its loaded from server
-  let data = null
+      // data will change as its loaded from server
+  let data = null,
+      // do a flash?
+      flash = false,
+      // this stores the last version of the data
+      version = 0
 
   const size = 25,
         icons = {
@@ -81,7 +86,17 @@
 
   afterUpdate( () =>
   {
+    if ( data && version && data.version !== version )
+    {
+      console.log( name + ' version change from ' + version + ' to ' + data.version )
+      version = data.version
+      flash = true
 
+      // remove animation so it can run again
+      setTimeout( () => {
+        flash = false
+      }, 500 )
+    }
   })
 
 </script>
@@ -96,9 +111,8 @@
         hwight={ size + 'px' }
         class={ item.teamId }
         href={ getIcon( item.iconType ) }
-        in:fly={{ y: -20 }}
-      />
-       
+      />       
     { /each }
+    <Polygon class={ 'flasher ' + ( flash ? 'on' : 'off' ) } />
   { /if }
 </DataHex>
