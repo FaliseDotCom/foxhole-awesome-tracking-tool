@@ -1,3 +1,9 @@
+svg text
+{
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
 .map
 {
   width: 100%;
@@ -32,61 +38,106 @@
   font-weight: bold;
 }
 
-.dynamics image.WARDENS
+/* Oil = orange */
+.dynamics .icon-41,
+.dynamics .icon-62
 {
-  filter: sepia(100%) hue-rotate(190deg) saturate(300%) ;
+  filter: sepia(100%) saturate(300%) hue-rotate(680deg) brightness( 90% ) contrast( 150% );
 }
 
-.dynamics image.COLONIALS
+/* Sulpher = yellow */
+.dynamics .icon-23,
+.dynamics .icon-32
+{
+  filter: sepia(100%) saturate(300%) hue-rotate(10deg) brightness( 90% ) contrast( 90% );
+}
+
+/* Coal = dark */
+.dynamics .icon-61
+{
+  filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness( 20% ) contrast( 50% ) grayscale( 100% );
+}
+
+/* Salvage = brown */
+.dynamics .icon-20,
+.dynamics .icon-38
+{
+  filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness(70% ) contrast( 110% );
+}
+
+/* Components = gray */
+.dynamics .icon-21,
+.dynamics .icon-40
+{
+  filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness(70% ) contrast( 110% ) grayscale( 100% );
+}
+
+.dynamics .WARDENS
+{
+  filter: sepia(100%) saturate(300%) hue-rotate(190deg);
+}
+
+.dynamics .COLONIALS
 {
   filter: sepia(100%) saturate(300%) hue-rotate(70deg);
 }
 
 .dynamics .flasher
 {
-  transition: fill .3s;
+  fill: none;
+  stroke: none;
+}
+
+.dynamics .flasher.animate
+{
+  animation: flash .5s infinite;
+} 
+
+.dynamics .team
+{
+  opacity: 0;
+  transition: all 1s;
   fill: rgba( 255, 255, 255, 0 );
 }
 
-.dynamics .flasher.on
+.dynamics .team.colonial
 {
-  animation: flash .5s;
+  fill: rgba( 0, 255, 0, .1 );
+}
+
+.dynamics .team.warden
+{
+  fill:rgba( 0, 0, 255, .1 );
+}
+
+.dynamics image
+{
+  transform: translate( var( --icon-offset ), var( --icon-offset ) );
+}
+
+.areas .bounds 
+{
+  fill: none;
+  stroke: none;
+  overflow: hidden;
+}
+
+.areas .area 
+{
+  fill: none;
+  stroke: var( --clr-black );
+  stroke-width: 1px;
 }
 
 @keyframes flash 
 {
-  0%
+  0%, 40%, 60%, 100%
   {
     fill: rgba( 255, 255, 255, 0 );
   }
 
-  20%
+  20%, 50%, 80%
   {
     fill: rgba( 255, 255, 255, .5);
-  }
-
-  40%
-  {
-    fill: rgba( 255, 255, 255, .0);
-  }
-
-  50%
-  {
-    fill: rgba( 255, 255, 255, .5);
-  }
-
-  60%
-  {
-    fill: rgba( 255, 255, 255, .0);
-  }
-
-  80%
-  {
-    fill: rgba( 255, 255, 255, .5 );
-  }
-
-  100% 
-  {
-    fill: rgba( 255, 255, 255, 0 );
   }
 }

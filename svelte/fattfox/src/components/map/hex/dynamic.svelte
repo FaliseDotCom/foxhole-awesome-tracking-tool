@@ -1,118 +1,92 @@
 <script>
-	import { afterUpdate, beforeUpdate } from 'svelte';
-  import { fly } from 'svelte/transition';
+	import { afterUpdate } from 'svelte';
 	import DataHex from './data.svelte'
-	import Polygon from './polygon.svelte';
-  // import icons from '@stores/icons'
+	import Polygon from '../polygon.svelte';
+  import Icon from '../icon.svelte';
   export let name = ''
 
       // data will change as its loaded from server
   let data = null,
-      // do a flash?
-      flash = false,
+      // do an animation?
+      animate = false,
       // this stores the last version of the data
       version = 0
 
-  const size = 25,
-        icons = {
-          5 : "StaticBase1",
-          6 : "StaticBase2",
-          7 : "StaticBase3",
-
-          8 : "ForwardBase1",
-          9 : "ForwardBase2",
-          10 : "ForwardBase3",
-
-          11 : "Hospital",
-          12 : "Vehicle",
-          13 : "Armory",
-          14 : "SupplyStation",
-          15 : "Workshop",
-          16 : "ManufacturingPlant",
-          17 : "Refinery",
-          18 : "Shipyard",
-          19 : "TechCenter",
-
-          20 : "Salvage",
-          21 : "Components",
-          22 : "FuelField",
-          23 : "Sulfur",
-          24 : "World Map Tent",
-          25 : "Travel Tent",
-          26 : "Training Area",
-          //27 : "Special Base",
-          28 : "Observation Tower",
-          29 : "Fort",
-          30 : "Troop Ship",
-
-          32 : "Sulfur Mine",
-          33 : "Storage Facility",
-          34 : "Factory",
-          //35 : "Garrison Station",
-          36 : "Ammo Factory",
-          37 : "rocketfacility", // rocket site?
-          38 : "salvage", // "Salvage Mine",
-          39 : "Construction Yard",
-          40 : "Component Mine",
-          41 : "Oil Well",
-
-          45 : "Relic Base", // 1
-          46 : "Relic Base", // 2
-          47 : "Relic Base", // 3
-
-          51 : "Mass Production Factory",
-          52 : "Seaport",
-          53 : "Coastal Gun",
-          54 : "Soul Factory",
-
-          56 : "Town Base Tier 1",
-          57 : "Town Base Tier 2",
-          58 : "Town Base Tier 3",
-
-          59 : "Storm Cannon",
-          60 : "Intel Center",
-
-          //61 : "Coal Field",
-          // 62 : "OilWell", // "Oil Field" doesn't exist
-        }
-
-  // get icon from ID
-  const getIcon = id => ( id in icons )  ? `/icons/${ icons[ id ].replaceAll( ' ', '' ).toLowerCase() }.png` : ''
-
-  beforeUpdate( () =>
-  {
-
-  })
-
+  // check for updates
   afterUpdate( () =>
   {
-    if ( data && version && data.version !== version )
+    if ( data && data.version !== version )
     {
-      console.log( name + ' version change from ' + version + ' to ' + data.version )
+      // skip initial update when version is zero
+      if ( version )
+      {
+        //console.log( name + ' version change from ' + version + ' to ' + data.version )
+        // start CSS animation
+        animate = true
+        // remove animation so it can run again
+        setTimeout( () => {
+          animate = false
+        }, 500 )
+      }
+      // always update version
       version = data.version
-      flash = true
-
-      // remove animation so it can run again
-      setTimeout( () => {
-        flash = false
-      }, 500 )
     }
-  })
+  });
+
+  let color = '',
+      perc = 0;
+
+  const not_countable = [ 41, 62, 23, 32, 61, 20, 38, 21, 40 ]
+
+  afterUpdate( () => 
+  {
+    if ( data && 'mapItems' in data )
+    {
+      // reset counters
+      let colonials = 0,
+          wardens = 0,
+          none = 0,
+          total = 0;
+
+      color = '';
+      perc = 0;
+        
+      data.mapItems.forEach( item => {
+        if ( !not_countable.includes( item.iconType ) )
+        {
+          total++
+          if ( item.teamId == 'WARDENS')    wardens++;
+          if ( item.teamId == 'COLONIALS')  colonials++;
+          if ( item.teamId == 'NONE')       none++;
+        }        
+      });
+
+      let colonial = total ? colonials / total : 0,
+          warden   = total ? wardens / total : 0,
+          rest = 1 - colonial - warden
+
+      if ( colonial > warden && colonial > rest ) 
+      {
+        perc = colonial;
+        color = 'colonial';
+      }
+      if ( warden > colonial && warden > rest ) 
+      {
+        perc = warden;
+        color = 'warden'
+      }
+    }    
+  })  
+  
 
 </script>
 
 <DataHex bind:data={ data } { name } class={ `dynamic ${$$props.class || ''}` }>
   { #if data && Array.isArray( data.mapItems ) }
     { #each data.mapItems as item ( `${item.x}-${item.y}` ) }
-      <image 
-        x={ `${ item.x * 100 }%` } 
-        y={ `${ item.y * 100 }%` } 
-        width={ size + 'px' }
-        hwight={ size + 'px' }
-        class={ item.teamId }
-        href={ getIcon( item.iconType ) }
-      />       
+      <Icon x={ item.x } y={ item.y } icon={ item.iconType } team={ item.teamId }/>
     { /each }
-    <Polygon class={ 'flasher ' + ( flash ? 'on' : 'off' ) } />
+    <Polygon class={ 'team ' + color } style={ `opacity: ${perc}` }/>
+    <Polygon class={ 'flasher ' + ( animate ? 'animate' : '' ) } />
   { /if }
 </DataHex>

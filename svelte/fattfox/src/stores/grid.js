@@ -20,7 +20,12 @@ const items = {
         "BasinSionnachHex": [3, 0], 
         "ReachingTrailHex": [3, 2], 
         "CallahansPassageHex": [3, 4], 
-        "DeadLandsHex": [3, 6], 
+        "DeadLandsHex": [3, 6,
+        {
+          "The Spine": "0 0 0.08 0.345 0.29 0.40 0.364 0.362 0.411 0",
+          "Iron's End": "0.411 0 0.364 0.362 0.464 0.392 0.62 0.31",
+          "Callahan's Gate": "0.411 0 0.62 0.31 0.666 0.328 0.875 0.177 1 0"
+        }], 
         "UmbralWildwoodHex": [3, 8], 
         "GreatMarchHex": [3, 10], 
         "KalokaiHex": [3, 12], 
@@ -87,5 +92,26 @@ export const grid = {
       }
     }
     return null   
+  },
+  areas: n => 
+  {
+    if ( n in items && items[ n ].length > 2 )
+    {
+      const data = Object.values( items[ n ][ 2 ] );
+      let areas = [];
+      data.forEach( d => {
+        const pairs = d.replace( '  ', ' ' ).split( ' ' );
+        let coords = '';
+        for( var i=0; i<pairs.length; i+=2 )
+        {
+          const x = parseInt( pairs[ i ]  * w ),
+                y = parseInt( pairs[ i + 1 ] * h );
+          coords += ` ${x} ${y}`;
+        }
+        areas.push( coords )
+      })
+      return areas;
+    }
+    return null;
   }
 }

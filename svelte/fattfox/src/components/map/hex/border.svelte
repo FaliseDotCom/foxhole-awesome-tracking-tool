@@ -1,6 +1,6 @@
 <script>
 	import Hex from './hex.svelte';
-  import Polygon from './polygon.svelte';
+  import Polygon from '../polygon.svelte';
   export let name = ''
 </script>
 
