@@ -1,0 +1,195 @@
+export default {
+  NevishLineHex: {
+    col: 0,
+    row: 3,
+    coords: {},
+    areas: {}
+  },
+  OarbreakerHex: {
+    col: 0,
+    row: 5,
+    coords: {},
+    areas: {}
+  },
+  FishermansRowHex: {
+    col: 0,
+    row: 7
+  },
+  OriginHex: { 
+    col: 0, 
+    row: 9 
+  },
+  CallumsCapeHex: { 
+    col: 1, 
+    row: 2 
+  },
+  StonecradleHex: { 
+    col: 1, 
+    row: 4 
+  },
+  FarranacCoastHex: { 
+    col: 1, 
+    row: 6 
+  },
+  WestgateHex: { 
+    col: 1, 
+    row: 8 
+  },
+  AshFieldsHex: { 
+    col: 1, 
+    row: 10 
+  },
+  SpeakingWoodsHex: { 
+    col: 2, 
+    row: 1 },
+  MooringCountyHex: { 
+    col: 2, 
+    row: 3 
+  },
+  LinnMercyHex: { 
+    col: 2, 
+    row: 5 
+  },
+  LochMorHex: { 
+    col: 2, 
+    row: 7 
+  },
+  HeartlandsHex: { 
+    col: 2, 
+    row: 9 
+  },
+  RedRiverHex: { 
+    col: 2, 
+    row: 11 
+  },
+  BasinSionnachHex: { 
+    col: 3, 
+    row: 0 
+  },
+  ReachingTrailHex: { 
+    col: 3, 
+    row: 2 
+  },
+  CallahansPassageHex: { 
+    col: 3,
+    row: 4 
+  },
+  DeadLandsHex: {
+    col: 3, 
+    row: 6, 
+    points :
+    {
+      a: '0.1 0',
+      b: '0 0.318',
+      c: '0.29 0.4',
+      d: '0.375 0.36',
+      e: '0.411 0',
+      f: '0.475 0.39',
+      g: '0.625 0.31',
+      h: '0.666 0.328',
+      i: '1 0.098',
+      j: '0.9 0',
+      k: '0.345 0.631',
+      l: '0.481 0.540',
+      m: '0.607 0.639',
+      n: '0.687 0.556',
+      o: '0.98 0.717',
+      p: '0.579 0.738',
+      q: '0.661 1',
+      r: '1 1',
+      s: '0.391 0.731',
+      t: '0.266 1',
+      u: '0 1',
+      v: '0 0.69',
+      w: '',
+      x: '',
+      y: '',
+      z: '',
+    },
+    areas: {
+      "The Spine": "a b c d e",
+      "Iron's End": "e d f g",
+      "Callahan's Gate": "e g h i j",
+      "Abandoned Ward": "c d f l k",
+      "Callahan's Boot" : "l f g h n m",
+      "The Salt March" : "n h i o",
+      "Brine Glen" : "m n o r q p",
+      "The Pits" : "s k l m p",
+      "The Salt Farms": "s p q t",
+      "Sun's Hollow": "k s t u v",
+      "Liberation Point": "b c k v"
+    }
+  },
+  UmbralWildwoodHex: { 
+    col: 3,
+    row: 8 
+  },
+  GreatMarchHex: { 
+    col: 3, 
+    row: 10 
+  },
+  KalokaiHex: { 
+    col: 3, 
+    row: 12 
+  },
+  HowlCountyHex: { 
+    col: 4, 
+    row: 1 
+  },
+  ViperPitHex: { 
+    col: 4,
+    row: 3 
+  },
+  MarbanHollow: { // no HEX in name, that's right!
+    col: 4, 
+    row: 5 
+  }, 
+  DrownedValeHex: { 
+    col: 4,
+    row: 7 
+  },
+  ShackledChasmHex: { 
+    col: 4,
+    row: 9 
+  },
+  AcrithiaHex: { 
+    col: 4, 
+    row: 11
+  },
+  ClansheadValleyHex: { 
+    col: 5, 
+    row: 2 
+  },
+  WeatheredExpanseHex: { 
+    col: 5, 
+    row: 4 
+  },
+  EndlessShoreHex: { 
+    col: 5, 
+    row: 6 
+  },
+  AllodsBightHex: { 
+    col: 5,
+    row: 8 
+  },
+  TerminusHex: { 
+    col: 5, 
+    row: 10 
+  },
+  MorgensCrossingHex: { 
+    col: 6, 
+    row: 3 
+  },
+  GodcroftsHex: { 
+    col: 6, 
+    row: 5 
+  },
+  TempestIslandHex: { 
+    col: 6, 
+    row: 7 
+  },
+  TheFingersHex: { 
+    col: 6, 
+    row: 9 
+  }
+};

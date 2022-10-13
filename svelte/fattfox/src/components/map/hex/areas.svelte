@@ -1,12 +1,19 @@
 <script>
+
+  /**
+   * Hex sub areas
+   */
+
 	import Hex from './hex.svelte';
   import { grid } from '@stores/grid'
 	import Polygon from '../polygon.svelte';
-  export let name = ''
-  const areas = grid.areas( name ),
-        data = areas ? Object.values( areas ) : null
 
- if ( data ) console.log( name, data )
+  export let name = ''
+
+        // get polygons by name
+  const polys = grid.getPolygons( name ),
+        // we only need values, not keys
+        data = polys ? Object.values( polys ) : null
 </script>
 
 {#if data }

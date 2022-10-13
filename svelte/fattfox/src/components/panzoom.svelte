@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import panzoom from 'panzoom';
 
   export let  args = {
@@ -13,16 +13,49 @@
   let root = null,
       pz = null
 
-  onMount(() => {
-    pz = panzoom( root, args );
-  })
-
   onMount( () =>
   {
-    document.addEventListener( 'keyup', onKeyUp );
-    window.addEventListener( 'resize', onResize );
-    onResize()
-  } )
+    pz = panzoom( root, args );
+    
+    onResize();
+    
+    setTimeout( () =>
+    {
+      loadTransform();
+      // do this AFTER the initial transform has been loaded;
+      pz.on( 'transform', saveTransform );
+    }, 0 )
+  } );
+
+  // save transform (x, y, scale) in localstorage
+  const saveTransform = () =>
+  {
+    if ( window && window.localStorage )
+    {
+      const t = pz.getTransform();
+      //console.log( 'saved', t )
+      window.localStorage.setItem( 'pzt', JSON.stringify( t ) );
+    }
+  }
+
+  // retrieve transform (x, y, scale) from localstorage and apply it
+  const loadTransform = () =>
+  {
+    if ( window && window.localStorage )
+    {
+      try
+      {
+        const t = JSON.parse( window.localStorage.getItem( 'pzt' ) )
+        //console.log( 'loaded', t )
+        if ( t )
+        {
+          pz.zoomAbs( 0, 0, t.scale );
+          pz.moveTo( t.x, t.y );
+        }
+      }
+      catch( e ) {}
+    }
+  }
 
   const onResize = () =>
   {
@@ -203,6 +236,11 @@
   };
 
 </script>
+
+<svelte:window 
+  on:keyup={ onKeyUp }
+  on:resize={ onResize }
+/>
 
 <div bind:this={root} class={ `panzoom ${$$props.class || ''}` }>
   <slot></slot>

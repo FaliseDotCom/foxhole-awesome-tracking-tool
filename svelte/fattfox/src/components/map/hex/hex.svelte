@@ -5,6 +5,5 @@
 </script>
 
 <svg {...bounds} class={ `hex ${name} ${$$props.class || ''}` }>
-  <!-- explicit set slot on svg otherwise children won't be added -->
-  <slot></slot>
+  <slot/>
 </svg>

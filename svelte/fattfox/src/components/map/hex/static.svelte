@@ -2,7 +2,7 @@
 	import DataHex from './data.svelte';
   export let name = ''
   let data = null,
-      once = true
+      once = true;
 </script>
 
 <DataHex bind:data={ data } { name } { once } class={ `static ${$$props.class || ''}` }>

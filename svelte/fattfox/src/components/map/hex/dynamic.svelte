@@ -10,17 +10,19 @@
       // do an animation?
       animate = false,
       // this stores the last version of the data
-      version = 0
+      version = 0,
+      towns = 0;
+
 
   // check for updates
   afterUpdate( () =>
   {
-    if ( data && data.version !== version )
+    if ( data )
     {
       // skip initial update when version is zero
-      if ( version )
+      if ( version && data.version !== version )
       {
-        //console.log( name + ' version change from ' + version + ' to ' + data.version )
+        //console.log( name + ' updated from version ' + version + ' to ' + data.version )   
         // start CSS animation
         animate = true
         // remove animation so it can run again
@@ -28,8 +30,15 @@
           animate = false
         }, 500 )
       }
+
+      if ( data.scorchedVictoryTowns !== towns )
+      {
+        console.log( name + ' updated scorchedVictoryTowns from ' + towns + ' to ' + data.scorchedVictoryTowns ) 
+      }
+
       // always update version
-      version = data.version
+      version = data.version;
+      towns = data.scorchedVictoryTowns;
     }
   });
 
@@ -84,7 +93,7 @@
 <DataHex bind:data={ data } { name } class={ `dynamic ${$$props.class || ''}` }>
   { #if data && Array.isArray( data.mapItems ) }
     { #each data.mapItems as item ( `${item.x}-${item.y}` ) }
-      <Icon x={ item.x } y={ item.y } icon={ item.iconType } team={ item.teamId }/>
+      <Icon data={ item }/>
     { /each }
     <Polygon class={ 'team ' + color } style={ `opacity: ${perc}` }/>
     <Polygon class={ 'flasher ' + ( animate ? 'animate' : '' ) } />

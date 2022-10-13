@@ -124,9 +124,15 @@ svg text
 
 .areas .area 
 {
-  fill: none;
-  stroke: var( --clr-black );
+  fill: transparent;
+  stroke: rgba( 0, 0, 0, .5 );
   stroke-width: 1px;
+}
+
+.points text
+{
+  font-weight: bold;
+  filter: drop-shadow( 0 0 2px white );
 }
 
 @keyframes flash 

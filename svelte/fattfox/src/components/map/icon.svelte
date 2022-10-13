@@ -3,10 +3,7 @@
   import { afterUpdate } from 'svelte';
   import Tooltip from '@components/tooltip.svg'
 
-  export let  icon = 0,
-              x = 0,
-              y = 0,
-              team = '',
+  export let  data = null,
               size = 25;
 
   const icons = {
@@ -35,7 +32,7 @@
           24 : "World map tent",
           25 : "Travel tent",
           26 : "Training area",
-          //27 : "Special Base",
+          27 : 'Keep', // "Special Base",
           28 : "Observation tower",
           29 : "Fort",
           30 : "Troop ship",
@@ -77,39 +74,63 @@
   // get name from ID
   const getName = id => ( id in icons ) ? icons[ id ] : '';
 
-  let old_team = '',
+  let team = '',
+      flags = 0,
+      icon = '',
+      href = data ? getIcon( data.iconType ) : '',
+      title = data ? getName( data.iconType ) : '',
       animate = false,
-      href = getIcon( icon ),
-      title = getName( icon )
+      x = data ? `${ data.x * 100 }%` : '',
+      y = data ? `${ data.y * 100 }%` : '';
 
   afterUpdate( () =>
   {
-    if ( team && old_team && team !== old_team )
+    if ( data )
     {
-      console.log( 'icon team change from ' + old_team + ' to ' + team )
-      old_team = team
-      animate = true
+      // animate when both team and old_team or not empty but also differ
+      if ( team && data.teamId && team !== data.teamId )
+      {
+        console.log( title + ' icon change from ' + team + ' to ' + data.teamId )      
+        animate = true
 
-      // remove animation so it can run again
-      setTimeout( () => {
-        animate = false
-      }, 1000 )
+        // remove animation so it can run again
+        setTimeout( () => {
+          animate = false
+        }, 1000 )
+      }
+
+      if ( flags && data.flags && flags !== data.flags )
+      {
+        console.log( title + ' flags change from ' + flags + ' to ' + data.flags, parseInt( flags, 2 ), parseInt( data.flags, 2 ) )  
+      }
+
+      if ( icon && data.iconType && icon !== data.iconType )
+      {
+        console.log( title + ' type change from ' + icon + ' to ' + data.iconType, parseInt( flags, 2 ), parseInt( data.flags, 2 ) )  
+      }
+
+      // always store old values
+      team = data.teamId;
+      flags = data.flags;
+      icon = data.iconType;
     }
   });
 
 </script>
 
-{#if href }
-<image 
-  style={ '--icon-size: ' + size +'px; --icon-offset: ' + ( size/-2 ) + 'px' }
-  x={ `${ x * 100 }%` } 
-  y={ `${ y * 100 }%` } 
-  class={ team + ( animate ? ' animate' : '' ) + ' icon-' + icon }
-  width={ size + 'px' }
-  height={ size + 'px' }
-  { href }
-  { title }
-></image>
-{:else}
-<text x={ `${ x * 100 }%` } y={ `${ y * 100 }%` }>No icon: { icon }, { team }</text>
+{#if data}
+  {#if href }
+    <image 
+      style={ '--icon-size: ' + size +'px; --icon-offset: ' + ( size/-2 ) + 'px' }
+      { x }
+      { y }
+      class={ data.teamId + ( animate ? ' animate' : '' ) + ' icon-' + data.iconType }
+      width={ size + 'px' }
+      height={ size + 'px' }
+      { href }
+      { title }
+    ></image>
+  {:else}
+    <text { x } { y } fill="red">No icon: { data.iconType }, { data.teamId }</text>
+  {/if}
 {/if}
