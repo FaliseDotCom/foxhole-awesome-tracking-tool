@@ -1,3 +1,40 @@
+/*
+      // copy / paste empty points
+      points:
+      {
+        a: '',
+        b: '',
+        c: '',
+        d: '',
+        e: '',
+        f: '',
+        g: '',
+        h: '',
+        i: '',
+        j: '',
+        k: '',
+        l: '',
+        m: '',
+        n: '',
+        o: '',
+        p: '',
+        q: '',
+        r: '',
+        s: '',
+        t: '',
+        u: '',
+        v: '',
+        w: '',
+        x: '',
+        y: '',
+        z: ''
+      },
+      areas: {
+
+      }
+*/
+
+
 export default {
   NevishLineHex: {
     col: 0,
@@ -100,11 +137,7 @@ export default {
       s: '0.391 0.731',
       t: '0.266 1',
       u: '0 1',
-      v: '0 0.69',
-      w: '',
-      x: '',
-      y: '',
-      z: '',
+      v: '0 0.69'
     },
     areas: {
       "The Spine": "a b c d e",
@@ -122,7 +155,48 @@ export default {
   },
   UmbralWildwoodHex: { 
     col: 3,
-    row: 8 
+    row: 8,
+    points:  {
+      a: '0.356 0',
+      b: '0.607 0',
+      c: '0.846 0.198',
+      d: '0.964 0.433',
+      e: '0.858 0.882',
+      f: '0.516 1',
+      g: '0.153 0.806',
+      h: '0.094 0.312',
+      i: '0.224 0.396',
+      j: '0.420 0.332',
+      k: '0.447 0.351',
+      l: '0.587 0.223',
+      m: '0.727 0.304',
+      n: '0.703 0.470',
+      o: '0.731 0.488',
+      p: '0.519 0.499',
+      q: '0.500 0.597',
+      r: '0.458 0.643',
+      s: '0.273 0.690',
+      t: '0.846 0',
+      u: '1 0.433',
+      v: '1 1',
+      w: '0 1',
+      x: '-0.01 0.5',
+      y: '0 0',
+      z: ''
+    },
+    areas: {
+      'Vagrant Bastion': 'a b l k j',
+      'Stray': 'b t c m l',
+      'Amethyst': 'c m n o d',
+      "Lachesis' Tally": 'd u v e o',
+      'Hermits Rest': 'n o e q p',
+      "Clotho's Refuge": 'k l m n p',
+      "Atropos' Fate": 'f r q e v',
+      'Sentry': 'g s r f w',
+      'Golden Root Ranch': 'g s i h x',
+      'The Foundry': 'a j i h y',
+      'Thunderfoot': 'i j k p q r s'
+    }
   },
   GreatMarchHex: { 
     col: 3, 

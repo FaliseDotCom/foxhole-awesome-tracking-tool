@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 
 const data = {
         able   : 'https://war-service-live.foxholeservices.com/api/', 
@@ -6,15 +6,15 @@ const data = {
         charlie: 'https://war-service-live-3.foxholeservices.com/api/'
       },
       names = Object.keys( data ),
-      { subscribe, set } = writable( names[ 0 ] );
+      store = writable( names[ 0 ] );
 
 export const shards = {
   // subscribe to store
-  subscribe,
+  subscribe: store.subscribe,
   // list all names
   list: names,
   // get URL
-  url: n => n in data ? data[ n ] : '',
+  url: () => data[ get( store ) ],
   // set SHARD
-  set: n  => n in data ? set( n ) : null
+  set: n  => n in data ? store.set( n ) : null
 }

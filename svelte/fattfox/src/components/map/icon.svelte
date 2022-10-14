@@ -1,10 +1,9 @@
 <script>
 
   import { afterUpdate } from 'svelte';
-  import Tooltip from '@components/tooltip.svg'
 
-  export let  data = null,
-              size = 25;
+  export let data = null,
+             name = '';
 
   const icons = {
           5 : "Static base 1",
@@ -77,6 +76,7 @@
   let team = '',
       flags = 0,
       icon = '',
+      json = '',
       href = data ? getIcon( data.iconType ) : '',
       title = data ? getName( data.iconType ) : '',
       animate = false,
@@ -87,10 +87,13 @@
   {
     if ( data )
     {
+      const str = JSON.stringify( data );
+      let changed = false;
+
       // animate when both team and old_team or not empty but also differ
       if ( team && data.teamId && team !== data.teamId )
       {
-        console.log( title + ' icon change from ' + team + ' to ' + data.teamId )      
+        console.log( name + ', ' + title + ' team change from ' + team + ' to ' + data.teamId )      
         animate = true
 
         // remove animation so it can run again
@@ -101,18 +104,26 @@
 
       if ( flags && data.flags && flags !== data.flags )
       {
-        console.log( title + ' flags change from ' + flags + ' to ' + data.flags, parseInt( flags, 2 ), parseInt( data.flags, 2 ) )  
+        changed = true;
+        console.log( name + ', ' + title + ' flags change from ' + flags + ' to ' + data.flags );  
       }
 
       if ( icon && data.iconType && icon !== data.iconType )
       {
-        console.log( title + ' type change from ' + icon + ' to ' + data.iconType, parseInt( flags, 2 ), parseInt( data.flags, 2 ) )  
+        changed = true;
+        console.log( name + ', ' + title + ' type change from ' + icon + ' to ' + data.iconType );  
+      }
+
+      if ( !changed && json && str !== json )
+      {
+        console.log( name + ', ' + title + ' changed' )
       }
 
       // always store old values
       team = data.teamId;
       flags = data.flags;
       icon = data.iconType;
+      json = str;
     }
   });
 
@@ -121,12 +132,9 @@
 {#if data}
   {#if href }
     <image 
-      style={ '--icon-size: ' + size +'px; --icon-offset: ' + ( size/-2 ) + 'px' }
       { x }
       { y }
       class={ data.teamId + ( animate ? ' animate' : '' ) + ' icon-' + data.iconType }
-      width={ size + 'px' }
-      height={ size + 'px' }
       { href }
       { title }
     ></image>

@@ -1,18 +1,23 @@
 <script>
+   /**
+   * Data hex
+   */
+
   import { world } from '@stores/world'
-	import { beforeUpdate, afterUpdate, onDestroy  } from 'svelte';
-	import Hex from './hex.svelte';
+	import { afterUpdate, onDestroy  } from 'svelte';
+	import Hex from './base.svelte';
 
   export let name = '',
              once = false,
              data = {}
 
   // only update hex data with matching name
-  const unsubscribe = world.subscribe( ( d = {} ) => {
+  const unsubscribe = world.subscribe( ( d = {} ) => 
+  {
     const id = name.replace( 'Hex', '' )
 		if ( d && id in d ) data = d[ id ]
     // nothing to clean up yet but unsubscribe should be something
-    return () => console.log( 'unsubscribed data hex' )
+    return () => {}
 	})
 
   const maybeUnsubscribe = () =>
@@ -39,5 +44,5 @@
 </script>
 
 <Hex class={ `data ${$$props.class || ''}` } { name }>
-  <slot></slot>
+  <slot/>
 </Hex>

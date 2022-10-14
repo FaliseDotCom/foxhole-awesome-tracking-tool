@@ -1,4 +1,9 @@
 <script>
+  
+  /**
+   * Hex with static data; area labels and general points of interest
+   */
+
 	import DataHex from './data.svelte';
   export let name = ''
   let data = null,

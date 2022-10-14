@@ -1,4 +1,9 @@
 <script>
+
+  /**
+   * Hex with dynamically updated data
+   */
+  
 	import { afterUpdate } from 'svelte';
 	import DataHex from './data.svelte'
 	import Polygon from '../polygon.svelte';
@@ -11,7 +16,8 @@
       animate = false,
       // this stores the last version of the data
       version = 0,
-      towns = 0;
+      towns = 0,
+      json = '';
 
 
   // check for updates
@@ -19,26 +25,34 @@
   {
     if ( data )
     {
+      const str = JSON.stringify( data );
+
       // skip initial update when version is zero
       if ( version && data.version !== version )
       {
-        //console.log( name + ' updated from version ' + version + ' to ' + data.version )   
+        console.log( name + ' updated from version ' + version + ' to ' + data.version )   
         // start CSS animation
         animate = true
         // remove animation so it can run again
         setTimeout( () => {
           animate = false
         }, 500 )
-      }
 
-      if ( data.scorchedVictoryTowns !== towns )
-      {
-        console.log( name + ' updated scorchedVictoryTowns from ' + towns + ' to ' + data.scorchedVictoryTowns ) 
-      }
+        if ( data.scorchedVictoryTowns !== towns )
+        {
+          console.log( name + ' updated scorchedVictoryTowns from ' + towns + ' to ' + data.scorchedVictoryTowns ) 
+        }
 
-      // always update version
+        if ( json && json === str )
+        {
+          console.log( name + ' has NO updates' )  
+        }
+      }     
+
+      // store 'old' data
       version = data.version;
       towns = data.scorchedVictoryTowns;
+      json = str
     }
   });
 
@@ -93,7 +107,7 @@
 <DataHex bind:data={ data } { name } class={ `dynamic ${$$props.class || ''}` }>
   { #if data && Array.isArray( data.mapItems ) }
     { #each data.mapItems as item ( `${item.x}-${item.y}` ) }
-      <Icon data={ item }/>
+      <Icon data={ item } {name}/>
     { /each }
     <Polygon class={ 'team ' + color } style={ `opacity: ${perc}` }/>
     <Polygon class={ 'flasher ' + ( animate ? 'animate' : '' ) } />

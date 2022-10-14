@@ -1,6 +1,6 @@
  <script>
 	import { grid } from '@stores/grid'
-  import Hex from '@components/map/hex/hex.svelte' 
+  import Hex from '@components/map/hex/base.svelte' 
   export let component = Hex
 </script>
 

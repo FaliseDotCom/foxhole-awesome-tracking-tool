@@ -24,10 +24,12 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@sveltejs/adapter-static": "^1.0.0-next.44",
 		"axios": "^1.1.2",
 		"f-etag": "^2.1.0",
 		"isomorphic-unfetch": "^3.1.0",
 		"panzoom": "^9.4.3",
+		"robust-point-in-polygon": "^1.0.3",
 		"src": "file:./"
 	}
 }

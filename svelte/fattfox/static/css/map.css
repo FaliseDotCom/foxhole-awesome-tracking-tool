@@ -10,21 +10,21 @@ svg text
   height: auto;
 }
 
-.backgrounds text
+.background text
 {
   font-family: var( --font-header );
   fill: rgba( 0, 0, 0, .4 );
   font-size: 80px;
 }
 
-.borders polygon
+.border polygon
 {
   stroke: #111;
   stroke-width: 2;
   fill: none;
 }
 
-.statics text
+.static text
 {
   font-family: var( --font-body );
   font-size: 11px;
@@ -32,90 +32,87 @@ svg text
   filter: drop-shadow( 0 0 2px black );
 }
 
-.statics text.Major
+.static text.Major
 {
   font-size: 14px;
   font-weight: bold;
 }
 
+.dynamic image
+{
+  width: var( --icon-size );
+  height: var( --icon-size );
+  transform: translate( calc( var( --icon-size ) / -2 ), calc( var( --icon-size ) / -2 ) );
+}
+
 /* Oil = orange */
-.dynamics .icon-41,
-.dynamics .icon-62
+.dynamic .icon-41,
+.dynamic .icon-62
 {
   filter: sepia(100%) saturate(300%) hue-rotate(680deg) brightness( 90% ) contrast( 150% );
 }
 
 /* Sulpher = yellow */
-.dynamics .icon-23,
-.dynamics .icon-32
+.dynamic .icon-23,
+.dynamic .icon-32
 {
   filter: sepia(100%) saturate(300%) hue-rotate(10deg) brightness( 90% ) contrast( 90% );
 }
 
 /* Coal = dark */
-.dynamics .icon-61
+.dynamic .icon-61
 {
   filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness( 20% ) contrast( 50% ) grayscale( 100% );
 }
 
 /* Salvage = brown */
-.dynamics .icon-20,
-.dynamics .icon-38
+.dynamic .icon-20,
+.dynamic .icon-38
 {
   filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness(70% ) contrast( 110% );
 }
 
 /* Components = gray */
-.dynamics .icon-21,
-.dynamics .icon-40
+.dynamic .icon-21,
+.dynamic .icon-40
 {
   filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness(70% ) contrast( 110% ) grayscale( 100% );
 }
 
-.dynamics .WARDENS
+.dynamic .WARDENS
 {
   filter: sepia(100%) saturate(300%) hue-rotate(190deg);
 }
 
-.dynamics .COLONIALS
+.dynamic .COLONIALS
 {
   filter: sepia(100%) saturate(300%) hue-rotate(70deg);
 }
 
-.dynamics .flasher
+.dynamic .flasher
 {
   fill: none;
   stroke: none;
 }
 
-.dynamics .flasher.animate
+.dynamic .flasher.animate
 {
   animation: flash .5s infinite;
 } 
 
-.dynamics .team
+.dynamic .team
 {
   opacity: 0;
   transition: all 1s;
   fill: rgba( 255, 255, 255, 0 );
 }
 
-.dynamics .team.colonial
-{
-  fill: rgba( 0, 255, 0, .1 );
-}
-
-.dynamics .team.warden
-{
-  fill:rgba( 0, 0, 255, .1 );
-}
-
-.dynamics image
+.dynamic image
 {
   transform: translate( var( --icon-offset ), var( --icon-offset ) );
 }
 
-.areas .bounds 
+.area .bounds 
 {
   fill: none;
   stroke: none;
@@ -124,9 +121,38 @@ svg text
 
 .areas .area 
 {
-  fill: transparent;
+  fill: rgba( 0, 0, 0, 0 );
   stroke: rgba( 0, 0, 0, .5 );
   stroke-width: 1px;
+  transition: all 1s;
+}
+
+.dynamic .team.colonial,
+.areas .area.colonial
+{
+  fill: rgba( 0, 255, 0, .1 );
+}
+
+.dynamic .team.warden,
+.areas .area.warden
+{
+  fill:rgba( 0, 0, 255, .1 );
+}
+
+.points
+{
+  display: var( --points-display );  
+}
+
+.points .clicker
+{
+  fill: rgba(255, 174, 0, 0.001);
+  stroke: none;
+}
+
+.points .clicker:hover
+{
+  fill: rgba(255, 174, 0, 0.2 );
 }
 
 .points text

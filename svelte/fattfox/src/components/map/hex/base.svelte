@@ -1,4 +1,9 @@
 <script>
+  
+  /**
+   *  Base hex
+   */
+
 	import { grid } from '@stores/grid'
   export let name = ''
   const bounds = grid.bounds( name )

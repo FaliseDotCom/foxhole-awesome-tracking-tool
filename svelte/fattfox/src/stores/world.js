@@ -1,9 +1,10 @@
-import { writable } from 'svelte/store';
+import { writable , get } from 'svelte/store';
+import { shards } from './shards';
 
       // api urls
 const api_url = 'https://fatt.fali.se/api.php',
-      load_url = api_url + '?static',
-      update_url = api_url + '?async',
+      load_url = api_url + '?static&shard=',
+      update_url = api_url + '?async&shard=',
       // time between updates in seconds
       time = 10,
       // world 'writable' store
@@ -13,13 +14,14 @@ const api_url = 'https://fatt.fali.se/api.php',
       } );
 
 let timeout = 0,
-    init = false
+    init = false,
+    shard = get( shards );
 
 // load data once
 const loadStatics = () =>
 {
 	// initially load static world
-  fetch( load_url )
+  fetch( load_url + shard )
   .then( r => 
   {
     try { return r.json() }
@@ -42,7 +44,7 @@ const loadStatics = () =>
 const updateDynamics = () =>
 {
   clearTimeout( timeout )
-  fetch( update_url )
+  fetch( update_url + shard )
     .then( r => {
       try { return r.json() }
       catch ( e ) { 
@@ -91,6 +93,13 @@ const createStore = () => {
   // return the subscribe method
   return { subscribe } 
 }
+
+// when shard changes reload everything
+shards.subscribe( s => {
+  shard = s;
+  clearTimeout( timeout );
+  loadStatics();
+});
 
 // only export the subscribe method
 export const world = createStore()

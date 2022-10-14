@@ -1,17 +1,19 @@
-<script>
-  import { onDestroy, onMount } from 'svelte';
+ <script>
+  import { zoom } from '@stores/zoom.js'
+  import { onMount } from 'svelte';
   import panzoom from 'panzoom';
 
   export let  args = {
-                minZoom: .5,
-                maxZoom: 8,
+                minZoom: zoom.min,
+                maxZoom: zoom.max,
                 filterKey: () => true
               },
               zoom_step = .5,
               pan_step = 100;
 
   let root = null,
-      pz = null
+      pz = null,
+      save = true;
 
   onMount( () =>
   {
@@ -19,11 +21,24 @@
     
     onResize();
     
+    // add a short delay
     setTimeout( () =>
     {
+      // update zoom scale in store
+      pz.on( 'transform', () =>
+      {
+        if ( save )
+        {
+          const t = pz.getTransform();
+          zoom.set( t.scale )
+        }
+      } );
+
       loadTransform();
+
       // do this AFTER the initial transform has been loaded;
-      pz.on( 'transform', saveTransform );
+      pz.on( 'zoomend', saveTransform );
+      pz.on( 'panend', saveTransform );
     }, 0 )
   } );
 
@@ -207,7 +222,7 @@
   // set map zoom
   const zoomTo = ( z = 1, smooth = false,) =>
   {
-    if ( isNaN( z ) ) return;
+    if ( isNaN( z ) || typeof window == 'undefined' || !pz ) return;
 
     // zoom in to centre of window
     const x = window.innerWidth / 2,
@@ -234,6 +249,20 @@
       ? pz.smoothMoveTo( x, y )
       : pz.moveTo( x, y);
   };
+  
+  zoom.subscribe( z => {
+    if ( pz )
+    {
+      console.log( 'z changed', z, save );
+      save = false;
+      zoomTo( z, true ) ;
+      pz.on( 'zoomend.save', () => 
+      {
+        save = true;
+        pz.off( 'zoomend.save' );
+      } );
+    }
+  } );
 
 </script>
 
@@ -243,5 +272,5 @@
 />
 
 <div bind:this={root} class={ `panzoom ${$$props.class || ''}` }>
-  <slot></slot>
+  <slot/>
 </div>
