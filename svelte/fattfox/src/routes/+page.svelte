@@ -8,5 +8,5 @@
 
 <Logo/>
 <Shard/>
-<Zoom/>
+<!--<Zoom/>-->
 <HexMap/>

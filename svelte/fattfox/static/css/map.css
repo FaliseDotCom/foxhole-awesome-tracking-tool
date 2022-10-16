@@ -38,7 +38,7 @@ svg text
   font-weight: bold;
 }
 
-.dynamic image
+.dynamic .icon
 {
   width: var( --icon-size );
   height: var( --icon-size );
@@ -49,44 +49,44 @@ svg text
 .dynamic .icon-41,
 .dynamic .icon-62
 {
-  filter: sepia(100%) saturate(300%) hue-rotate(680deg) brightness( 90% ) contrast( 150% );
+  filter: url( #oil );
 }
 
 /* Sulpher = yellow */
 .dynamic .icon-23,
 .dynamic .icon-32
-{
-  filter: sepia(100%) saturate(300%) hue-rotate(10deg) brightness( 90% ) contrast( 90% );
+{ 
+  filter: url( #sulphur );
 }
 
 /* Coal = dark */
 .dynamic .icon-61
 {
-  filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness( 20% ) contrast( 50% ) grayscale( 100% );
+  filter: url( #coal );
 }
 
 /* Salvage = brown */
 .dynamic .icon-20,
 .dynamic .icon-38
 {
-  filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness(70% ) contrast( 110% );
+  filter: url( #salvage );
 }
 
 /* Components = gray */
 .dynamic .icon-21,
 .dynamic .icon-40
 {
-  filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness(70% ) contrast( 110% ) grayscale( 100% );
+  filter: url( #component );
 }
 
-.dynamic .WARDENS
+.dynamic .team-WARDENS
 {
-  filter: sepia(100%) saturate(300%) hue-rotate(190deg);
+  filter: url( #warden );
 }
 
-.dynamic .COLONIALS
+.dynamic .team-COLONIALS
 {
-  filter: sepia(100%) saturate(300%) hue-rotate(70deg);
+  filter: url( #colonial );
 }
 
 .dynamic .flasher

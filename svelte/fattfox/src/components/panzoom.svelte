@@ -48,7 +48,6 @@
     if ( window && window.localStorage )
     {
       const t = pz.getTransform();
-      //console.log( 'saved', t )
       window.localStorage.setItem( 'pzt', JSON.stringify( t ) );
     }
   }
@@ -61,11 +60,10 @@
       try
       {
         const t = JSON.parse( window.localStorage.getItem( 'pzt' ) )
-        //console.log( 'loaded', t )
         if ( t )
         {
-          pz.zoomAbs( 0, 0, t.scale );
-          pz.moveTo( t.x, t.y );
+          //pz.zoomAbs( 0, 0, t.scale );
+         // pz.moveTo( t.x, t.y );
         }
       }
       catch( e ) {}
