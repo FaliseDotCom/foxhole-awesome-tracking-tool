@@ -40,6 +40,7 @@ class FoxholeApi
     'dev'   => 'https://war-service-live-3.foxholeservices.com/api/'
   ];
 
+  // (initial) shard name
   private $shard = 'able';
 
   // class constructor
@@ -59,7 +60,7 @@ class FoxholeApi
     );
 
     // init guzzle client by setting a shard
-    $this->set_shard( 'baker' );
+    $this->set_shard( $this->shard );
   }
 
   /**
