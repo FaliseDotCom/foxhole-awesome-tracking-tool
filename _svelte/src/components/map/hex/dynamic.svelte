@@ -9,8 +9,7 @@
 	import Polygon from '../polygon.svelte';
   import Icon from '../icon.svelte';
 
-  export let name = '',
-             type = 'svg';
+  export let name = '';
 
       // data will change as its loaded from server
   let data = null,
@@ -105,14 +104,12 @@
   
 </script>
 
-<DataHex bind:data={ data } { name } { type } class={ `dynamic ${$$props.class || ''}` }>
+<DataHex bind:data={ data } { name } class={ `dynamic ${$$props.class || ''}` }>
   { #if data && Array.isArray( data.mapItems ) }
     { #each data.mapItems as item ( `${item.x}-${item.y}` ) }
-      <Icon data={ item } {name} {type}/>
+      <Icon data={ item } {name}/>
     { /each }
-    {#if type === 'svg' }
-      <Polygon class={ 'team ' + color } style={ `opacity: ${perc}` }/>
-      <Polygon class={ 'flasher ' + ( animate ? 'animate' : '' ) } />
-    {/if}
+    <Polygon class={ 'team ' + color } style={ `opacity: ${perc}` }/>
+    <Polygon class={ 'flasher ' + ( animate ? 'animate' : '' ) } />
   {/if }
 </DataHex>

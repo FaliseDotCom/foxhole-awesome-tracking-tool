@@ -109,7 +109,48 @@ export default {
   },
   CallahansPassageHex: { 
     col: 3,
-    row: 4 
+    row: 4,
+    points:
+      {
+        a: '0.250 0',
+        b: '0.703 0',
+        c: '0.924 0.340',
+        d: '0.955 0.598',
+        e: '0.663 1',
+        f: '0.297 1',
+        g: '0.060 0.626',
+        h: '0.364 0.312',
+        i: '0.620 0.264',
+        j: '0.669 0.353',
+        k: '0.640 0.546',
+        l: '0.626 0.551',
+        m: '0.610 0.796',
+        n: '0.432 0.686',
+        o: '0.414 0.620',
+        p: '0.458 0.512',
+        q: '',
+        r: '',
+        s: '',
+        t: '',
+        u: '',
+        v: '0 0.5',
+        w: '0 1',
+        x: '1 1',
+        y: '1 0.5',
+        z: '1 0'
+      },
+      areas: {
+        'Cragstown' : 'a b i h ',
+        'White Chapel' : 'b z c j i',
+        'The Procession': 'j c y d k',
+        'The Latch' : 'd k l m e x',
+        'Lochan Berth' : 'h i j k l p',
+        'Overlook Hill' : 'l p o n m',
+        'The Crumbling Passage' : 'e f n m',
+        'Crumbling Post' : 'f w g o n',
+        'Scath Passing' : 'g o p h',
+        'Solas Gorge' : 'g h a v'
+      }
   },
   DeadLandsHex: {
     col: 3, 

@@ -4,7 +4,6 @@
   import { icons } from '@stores/icons.js'
 
   export let data = null,
-             type = 'svg',
              name = '';
 
   let team = '',
@@ -64,23 +63,10 @@
 
 </script>
 {#if data}
-  {#if type === 'svg' }
     <image      
       { x } { y } 
       { href }
       { title }
       class={ `icon icon-${ data.iconType } team-${ data.teamId }` }
     />
-  {:else}
-   <img
-      src={ href } 
-      style={ `left: ${x}; top: ${y};`}
-      { title }
-      alt={ title } 
-      class={ `icon icon-${ data.iconType } team-${ data.teamId }` }
-    />
-    <style>
-      img.icon { position: absolute; }
-    </style>
-  {/if}
 {/if}

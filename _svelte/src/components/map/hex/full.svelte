@@ -12,11 +12,15 @@
     import HexPoints from '@components/map/hex/points.svelte';
 
     export let name = '';
+
+    const show_points = !true;
 </script>
 
 <HexBackground {name}/>
 <HexBorder {name}/>
 <HexAreas {name}/>
-<HexStatic {name}/>
 <HexDynamic {name}/>
-<!--<HexPoints {name}/>-->
+<HexStatic {name}/>
+{#if show_points}
+<HexPoints {name}/>
+{/if}

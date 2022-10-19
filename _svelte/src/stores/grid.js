@@ -1,4 +1,5 @@
-import items  from './grid_data.js';
+import items from './grid_data.js';
+import intersector from 'robust-point-in-polygon'
 
       // item width & height
 const w = 1024,
@@ -10,6 +11,9 @@ const w = 1024,
       // rows and colums totals
 let rows = 0,
     cols = 0;
+
+      // cache for icons in areas
+const containers = {}
 
 // get max number of rows and columns
 Object.values( items ).forEach( item => {
@@ -189,6 +193,49 @@ const getPolyStrings = name =>
   return null;
 }
 
+// map all items to areas
+const mapAreaItems = ( hex, items ) =>
+{
+  const details = getDetails( hex );
+  if ( !details ) return;
+  Object.keys( details ).forEach( key =>
+  {
+    items.forEach( item => areaContains( hex, key, item ) );
+  } );
+
+  console.log( containers )
+}
+
+// test if an area in a hex contains an item
+const areaContains = ( hex, area, item ) =>
+{
+  const details = getDetails( hex );
+
+  if ( !details || !( area in details ) ) return false;
+
+  // create a unique key for this point based on its coordinates
+  const area_key = hex + '-' + area,
+        item_key = item.x + '-' + item.y;
+
+  // already cached? return the result
+  if ( area_key in containers && item_key in containers[ area_key ] )
+  {
+    return containers[ area_key ][ item_key ]
+  }
+
+  // create structure in container if needed
+  if ( !( area_key in containers ) ) containers[ area_key ] = {}
+
+  // do a hit test
+  const hit = intersector( details[ area ].arr, [ item.x * grid.w, item.y * grid.h ] ) <= 0;
+
+  // store in cache
+  containers[ area_key ][ item_key ] = hit
+
+  // return the result
+  return hit;
+}
+
 export const grid = {
   // item names
   items: Object.keys( items ),
@@ -223,5 +270,7 @@ export const grid = {
   getPolyStrings,
   getPolyArrays,
   getDetails,
-  getCoords
+  getCoords,
+  mapAreaItems,
+  areaContains
 }

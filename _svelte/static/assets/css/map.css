@@ -83,21 +83,16 @@ svg text
   transition: all 1s;
 }
 
-.dynamic .team.colonial,
-.areas .area.colonial
+/*.dynamic .team.colonial,*/
+.areas .area.team-COLONIALS
 {
-  fill: rgba( 0, 255, 0, .1 );
+  fill: rgba( 0, 255, 0, .15 );
 }
 
-.dynamic .team.warden,
-.areas .area.warden
+/*.dynamic .team.warden,*/
+.areas .area.team-WARDENS
 {
-  fill:rgba( 0, 0, 255, .1 );
-}
-
-.points
-{
-  display: block; // var( --points-display );  
+  fill:rgba( 0, 0, 255, .15 );
 }
 
 .points .clicker

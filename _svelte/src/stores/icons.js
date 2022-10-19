@@ -158,6 +158,9 @@ const isWinBase = id => win_bases.includes( id )
 // is id a region base?
 const isRegionBase = id => region_bases.includes( id )
 
+// get region bases icon ids
+const getRegionBases = () => region_bases
+
 export const icons = {
   list,
   getIcon,
@@ -167,5 +170,6 @@ export const icons = {
   isConquerable,
   isBase,
   isWinBase,
-  isRegionBase
+  isRegionBase,
+  getRegionBases
 }

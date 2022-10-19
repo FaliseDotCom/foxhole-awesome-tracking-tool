@@ -5,54 +5,35 @@
    */
 
 	import DataHex from './data.svelte';
-  import { grid } from '@stores/grid'
+  import { grid } from '@stores/grid';
+  import { icons } from '@stores/icons';
 	import Polygon from '../polygon.svelte';
-	import { afterUpdate } from 'svelte';
-  import intersector from 'robust-point-in-polygon'
+	import { afterUpdate, onMount } from 'svelte';
 
   export let name = ''
 
   let data = null;
 
-        // get polygons by name
+        // get polygon details by name
   const details = grid.getDetails( name ),
-        // uncountable icon ids
-        not_countable = [ 41, 62, 23, 32, 61, 20, 38, 21, 40 ],
+        // is data valid?
         is_valid = details && typeof details === 'object' && Object.keys( details );
 
-  afterUpdate( () => 
-  {
+  afterUpdate( () => {
     if ( data && 'mapItems' in data && is_valid )
     {      
-      Object.keys( details ).forEach( key =>
+      // get region bases for this hex
+      const region_bases = data.mapItems.filter( item => item.teamId !== 'NONE' && icons.isRegionBase( item.iconType ) )
+      // go over each area
+      for ( const [ key, detail ] of Object.entries( details ) )
       {
-        let colonials = 0,
-            wardens = 0,
-            team = '';
+        // find based per area, should be ONE, could be NONE
+        const area_bases = region_bases.filter( item => grid.areaContains( name, key, item ) )
+        details[ key ].team = area_bases.length ? area_bases[ 0 ].teamId : 'NONE';
+      }
+    }  
+  } );
 
-        data.mapItems.forEach( item => 
-        {
-          if ( item.teamId !== 'NONE' && !not_countable.includes( item.iconType ) )
-          {
-            const hit = intersector( details[ key ].arr, [ item.x * grid.w, item.y * grid.h ] );
-            if ( hit <= 0 )
-            {
-              if ( item.teamId == 'WARDENS')    wardens++;
-              if ( item.teamId == 'COLONIALS')  colonials++;
-            }
-          }
-        } );
-
-        if ( colonials || wardens ) 
-        {
-          if ( colonials > wardens )   team = 'colonial';
-          if ( wardens > colonials )   team = 'warden';
-        }
-
-        details[ key ].team = team;
-      } ); 
-    }    
-  }) 
 </script>
 
 {#if is_valid }
@@ -61,7 +42,7 @@
       <Polygon/>
     </clipPath>
     {#each Object.entries( details ) as [ key, detail ] }
-      <polygon points={ detail.poly } title={ key } class={ 'area ' + detail.team } clip-path="url(#clip{ name })" />
+      <polygon points={ detail.poly } title={ key } class={ 'area team-' + detail.team } clip-path="url(#clip{ name })" />
     {/each}  
   </DataHex>
 {/if}

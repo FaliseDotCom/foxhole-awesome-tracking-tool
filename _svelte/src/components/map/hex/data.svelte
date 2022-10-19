@@ -9,7 +9,6 @@
 
   export let name = '',
              once = false,
-             type = 'svg',
              data = {}
 
   // only update hex data with matching name
@@ -44,6 +43,6 @@
              
 </script>
 
-<Hex class={ `data ${$$props.class || ''}` } { name } {type}>
+<Hex class={ `data ${$$props.class || ''}` } { name }>
   <slot/>
 </Hex>
