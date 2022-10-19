@@ -1,0 +1,43 @@
+/* Oil = orange */
+.dynamic .icon-41,
+.dynamic .icon-62
+{
+  filter: sepia(100%) saturate(300%) hue-rotate(680deg) brightness( 90% ) contrast( 150% );
+}
+
+/* Sulpher = yellow */
+.dynamic .icon-23,
+.dynamic .icon-32
+{
+  filter: sepia(100%) saturate(300%) hue-rotate(10deg) brightness( 90% ) contrast( 90% );
+}
+
+/* Coal = dark */
+.dynamic .icon-61
+{
+  filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness( 20% ) contrast( 50% ) grayscale( 100% );
+}
+
+/* Salvage = brown */
+.dynamic .icon-20,
+.dynamic .icon-38
+{
+  filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness(70% ) contrast( 110% );
+}
+
+/* Components = gray */
+.dynamic .icon-21,
+.dynamic .icon-40
+{
+  filter: sepia(100%) saturate(100%) hue-rotate(0deg) brightness(70% ) contrast( 110% ) grayscale( 100% );
+}
+
+.dynamic .team-WARDENS
+{
+  filter: sepia(100%) saturate(300%) hue-rotate(190deg);
+}
+ 
+.dynamic.team-COLONIALS
+{
+  filter: sepia(100%) saturate(300%) hue-rotate(70deg);
+}

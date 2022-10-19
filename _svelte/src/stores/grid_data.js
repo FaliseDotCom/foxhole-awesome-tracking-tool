@@ -1,0 +1,310 @@
+/*
+      // copy / paste empty points
+      points:
+      {
+        a: '',
+        b: '',
+        c: '',
+        d: '',
+        e: '',
+        f: '',
+        g: '',
+        h: '',
+        i: '',
+        j: '',
+        k: '',
+        l: '',
+        m: '',
+        n: '',
+        o: '',
+        p: '',
+        q: '',
+        r: '',
+        s: '',
+        t: '',
+        u: '',
+        v: '',
+        w: '',
+        x: '',
+        y: '',
+        z: ''
+      },
+      areas: {
+
+      }
+*/
+
+
+export default {
+  NevishLineHex: {
+    col: 0,
+    row: 3,
+    coords: {},
+    areas: {}
+  },
+  OarbreakerHex: {
+    col: 0,
+    row: 5,
+    coords: {},
+    areas: {}
+  },
+  FishermansRowHex: {
+    col: 0,
+    row: 7
+  },
+  OriginHex: { 
+    col: 0, 
+    row: 9 
+  },
+  CallumsCapeHex: { 
+    col: 1, 
+    row: 2 
+  },
+  StonecradleHex: { 
+    col: 1, 
+    row: 4 
+  },
+  FarranacCoastHex: { 
+    col: 1, 
+    row: 6 
+  },
+  WestgateHex: { 
+    col: 1, 
+    row: 8 
+  },
+  AshFieldsHex: { 
+    col: 1, 
+    row: 10 
+  },
+  SpeakingWoodsHex: { 
+    col: 2, 
+    row: 1 },
+  MooringCountyHex: { 
+    col: 2, 
+    row: 3 
+  },
+  LinnMercyHex: { 
+    col: 2, 
+    row: 5 
+  },
+  LochMorHex: { 
+    col: 2, 
+    row: 7 
+  },
+  HeartlandsHex: { 
+    col: 2, 
+    row: 9 
+  },
+  RedRiverHex: { 
+    col: 2, 
+    row: 11 
+  },
+  BasinSionnachHex: { 
+    col: 3, 
+    row: 0 
+  },
+  ReachingTrailHex: { 
+    col: 3, 
+    row: 2 
+  },
+  CallahansPassageHex: { 
+    col: 3,
+    row: 4 
+  },
+  DeadLandsHex: {
+    col: 3, 
+    row: 6, 
+    points :
+    {
+      a: '0.1 0',
+      b: '0 0.318',
+      c: '0.29 0.4',
+      d: '0.375 0.36',
+      e: '0.411 0',
+      f: '0.475 0.39',
+      g: '0.625 0.31',
+      h: '0.666 0.328',
+      i: '1 0.098',
+      j: '0.9 0',
+      k: '0.345 0.631',
+      l: '0.481 0.540',
+      m: '0.607 0.639',
+      n: '0.687 0.556',
+      o: '0.98 0.717',
+      p: '0.579 0.738',
+      q: '0.661 1',
+      r: '1 1',
+      s: '0.391 0.731',
+      t: '0.266 1',
+      u: '0 1',
+      v: '0 0.69'
+    },
+    areas: {
+      "The Spine": "a b c d e",
+      "Iron's End": "e d f g",
+      "Callahan's Gate": "e g h i j",
+      "Abandoned Ward": "c d f l k",
+      "Callahan's Boot" : "l f g h n m",
+      "The Salt March" : "n h i o",
+      "Brine Glen" : "m n o r q p",
+      "The Pits" : "s k l m p",
+      "The Salt Farms": "s p q t",
+      "Sun's Hollow": "k s t u v",
+      "Liberation Point": "b c k v"
+    }
+  },
+  UmbralWildwoodHex: { 
+    col: 3,
+    row: 8,
+    points:  {
+      a: '0.356 0',
+      b: '0.607 0',
+      c: '0.846 0.198',
+      d: '0.964 0.433',
+      e: '0.858 0.882',
+      f: '0.516 1',
+      g: '0.153 0.806',
+      h: '0.094 0.312',
+      i: '0.224 0.396',
+      j: '0.420 0.332',
+      k: '0.447 0.351',
+      l: '0.587 0.223',
+      m: '0.727 0.304',
+      n: '0.703 0.470',
+      o: '0.731 0.488',
+      p: '0.519 0.499',
+      q: '0.500 0.597',
+      r: '0.458 0.643',
+      s: '0.273 0.690',
+      t: '0.846 0',
+      u: '1 0.433',
+      v: '1 1',
+      w: '0 1',
+      x: '-0.01 0.5',
+      y: '0 0',
+      z: ''
+    },
+    areas: {
+      'Vagrant Bastion': 'a b l k j',
+      'Stray': 'b t c m l',
+      'Amethyst': 'c m n o d',
+      "Lachesis' Tally": 'd u v e o',
+      'Hermits Rest': 'n o e q p',
+      "Clotho's Refuge": 'k l m n p',
+      "Atropos' Fate": 'f r q e v',
+      'Sentry': 'g s r f w',
+      'Golden Root Ranch': 'g s i h x',
+      'The Foundry': 'a j i h y',
+      'Thunderfoot': 'i j k p q r s'
+    }
+  },
+  GreatMarchHex: { 
+    col: 3, 
+    row: 10 ,
+    points:
+      {
+        a: '0.482 -0.01',
+        b: '0.750 0.275',
+        c: '0.668 0.368',
+        d: '0.490 0.289',
+        e: '0.464 0.221',
+        f: '0.229 0.329',
+        g: '0.409 0.535',
+        h: '0.437 0.515',
+        i: '0.367 0.663',
+        j: '0.653 0.536',
+        k: '0.784 0.932',
+        l: '0.813 0.874',
+        m: '0.142 0.786',
+        n: '0.104 0.292',
+        o: '0.870 0.244',
+        p: '',
+        q: '',
+        r: '',
+        s: '',
+        t: '',
+        u: '0.784 1',
+        v: '0.142 1',
+        w: '0 0.5',
+        x: '0 0',
+        y: '1 0.5',
+        z: '1 0'
+      },
+      areas: {
+        'Lionsfort': 'a b o z',
+        'Dendro Field': 'o b c j l y',
+        "Myrmidon's Stay": 'a b c d e',
+        'Violethome': 'a e f n x',
+        'Camp Senti': 'd e f g h',
+        'Remnant Villa': 'c d h j',
+        'Leto': 'g f n w m i',
+        'Sitaria': 'j h g i k l',
+        'The Swan': 'm i k u v'
+
+      }
+  },
+  KalokaiHex: { 
+    col: 3, 
+    row: 12 
+  },
+  HowlCountyHex: { 
+    col: 4, 
+    row: 1 
+  },
+  ViperPitHex: { 
+    col: 4,
+    row: 3 
+  },
+  MarbanHollow: { // no HEX in name, that's right!
+    col: 4, 
+    row: 5 
+  }, 
+  DrownedValeHex: { 
+    col: 4,
+    row: 7 
+  },
+  ShackledChasmHex: { 
+    col: 4,
+    row: 9 
+  },
+  AcrithiaHex: { 
+    col: 4, 
+    row: 11
+  },
+  ClansheadValleyHex: { 
+    col: 5, 
+    row: 2 
+  },
+  WeatheredExpanseHex: { 
+    col: 5, 
+    row: 4 
+  },
+  EndlessShoreHex: { 
+    col: 5, 
+    row: 6 
+  },
+  AllodsBightHex: { 
+    col: 5,
+    row: 8 
+  },
+  TerminusHex: { 
+    col: 5, 
+    row: 10 
+  },
+  MorgensCrossingHex: { 
+    col: 6, 
+    row: 3 
+  },
+  GodcroftsHex: { 
+    col: 6, 
+    row: 5 
+  },
+  TempestIslandHex: { 
+    col: 6, 
+    row: 7 
+  },
+  TheFingersHex: { 
+    col: 6, 
+    row: 9 
+  }
+};

@@ -11,6 +11,12 @@ dist/
 # vendor files, run composer install instead
 vendor/*
 
+# svelte build dir
+build/*
+
+# old stuff
+_old/
+
 # logs dir
 logs/*
 
