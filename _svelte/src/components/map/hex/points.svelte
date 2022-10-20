@@ -121,4 +121,4 @@
     {/each}  
     <Polygon on:click={ onClick } class={ 'clicker ' + name }/>
   </Hex>
-{/if}
+{/if}>

@@ -110,6 +110,8 @@ svg text
 {
   font-weight: bold;
   filter: drop-shadow( 0 0 2px white );
+  user-select: none;
+  pointer-events: none;
 }
 
 div.map.dynamics
