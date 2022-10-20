@@ -33,29 +33,23 @@
       // skip initial update when version is zero
       if ( version && data.v !== version )
       {
-        if ( log )
-        {
-          console.log( name + ' updated from version ' + version + ' to ' + data.v )   
-        }
-
         // start CSS animation
-        animate = true
+        animate = true;
         // remove animation so it can run again
         setTimeout( () => {
           animate = false
         }, 500 )
-
-        if ( data.s !== scorched )
+        
+        if ( log )
         {
-          if ( log )
+          console.log( name + ' updated from version ' + version + ' to ' + data.v )   
+
+          if ( data.s !== scorched )
           {
             console.log( name + ' updated scorched victory towns from ' + scorched + ' to ' + data.s ) 
           }
-        }
 
-        if ( json && json === str )
-        {
-          if ( log )
+          if ( json && json === str )
           {
             console.log( name + ' has NO updates' )  
           }
@@ -75,6 +69,8 @@
     { #each data.d as item ( `${item.x}-${item.y}` ) }
       <Icon data={ item } {name}/>
     { /each }
-    <Polygon class={ 'flasher ' + ( animate ? 'animate' : '' ) } />
+    {#if animate}
+      <Polygon class="flash" />
+    {/if}
   {/if }
 </DataHex>

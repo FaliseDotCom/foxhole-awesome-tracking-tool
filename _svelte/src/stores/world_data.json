@@ -3,7 +3,7 @@
     "id": 29,
     "hex": "NevishLineHex",
     "name": "NevishLine",
-    "title": "NevishLine",
+    "title": "Nevish Line",
     "col": 0,
     "row": 3,
     "points": {
@@ -288,7 +288,7 @@
     "id": 15,
     "hex": "FishermansRowHex",
     "name": "FishermansRow",
-    "title": "FishermansRow",
+    "title": "Fishermans Row",
     "col": 0,
     "row": 7,
     "points": {
@@ -538,7 +538,7 @@
     "id": 32,
     "hex": "CallumsCapeHex",
     "name": "CallumsCape",
-    "title": "CallumsCape",
+    "title": "Callums Cape",
     "col": 1,
     "row": 2,
     "points": {
@@ -768,7 +768,7 @@
     "id": 13,
     "hex": "FarranacCoastHex",
     "name": "FarranacCoast",
-    "title": "FarranacCoast",
+    "title": "Farranac Coast",
     "col": 1,
     "row": 6,
     "points": {
@@ -1243,7 +1243,7 @@
     "id": 41,
     "hex": "AshFieldsHex",
     "name": "AshFields",
-    "title": "AshFields",
+    "title": "Ash Fields",
     "col": 1,
     "row": 10,
     "points": {
@@ -1363,7 +1363,7 @@
     "id": 33,
     "hex": "SpeakingWoodsHex",
     "name": "SpeakingWoods",
-    "title": "SpeakingWoods",
+    "title": "Speaking Woods",
     "col": 2,
     "row": 1,
     "points": {
@@ -1473,7 +1473,7 @@
     "id": 7,
     "hex": "MooringCountyHex",
     "name": "MooringCounty",
-    "title": "MooringCounty",
+    "title": "Mooring County",
     "col": 2,
     "row": 3,
     "points": {
@@ -1608,7 +1608,7 @@
     "id": 10,
     "hex": "LinnMercyHex",
     "name": "LinnMercy",
-    "title": "LinnMercy",
+    "title": "Linn Mercy",
     "col": 2,
     "row": 5,
     "points": {
@@ -1748,7 +1748,7 @@
     "id": 9,
     "hex": "LochMorHex",
     "name": "LochMor",
-    "title": "LochMor",
+    "title": "Loch Mor",
     "col": 2,
     "row": 7,
     "points": {
@@ -2088,7 +2088,7 @@
     "id": 31,
     "hex": "RedRiverHex",
     "name": "RedRiver",
-    "title": "RedRiver",
+    "title": "Red River",
     "col": 2,
     "row": 11,
     "points": {
@@ -2198,7 +2198,7 @@
     "id": 34,
     "hex": "BasinSionnachHex",
     "name": "BasinSionnach",
-    "title": "BasinSionnach",
+    "title": "Basin Sionnach",
     "col": 3,
     "row": 0,
     "points": {
@@ -2293,7 +2293,7 @@
     "id": 11,
     "hex": "ReachingTrailHex",
     "name": "ReachingTrail",
-    "title": "ReachingTrail",
+    "title": "Reaching Trail",
     "col": 3,
     "row": 2,
     "points": {
@@ -2326,67 +2326,56 @@
     },
     "areas": {
       "Brodytown": {
-        "title": "Brodytown",
         "x": 0.44412765,
         "y": 0.3227743,
         "points": "k l m b a"
       },
       "Dwyerstown": {
-        "title": "Dwyerstown",
         "x": 0.15061852,
         "y": 0.36391303,
         "points": "g k j u"
       },
       "Elksford": {
-        "title": "Elksford",
         "x": 0.33049652,
         "y": 0.4971746,
         "points": "g t l k"
       },
       "Fort Mac Conaill": {
-        "title": "Fort Mac Conaill",
         "x": 0.70212996,
         "y": 0.8482764,
         "points": "x d p q r e"
       },
       "Harpy": {
-        "title": "Harpy",
         "x": 0.44333068,
         "y": 0.9163655,
         "points": "e r s f y"
       },
       "Ice Ranch": {
-        "title": "Ice Ranch",
         "x": 0.70420206,
         "y": 0.3878927,
         "points": "b w c o n m"
       },
       "Limestone Holdfast": {
-        "title": "Limestone Holdfast",
         "x": 0.29389253,
         "y": 0.15557751,
         "points": "j k a z"
       },
       "Mousetrap": {
-        "title": "Mousetrap",
         "x": 0.8401006,
         "y": 0.53316337,
         "points": "c v d p o"
       },
       "Nightchurch": {
-        "title": "Nightchurch",
         "x": 0.37822467,
         "y": 0.74487805,
         "points": "s t g f"
       },
       "Reprieve": {
-        "title": "Reprieve",
         "x": 0.54468614,
         "y": 0.67606056,
         "points": "s r q n m l t"
       },
       "The Ark": {
-        "title": "The Ark",
         "x": 0.74158484,
         "y": 0.5578975,
         "points": "n o p q"
@@ -2524,7 +2513,7 @@
     "id": 4,
     "hex": "CallahansPassageHex",
     "name": "CallahansPassage",
-    "title": "CallahansPassage",
+    "title": "Callahans Passage",
     "col": 3,
     "row": 4,
     "points": {
@@ -2557,61 +2546,51 @@
     },
     "areas": {
       "Cragstown": {
-        "title": "Cragstown",
         "x": 0.51669085,
         "y": 0.13976866,
         "points": "a b i h "
       },
       "White Chapel": {
-        "title": "White Chapel",
         "x": 0.7634679,
         "y": 0.2669874,
         "points": "b z c j i"
       },
       "The Procession": {
-        "title": "The Procession",
         "x": 0.7513888,
         "y": 0.43929663,
         "points": "j c y d k"
       },
       "The Latch": {
-        "title": "The Latch",
         "x": 0.72713715,
         "y": 0.68313295,
         "points": "d k l m e x"
       },
       "Lochan Berth": {
-        "title": "Lochan Berth",
         "x": 0.56270015,
         "y": 0.42374668,
         "points": "h i j k l p"
       },
       "Overlook Hill": {
-        "title": "Overlook Hill",
         "x": 0.5252302,
         "y": 0.6481513,
         "points": "l p o n m"
       },
       "The Crumbling Passage": {
-        "title": "The Crumbling Passage",
         "x": 0.45544657,
         "y": 0.7847246,
         "points": "e f n m"
       },
       "Crumbling Post": {
-        "title": "Crumbling Post",
         "x": 0.35385895,
         "y": 0.7248818,
         "points": "f w g o n"
       },
       "Scath Passing": {
-        "title": "Scath Passing",
         "x": 0,
         "y": 0,
         "points": "g o p h"
       },
       "Solas Gorge": {
-        "title": "Solas Gorge",
         "x": 0.19406947,
         "y": 0.33073047,
         "points": "g h a v"
@@ -2714,7 +2693,7 @@
     "id": 3,
     "hex": "DeadLandsHex",
     "name": "DeadLands",
-    "title": "DeadLands",
+    "title": "Dead Lands",
     "col": 3,
     "row": 6,
     "points": {
@@ -2743,19 +2722,16 @@
     },
     "areas": {
       "The Spine": {
-        "title": "The Spine",
         "x": 0.30697387,
         "y": 0.23582822,
         "points": "a b c d e"
       },
       "Iron's End": {
-        "title": "Iron's End",
         "x": 0.46120775,
         "y": 0.26207438,
         "points": "e d f g"
       },
       "Callahan's Gate": {
-        "title": "Callahan's Gate",
         "x": 0.62483287,
         "y": 0.110333465,
         "points": "e g h i j"
@@ -2767,31 +2743,26 @@
         "points": "c d f l k"
       },
       "Callahan's Boot": {
-        "title": "Callahan's Boot",
         "x": 0.5475686,
         "y": 0.4907771,
         "points": "l f g h n m"
       },
       "The Salt March": {
-        "title": "The Salt March",
         "x": 0.82289404,
         "y": 0.48192352,
         "points": "n h i o"
       },
       "Brine Glen": {
-        "title": "Brine Glen",
         "x": 0.72561765,
         "y": 0.7220242,
         "points": "m n o r q p"
       },
       "The Pits": {
-        "title": "The Pits",
         "x": 0.4651194,
         "y": 0.6297798,
         "points": "s k l m p"
       },
       "The Salt Farms": {
-        "title": "The Salt Farms",
         "x": 0.4569705,
         "y": 0.8376134,
         "points": "s p q t"
@@ -2803,7 +2774,6 @@
         "points": "k s t u v"
       },
       "Liberation Point": {
-        "title": "Liberation Point",
         "x": 0.24296169,
         "y": 0.5517707,
         "points": "b c k v"
@@ -2971,7 +2941,7 @@
     "id": 6,
     "hex": "UmbralWildwoodHex",
     "name": "UmbralWildwood",
-    "title": "UmbralWildwood",
+    "title": "Umbral Wildwood",
     "col": 3,
     "row": 8,
     "points": {
@@ -3004,83 +2974,57 @@
     },
     "areas": {
       "Vagrant Bastion": {
-        "title": "Vagrant Bastion",
         "x": 0.5076587,
         "y": 0.1616039,
         "points": "a b l k j"
       },
       "Stray": {
-        "title": "Stray",
         "x": 0.6767252,
         "y": 0.1845278,
         "points": "b t c m l"
       },
       "Amethyst": {
-        "title": "Amethyst",
         "x": 0.8178504,
         "y": 0.38884524,
         "points": "c m n o d"
       },
-      "Lachesis' Tally": {
-        "title": "Lachesis' Tally",
-        "x": 0,
-        "y": 0,
-        "points": "d u v e o"
-      },
-      "Hermits Rest": {
-        "title": "Hermits Rest",
-        "x": 0,
-        "y": 0,
-        "points": "n o e q p"
-      },
       "Clotho's Refuge": {
-        "title": "Clotho's Refuge",
         "x": 0.61337584,
         "y": 0.32398352,
         "points": "k l m n p"
       },
       "Atropos' Fate": {
-        "title": "Atropos' Fate",
         "x": 0.5730031,
         "y": 0.7843336,
         "points": "f r q e v"
       },
       "Sentry": {
-        "title": "Sentry",
         "x": 0.395983,
         "y": 0.8252861,
         "points": "g s r f w"
       },
-      "Golden Root Ranch": {
-        "title": "Golden Root Ranch",
-        "x": 0,
-        "y": 0,
-        "points": "g s i h x"
-      },
       "The Foundry": {
-        "title": "The Foundry",
         "x": 0.27597004,
         "y": 0.2246597,
         "points": "a j i h y"
       },
       "Thunderfoot": {
-        "title": "Thunderfoot",
         "x": 0.34593302,
         "y": 0.51468116,
         "points": "i j k p q r s"
       },
       "GoldenRoot Ranch": {
-        "points": "",
+        "points": "g s i h x",
         "x": 0.15671077,
         "y": 0.5505076
       },
       "Hermit's Rest": {
-        "points": "",
+        "points": "n o e q p",
         "x": 0.67122585,
         "y": 0.6176634
       },
       "Lachesis' Tally ": {
-        "points": "",
+        "points": "d u v e o",
         "x": 0.840556,
         "y": 0.54475015
       }
@@ -3157,7 +3101,7 @@
     "id": 17,
     "hex": "GreatMarchHex",
     "name": "GreatMarch",
-    "title": "GreatMarch",
+    "title": "Great March",
     "col": 3,
     "row": 10,
     "points": {
@@ -3190,55 +3134,46 @@
     },
     "areas": {
       "Lionsfort": {
-        "title": "Lionsfort",
         "x": 0.69568443,
         "y": 0.12216068,
         "points": "a b o z"
       },
       "Dendro Field": {
-        "title": "Dendro Field",
         "x": 0,
         "y": 0,
         "points": "o b c j l y"
       },
       "Myrmidon's Stay": {
-        "title": "Myrmidon's Stay",
         "x": 0.6058823,
         "y": 0.22973543,
         "points": "a b c d e"
       },
       "Violethome": {
-        "title": "Violethome",
         "x": 0.31300274,
         "y": 0.19231363,
         "points": "a e f n x"
       },
       "Camp Senti": {
-        "title": "Camp Senti",
         "x": 0.37455705,
         "y": 0.362185,
         "points": "d e f g h"
       },
       "Remnant Villa": {
-        "title": "Remnant Villa",
         "x": 0.5511068,
         "y": 0.43947107,
         "points": "c d h j"
       },
       "Leto": {
-        "title": "Leto",
         "x": 0.24598461,
         "y": 0.5040848,
         "points": "g f n w m i"
       },
       "Sitaria": {
-        "title": "Sitaria",
         "x": 0.537554,
         "y": 0.6178947,
         "points": "j h g i k l"
       },
       "The Swan": {
-        "title": "The Swan",
         "x": 0.40979624,
         "y": 0.8734635,
         "points": "m i k u v"
@@ -3476,7 +3411,7 @@
     "id": 35,
     "hex": "HowlCountyHex",
     "name": "HowlCounty",
-    "title": "HowlCounty",
+    "title": "Howl County",
     "col": 4,
     "row": 1,
     "points": {
@@ -3581,7 +3516,7 @@
     "id": 25,
     "hex": "ViperPitHex",
     "name": "ViperPit",
-    "title": "ViperPit",
+    "title": "Viper Pit",
     "col": 4,
     "row": 3,
     "points": {
@@ -3614,49 +3549,41 @@
     },
     "areas": {
       "Blackthroat": {
-        "title": "Blackthroat",
         "x": 0.38273838,
         "y": 0.82834363,
         "points": "c d j k l"
       },
       "Earl Crowley": {
-        "title": "Earl Crowley",
         "x": 0.816489,
         "y": 0.5138778,
         "points": "a n m b v"
       },
       "Fleck Crossing": {
-        "title": "Fleck Crossing",
         "x": 0.5321962,
         "y": 0.5375857,
         "points": "g n m l k"
       },
       "Fort Viper": {
-        "title": "Fort Viper",
         "x": 0.3418565,
         "y": 0.599041,
         "points": "i j k g h"
       },
       "Kirknell": {
-        "title": "Kirknell",
         "x": 0.28270397,
         "y": 0.548087,
         "points": "e i h f u"
       },
       "Moltworth": {
-        "title": "Moltworth",
         "x": 0.6234502,
         "y": 0.71039724,
         "points": "b x c l m"
       },
       "Serenity's Blight": {
-        "title": "Serenity's Blight",
         "x": 0.44389725,
         "y": 0.3511407,
         "points": "a n g h f z o"
       },
       "The Friars": {
-        "title": "The Friars",
         "x": 0.26904154,
         "y": 0.8157426,
         "points": "d j i e y"
@@ -3739,7 +3666,7 @@
     "id": 5,
     "hex": "MarbanHollow",
     "name": "MarbanHollow",
-    "title": "MarbanHollow",
+    "title": "Marban Hollow",
     "col": 4,
     "row": 5,
     "points": {
@@ -3874,7 +3801,7 @@
     "id": 23,
     "hex": "DrownedValeHex",
     "name": "DrownedVale",
-    "title": "DrownedVale",
+    "title": "Drowned Vale",
     "col": 4,
     "row": 7,
     "points": {
@@ -4009,7 +3936,7 @@
     "id": 24,
     "hex": "ShackledChasmHex",
     "name": "ShackledChasm",
-    "title": "ShackledChasm",
+    "title": "Shackled Chasm",
     "col": 4,
     "row": 9,
     "points": {
@@ -4274,7 +4201,7 @@
     "id": 36,
     "hex": "ClansheadValleyHex",
     "name": "ClansheadValley",
-    "title": "ClansheadValley",
+    "title": "Clanshead Valley",
     "col": 5,
     "row": 2,
     "points": {
@@ -4379,7 +4306,7 @@
     "id": 22,
     "hex": "WeatheredExpanseHex",
     "name": "WeatheredExpanse",
-    "title": "WeatheredExpanse",
+    "title": "Weathered Expanse",
     "col": 5,
     "row": 4,
     "points": {
@@ -4534,7 +4461,7 @@
     "id": 20,
     "hex": "EndlessShoreHex",
     "name": "EndlessShore",
-    "title": "EndlessShore",
+    "title": "Endless Shore",
     "col": 5,
     "row": 6,
     "points": {
@@ -4704,7 +4631,7 @@
     "id": 21,
     "hex": "AllodsBightHex",
     "name": "AllodsBight",
-    "title": "AllodsBight",
+    "title": "Allods Bight",
     "col": 5,
     "row": 8,
     "points": {
@@ -4954,7 +4881,7 @@
     "id": 37,
     "hex": "MorgensCrossingHex",
     "name": "MorgensCrossing",
-    "title": "MorgensCrossing",
+    "title": "Morgens Crossing",
     "col": 6,
     "row": 3,
     "points": {
@@ -5219,7 +5146,7 @@
     "id": 18,
     "hex": "TempestIslandHex",
     "name": "TempestIsland",
-    "title": "TempestIsland",
+    "title": "Tempest Island",
     "col": 6,
     "row": 7,
     "points": {
@@ -5339,7 +5266,7 @@
     "id": 38,
     "hex": "TheFingersHex",
     "name": "TheFingers",
-    "title": "TheFingers",
+    "title": "The Fingers",
     "col": 6,
     "row": 9,
     "points": {

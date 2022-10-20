@@ -6,13 +6,8 @@ import { config } from './config'
 const api_url = config.urls.api + '?data&shard=',
       // time between updates in seconds
       time = config.updates,
-      // world 'writable' store
-      { subscribe, set } = writable( {}, () => {
-        // run update for the first time
-        update();
-        // cleanup
-        return () => clearTimeout( timeout )
-      } );
+      // world 'writable' store, clearTimeout on last unsubscribe
+      { subscribe, set } = writable( {}, () => clearTimeout( timeout ) );
 
 let timeout = 0,
     shard = get( shards );

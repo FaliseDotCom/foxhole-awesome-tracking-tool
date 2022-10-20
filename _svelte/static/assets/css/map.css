@@ -45,24 +45,20 @@ svg text
   transform: translate( calc( var( --icon-size ) / -2 ), calc( var( --icon-size ) / -2 ) );
 }
 
-.dynamic .flasher
+.dynamic .flash
 {
   /* base color should be white for flash animation */
   --fill: rgba( 255, 255, 255, 0 );
   fill: var( --fill );
   stroke: none;
-}
-
-.dynamic .flasher.animate
-{
   animation: flash .5s infinite;
-} 
+}
 
 .dynamic .team
 {
-  opacity: 0;
-  transition: all 1s;
   --fill: rgba( 255, 255, 255, 0 );
+  opacity: 0;
+  transition: all 1s;  
 }
 
 .dynamic image

@@ -17,7 +17,7 @@ const log = {
 
 // enabled or disabled tools
 const tools = {
-  points: !true  // points tool
+  points: true  // points tool
 }
 
 export const config = { 
