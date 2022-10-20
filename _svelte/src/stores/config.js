@@ -1,3 +1,5 @@
+import { dev } from '$app/environment';
+
 // urls
 const base = 'https://fatt.fali.se/',
       assets = base + 'assets/',
@@ -7,17 +9,20 @@ const base = 'https://fatt.fali.se/',
 
 const urls = { base, assets, icons, maps, api }
 
-// log to console?
-const log = {
-  hex: true,   // log hex changes 
-  area: true,  // log area changes
-  icon : true, // log icon changes
-  zoom: false   // log (pan)zoom changes
-}
+// enable points tool
+const points = false && dev;
 
 // enabled or disabled tools
 const tools = {
-  points: true  // points tool
+  points
+}
+
+// log to console?
+const log = {
+  hex: false && dev && !points,   // log hex changes 
+  area: false && dev && !points,  // log area changes
+  icon : false && dev && !points, // log icon changes
+  zoom: false && dev && !points   // log (pan)zoom changes
 }
 
 export const config = { 
