@@ -1,6 +1,8 @@
 <script>
+  import { dev } from '$app/environment';
+
   // clear console between hot reloads
-  if (import.meta.hot) 
+  if ( dev && import.meta.hot) 
   {
     import.meta.hot.on(
       "vite:beforeUpdate",

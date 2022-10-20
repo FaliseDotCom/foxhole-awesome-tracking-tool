@@ -8,7 +8,7 @@
              name = '';
 
   let team = '',
-      flags = 0,
+      flags = -1,
       icon = '',
       json = '',
       animate = false,
@@ -21,20 +21,21 @@
 
   afterUpdate( () =>
   {
+    const pre = `Icon: ${name}, ${name} at ${x}, ${y}`;
+    // if ( log ) console.log( pre + ' update' )   
+
     if ( data )
     {
-      const str = JSON.stringify( data );
+      const str = log ? JSON.stringify( data ) : '';
       let changed = false;
 
       // animate when both team and old_team or not empty but also differ
       if ( team && team !== data.t )
       {
-        if ( log )
-        {
-          console.log( name + ', ' + title + ' team change from ' + team + ' to ' + data.t )      
-        }
+        if ( log ) console.log( pre + ' team change from ' + team + ' to ' + data.t )      
 
-        animate = true
+        changed = true;
+        animate = true;
 
         // remove animation so it can run again
         setTimeout( () => {
@@ -42,30 +43,21 @@
         }, 1000 )
       }
 
-      if ( flags !== data.f )
+      if ( flags >= 0 && flags !== data.f )
       {
         changed = true;
-        if ( log )
-        {
-          console.log( name + ', ' + title + ' flags change from ' + flags + ' to ' + data.f );  
-        }
+        if ( log ) console.log( pre + ' flags change from ' + flags + ' to ' + data.f );  
       }
 
       if ( icon && data.i && icon !== data.i )
       {
         changed = true;
-        if ( log )
-        {
-          console.log( name + ', ' + title + ' type change from ' + icon + ' to ' + data.i );  
-        }
+        if ( log )  console.log( pre + ' type change from ' + icon + ' to ' + data.i );  
       }
 
       if ( !changed && json && str !== json )
       {
-        if ( log )
-        {
-          console.log( name + ', ' + title + ' changed' )
-        }
+        if ( log )  console.log( pre + ' changed something', str, json )
       }
 
       // always store old values
@@ -78,5 +70,5 @@
 
 </script>
 {#if data}
-  <image { x } { y } { href } { title } class="icon"/>
+  <image { x } { y } { href } { title } class={ 'icon' + ( animate ? ' animate' : '' ) }/>
 {/if}

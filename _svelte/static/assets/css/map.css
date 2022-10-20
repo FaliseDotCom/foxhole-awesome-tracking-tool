@@ -61,11 +61,6 @@ svg text
   transition: all 1s;  
 }
 
-.dynamic image
-{
-  transform: translate( var( --icon-offset ), var( --icon-offset ) );
-}
-
 .area .bounds 
 {
   fill: none;

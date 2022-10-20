@@ -17,19 +17,18 @@
       // do an animation?
       animate = false,
       // this stores the last version of the data
-      version = 0,
-      scorched = 0,
-      json = '';
+      version  = 0,
+      scorched = 0;
 
-  const log = config.log.hex;
+  const log = config.log.dynamic;
 
   // check for updates
   afterUpdate( () =>
   {
+    if ( log ) console.log( 'Dynamic: ' + name + ' update', data );
+
     if ( data && data.v !== version )
     {
-      const str = JSON.stringify( data );
-
       // skip initial update when version is zero
       if ( version && data.v !== version )
       {
@@ -42,31 +41,25 @@
         
         if ( log )
         {
-          console.log( name + ' updated from version ' + version + ' to ' + data.v )   
+          console.log( 'Dynamic: ' + name + ' updated from version ' + version + ' to ' + data.v + ' , ' + data.d.length + ' icons' )   
 
           if ( data.s !== scorched )
           {
-            console.log( name + ' updated scorched victory towns from ' + scorched + ' to ' + data.s ) 
-          }
-
-          if ( json && json === str )
-          {
-            console.log( name + ' has NO updates' )  
+            console.log( 'Dynamic: ' + name + ' updated scorched victory towns from ' + scorched + ' to ' + data.s ) 
           }
         }
       }     
 
-      // store 'old' data
+      // store comparison data
       version = data.v;
       scorched = data.s;
-      json = str
     }
   });
 </script>
 
 <DataHex bind:data={ data } { name } class={ `dynamic ${$$props.class || ''}` }>
   { #if data && Array.isArray( data.d ) }
-    { #each data.d as item ( `${item.x}-${item.y}` ) }
+    { #each data.d as item ( `${item.x}-${item.y}-${item.i}` ) }
       <Icon data={ item } {name}/>
     { /each }
     {#if animate}

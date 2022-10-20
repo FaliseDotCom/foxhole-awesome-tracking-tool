@@ -322,7 +322,11 @@ const areaContains = ( hex, area, item ) =>
 {
   const details = getDetails( hex );
 
-  if ( !details || !( area in details ) ) return false;
+  if ( !details || !( area in details ) ) 
+  {
+    // console.log( 'No details for ', hex, area )
+    return false;
+  }
 
   // create a unique key for this point based on its coordinates
   const area_key = hex + '-' + area,
@@ -359,15 +363,15 @@ export const grid = {
   // viewbox for svg
   viewbox: `0 0  ${width} ${height}`,
   // id to name
-  name: name => name.replace( 'Hex', '' ),
+  name: id => id in world ? world[ id ].name : '',
   // id to title
-  title: name => name.replace( 'Hex', '' ).split( '/(?=[A-Z])/' ).join( ' '),
+  title: id => id in world ? world[ id ].title : '',
   // bounds of a single grid item (hex ) as { x, y, width, height }
-  bounds: name => 
+  bounds: id => 
   {
-    if ( name in world )
+    if ( id in world )
     {
-      const item = world[ name ]
+      const item = world[ id ]
       return { 
         x: parseInt( item.col * w / c ),
         y: parseInt( item.row * h / r ),

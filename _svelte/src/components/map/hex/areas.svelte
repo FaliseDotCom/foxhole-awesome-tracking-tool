@@ -21,7 +21,7 @@
       animate = false,
       areas = {}
 
-  $: updated = !!data && !!details;
+  const log = config.log.area;
 
   onMount( () =>
   {
@@ -96,15 +96,20 @@
       const area_bases = region_bases.filter( item => grid.areaContains( name, key, item ) )
       // console.log( 'area bases', name, key, area_bases)
       details[ key ].team = area_bases.length ? area_bases[ 0 ].t : '';
+      // force another update
+      details = details
     } );
   }
 
   // run after each data update
   afterUpdate( () => 
   { 
+    if ( log ) console.log( 'Area: ' + name + ' update' );
     // only update areas if there are any changes
     if ( data && 'd' in data && is_valid && data.v !== version )
     {      
+      if ( log ) console.log( 'Area: ' + name + ' version changed from ' + version + ' to ' + data.v );
+
       // check for area changes and set flash value in settings accordingly
       flashAreas();
       // check for team changes and set team value in settings accordingly
