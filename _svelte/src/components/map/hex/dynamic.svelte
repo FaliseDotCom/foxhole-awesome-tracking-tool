@@ -8,6 +8,7 @@
 	import DataHex from './data.svelte'
 	import Polygon from '../polygon.svelte';
   import Icon from '../icon.svelte';
+  import { config } from '@stores/config.js'
 
   export let name = '';
 
@@ -20,6 +21,8 @@
       towns = 0,
       json = '';
 
+  const log = config.log.hex;
+
 
   // check for updates
   afterUpdate( () =>
@@ -31,7 +34,11 @@
       // skip initial update when version is zero
       if ( version && data.version !== version )
       {
-        console.log( name + ' updated from version ' + version + ' to ' + data.version )   
+        if ( log )
+        {
+          console.log( name + ' updated from version ' + version + ' to ' + data.version )   
+        }
+
         // start CSS animation
         animate = true
         // remove animation so it can run again
@@ -41,12 +48,18 @@
 
         if ( data.scorchedVictoryTowns !== towns )
         {
-          console.log( name + ' updated scorchedVictoryTowns from ' + towns + ' to ' + data.scorchedVictoryTowns ) 
+          if ( log )
+          {
+            console.log( name + ' updated scorchedVictoryTowns from ' + towns + ' to ' + data.scorchedVictoryTowns ) 
+          }
         }
 
         if ( json && json === str )
         {
-          console.log( name + ' has NO updates' )  
+          if ( log )
+          {
+            console.log( name + ' has NO updates' )  
+          }
         }
       }     
 

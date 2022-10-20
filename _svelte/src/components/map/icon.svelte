@@ -2,6 +2,7 @@
 
   import { afterUpdate } from 'svelte';
   import { icons } from '@stores/icons.js'
+  import { config } from '@stores/config.js'
 
   export let data = null,
              name = '';
@@ -15,7 +16,8 @@
       y = data ? `${ data.y * 100 }%` : '';
 
   const href = icons.getIcon( data.iconType, data.teamId ),
-        title = icons.getName( data.iconType )
+        title = icons.getName( data.iconType ),
+        log = config.log.icon;
 
   afterUpdate( () =>
   {
@@ -27,7 +29,11 @@
       // animate when both team and old_team or not empty but also differ
       if ( team && data.teamId && team !== data.teamId )
       {
-        console.log( name + ', ' + title + ' team change from ' + team + ' to ' + data.teamId )      
+        if ( log )
+        {
+          console.log( name + ', ' + title + ' team change from ' + team + ' to ' + data.teamId )      
+        }
+
         animate = true
 
         // remove animation so it can run again
@@ -39,18 +45,27 @@
       if ( flags && data.flags && flags !== data.flags )
       {
         changed = true;
-        console.log( name + ', ' + title + ' flags change from ' + flags + ' to ' + data.flags );  
+        if ( log )
+        {
+          console.log( name + ', ' + title + ' flags change from ' + flags + ' to ' + data.flags );  
+        }
       }
 
       if ( icon && data.iconType && icon !== data.iconType )
       {
         changed = true;
-        console.log( name + ', ' + title + ' type change from ' + icon + ' to ' + data.iconType );  
+        if ( log )
+        {
+          console.log( name + ', ' + title + ' type change from ' + icon + ' to ' + data.iconType );  
+        }
       }
 
       if ( !changed && json && str !== json )
       {
-        console.log( name + ', ' + title + ' changed' )
+        if ( log )
+        {
+          console.log( name + ', ' + title + ' changed' )
+        }
       }
 
       // always store old values

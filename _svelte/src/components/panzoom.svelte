@@ -2,6 +2,7 @@
   import { zoom } from '@stores/zoom.js'
   import { onMount } from 'svelte';
   import panzoom from 'panzoom';
+  import { config } from '@stores/config.js'
 
   export let  args = {
                 minZoom: zoom.min,
@@ -252,7 +253,11 @@
   zoom.subscribe( z => {
     if ( pz )
     {
-      console.log( 'z changed', z, save );
+      if ( config.log.zoom )
+      {
+        console.log( 'z changed', z, save );
+      }
+      
       save = false;
       zoomTo( z, true ) ;
       pz.on( 'zoomend.save', () => 

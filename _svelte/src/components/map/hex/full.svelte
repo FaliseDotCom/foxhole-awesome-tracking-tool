@@ -10,10 +10,9 @@
     import HexDynamic from '@components/map/hex/dynamic.svelte';
     import HexAreas from '@components/map/hex/areas.svelte';
     import HexPoints from '@components/map/hex/points.svelte';
+    import { config } from '@stores/config.js'
 
     export let name = '';
-
-    const show_points = !true;
 </script>
 
 <HexBackground {name}/>
@@ -21,6 +20,6 @@
 <HexAreas {name}/>
 <HexDynamic {name}/>
 <HexStatic {name}/>
-{#if show_points}
+{#if config.tools.points }
 <HexPoints {name}/>
 {/if}

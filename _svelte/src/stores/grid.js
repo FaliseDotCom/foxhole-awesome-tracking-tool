@@ -31,6 +31,48 @@ const all_points = {},
       all_polys = {},
       all_arrays = {}
 
+// add point, use as building tool only!
+const addPoint = ( name, letter, raw ) =>
+{
+  const point = pointFromString( raw )
+  if ( point ) 
+  {
+    all_points[ name ][ letter ] = point
+    sortOnkeys( all_points[ name ] )
+  }
+  return all_points[ name ]
+}
+
+// sort object on keys
+const sortOnkeys = obj => {
+  Object.keys(obj)
+  .sort()
+  .reduce((accumulator, key) => {
+    accumulator[key] = obj[key];
+    return accumulator;
+  }, {});
+}
+
+// build a point from a string
+const pointFromString = raw =>
+{
+   // split coordinates string into [x,y] array
+   const coords = raw.split( ' ' );
+   if ( coords && coords.length >= 2 )
+   {
+     return { 
+       // factor values between 0 and 1 so basically a percentage of width or height
+       fx : 1 * coords[ 0 ],
+       fy : 1 * coords[ 1 ],
+       // pixel coordinates
+       x : 1 * coords[ 0 ] * w, 
+       y : 1 * coords[ 1 ] * h,
+       // raw data string
+       raw
+     }
+   }
+   return null;
+}
   
 // get coordinates of points for a certain area name
 const getPoints = name =>
@@ -47,23 +89,14 @@ const getPoints = name =>
     {        
       for ( const point_name in item.points )
       {
-        const coords = item.points[ point_name ].split( ' ' );
-        if ( coords && coords.length >= 2 )
-        {
-          points[ point_name ] = { 
-            // factor values between 0 and 1 so basically a percentage of width or height
-            fx : 1 * coords[ 0 ],
-            fy : 1 * coords[ 1 ],
-            // pixel coordinates
-            x : 1 * coords[ 0 ] * w, 
-            y : 1 * coords[ 1 ] * h,
-            // raw data string
-            raw: item.points[ point_name ]
-          }
-        }
+        // split coordinates string into [x,y] array
+        const coords = pointFromString( item.points[ point_name ] );
+        if ( coords ) points[ point_name ] = coords;
       }
     }
   }
+  // sort on keys for readability
+  sortOnkeys( points );
   // cache
   all_points[ name ] = points;
   return points;
@@ -202,8 +235,6 @@ const mapAreaItems = ( hex, items ) =>
   {
     items.forEach( item => areaContains( hex, key, item ) );
   } );
-
-  console.log( containers )
 }
 
 // test if an area in a hex contains an item
@@ -272,5 +303,6 @@ export const grid = {
   getDetails,
   getCoords,
   mapAreaItems,
-  areaContains
+  areaContains,
+  addPoint
 }
