@@ -17,7 +17,7 @@ svg text
   font-size: 80px;
 }
 
-.border polygon
+.border
 {
   stroke: #111;
   stroke-width: 2;
@@ -32,7 +32,7 @@ svg text
   filter: drop-shadow( 0 0 2px black );
 }
 
-.static text.Major
+.static text.major
 {
   font-size: 14px;
   font-weight: bold;
@@ -47,7 +47,9 @@ svg text
 
 .dynamic .flasher
 {
-  fill: none;
+  /* base color should be white for flash animation */
+  --fill: rgba( 255, 255, 255, 0 );
+  fill: var( --fill );
   stroke: none;
 }
 
@@ -60,7 +62,7 @@ svg text
 {
   opacity: 0;
   transition: all 1s;
-  fill: rgba( 255, 255, 255, 0 );
+  --fill: rgba( 255, 255, 255, 0 );
 }
 
 .dynamic image
@@ -77,22 +79,30 @@ svg text
 
 .areas .area 
 {
-  fill: rgba( 0, 0, 0, 0 );
+  /* base color should be white for flash animation */
+  --fill: rgba( 255, 255, 255, 0 );
+  fill: var( --fill );
+
   stroke: rgba( 0, 0, 0, .5 );
   stroke-width: 1px;
-  transition: all 1s;
+  transition: all 1s;  
 }
 
 /*.dynamic .team.colonial,*/
-.areas .area.team-COLONIALS
+.areas .area.team-C
 {
-  fill: rgba( 0, 255, 0, .15 );
+  --fill: rgba( 0, 255, 0, .15 );
 }
 
 /*.dynamic .team.warden,*/
-.areas .area.team-WARDENS
+.areas .area.team-W
 {
-  fill:rgba( 0, 0, 255, .15 );
+  --fill:rgba( 0, 0, 255, .15 );
+}
+
+.areas .area.flash.animate
+{
+  animation: flash .5s infinite
 }
 
 .points .clicker
@@ -125,11 +135,13 @@ div.map.dynamics
 
 @keyframes flash 
 {
+  /* flash from original color */
   0%, 40%, 60%, 100%
   {
-    fill: rgba( 255, 255, 255, 0 );
+    fill: var( --fill );
   }
 
+  /* flash to white */
   20%, 50%, 80%
   {
     fill: rgba( 255, 255, 255, .5);

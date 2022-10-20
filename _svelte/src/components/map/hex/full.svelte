@@ -4,7 +4,6 @@
    * One hex to rule them all; contains all hexes
    */
 
-    import HexBorder from '@components/map/hex/border.svelte'
     import HexBackground from '@components/map/hex/background.svelte';
     import HexStatic from '@components/map/hex/static.svelte';
     import HexDynamic from '@components/map/hex/dynamic.svelte';
@@ -16,10 +15,10 @@
 </script>
 
 <HexBackground {name}/>
-<HexBorder {name}/>
 <HexAreas {name}/>
 <HexDynamic {name}/>
 <HexStatic {name}/>
+
 {#if config.tools.points }
-<HexPoints {name}/>
+  <HexPoints {name}/>
 {/if}

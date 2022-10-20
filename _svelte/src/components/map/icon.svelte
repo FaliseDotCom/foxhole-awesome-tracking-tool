@@ -15,8 +15,8 @@
       x = data ? `${ data.x * 100 }%` : '',
       y = data ? `${ data.y * 100 }%` : '';
 
-  const href = icons.getIcon( data.iconType, data.teamId ),
-        title = icons.getName( data.iconType ),
+  const href = icons.getIcon( data.i, data.t ),
+        title = icons.getName( data.i ),
         log = config.log.icon;
 
   afterUpdate( () =>
@@ -27,11 +27,11 @@
       let changed = false;
 
       // animate when both team and old_team or not empty but also differ
-      if ( team && data.teamId && team !== data.teamId )
+      if ( team && team !== data.t )
       {
         if ( log )
         {
-          console.log( name + ', ' + title + ' team change from ' + team + ' to ' + data.teamId )      
+          console.log( name + ', ' + title + ' team change from ' + team + ' to ' + data.t )      
         }
 
         animate = true
@@ -42,21 +42,21 @@
         }, 1000 )
       }
 
-      if ( flags && data.flags && flags !== data.flags )
+      if ( flags !== data.f )
       {
         changed = true;
         if ( log )
         {
-          console.log( name + ', ' + title + ' flags change from ' + flags + ' to ' + data.flags );  
+          console.log( name + ', ' + title + ' flags change from ' + flags + ' to ' + data.f );  
         }
       }
 
-      if ( icon && data.iconType && icon !== data.iconType )
+      if ( icon && data.i && icon !== data.i )
       {
         changed = true;
         if ( log )
         {
-          console.log( name + ', ' + title + ' type change from ' + icon + ' to ' + data.iconType );  
+          console.log( name + ', ' + title + ' type change from ' + icon + ' to ' + data.i );  
         }
       }
 
@@ -69,19 +69,14 @@
       }
 
       // always store old values
-      team = data.teamId;
-      flags = data.flags;
-      icon = data.iconType;
+      team = data.t;
+      flags = data.f;
+      icon = data.i;
       json = str;
     }
   });
 
 </script>
 {#if data}
-    <image      
-      { x } { y } 
-      { href }
-      { title }
-      class={ `icon icon-${ data.iconType } team-${ data.teamId }` }
-    />
+  <image { x } { y } { href } { title } class="icon"/>
 {/if}

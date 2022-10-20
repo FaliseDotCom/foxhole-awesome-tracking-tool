@@ -4,16 +4,19 @@
    * Hex with static data; area labels and general points of interest
    */
 
-	import DataHex from './data.svelte';
+	import Hex from './base.svelte';
+  import world from '@stores/world_data.json'
   export let name = ''
-  let data = null,
-      once = true;
+  const data = name in world ? world[ name ] : null
 </script>
 
-<DataHex bind:data={ data } { name } { once } class={ `static ${$$props.class || ''}` }>
-  { #if data && Array.isArray( data.mapTextItems ) }
-    { #each data.mapTextItems as item }
-      <text x={ `${ item.x * 100 }%` } y={ `${ item.y * 100 }%` } class={ item.mapMarkerType }>{ item.text }</text>
-    { /each }
-  { /if }
-</DataHex>
+{#if data }
+<Hex { name } class={ `static ${$$props.class || ''}` }>
+  { #each data.labels as label }
+    <text x={ `${ label.x * 100 }%` } y={ `${ label.y * 100 }%` }>{ label.text }</text>
+  { /each }
+  { #each Object.entries( data.areas ) as [ name, area ] }
+    <text x={ `${ area.x * 100 }%` } y={ `${ area.y * 100 }%` } class="major">{ name }</text>
+  { /each }
+</Hex>
+{/if}

@@ -90,16 +90,12 @@
       let points_output = '';
       for( const [ key, coords ] of Object.entries( points ) )
       {
-        points_output += `${key} : '${coords.raw}',` + "\n";
+        points_output += `"${key}" : "${coords.raw}",\n`;
       }
 
       // log entire points list
       console.log( name + ' points:' );
       console.log( points_output );
-
-      let area_output = areas.map( area => `"${area}" : '',` ).join( "\n" );
-      console.log( name + ' areas:' );
-      console.log( area_output );
 
       // points changed so get next letter 
       getNextLetter()

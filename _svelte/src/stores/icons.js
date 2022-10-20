@@ -106,7 +106,9 @@ const bases = [
 // valid team names; key = input from api, value = filename
 const teams = {
   'colonials': 'colonial', 
-  'wardens' : 'warden'
+  'wardens' : 'warden',
+  'c' : 'colonial',
+  'w' : 'warden',
 }
 
 const ucFirst = word => word.charAt(0).toUpperCase() + word.toLowerCase().slice(1)

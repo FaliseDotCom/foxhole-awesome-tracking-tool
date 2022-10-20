@@ -18,25 +18,24 @@
       animate = false,
       // this stores the last version of the data
       version = 0,
-      towns = 0,
+      scorched = 0,
       json = '';
 
   const log = config.log.hex;
 
-
   // check for updates
   afterUpdate( () =>
   {
-    if ( data )
+    if ( data && data.v !== version )
     {
       const str = JSON.stringify( data );
 
       // skip initial update when version is zero
-      if ( version && data.version !== version )
+      if ( version && data.v !== version )
       {
         if ( log )
         {
-          console.log( name + ' updated from version ' + version + ' to ' + data.version )   
+          console.log( name + ' updated from version ' + version + ' to ' + data.v )   
         }
 
         // start CSS animation
@@ -46,11 +45,11 @@
           animate = false
         }, 500 )
 
-        if ( data.scorchedVictoryTowns !== towns )
+        if ( data.s !== scorched )
         {
           if ( log )
           {
-            console.log( name + ' updated scorchedVictoryTowns from ' + towns + ' to ' + data.scorchedVictoryTowns ) 
+            console.log( name + ' updated scorched victory towns from ' + scorched + ' to ' + data.s ) 
           }
         }
 
@@ -64,65 +63,18 @@
       }     
 
       // store 'old' data
-      version = data.version;
-      towns = data.scorchedVictoryTowns;
+      version = data.v;
+      scorched = data.s;
       json = str
     }
   });
-
-  let color = '',
-      perc = 0;
-
-  const not_countable = [ 41, 62, 23, 32, 61, 20, 38, 21, 40 ]
-
-  afterUpdate( () => 
-  {
-    if ( data && 'mapItems' in data )
-    {
-      // reset counters
-      let colonials = 0,
-          wardens = 0,
-          none = 0,
-          total = 0;
-
-      color = '';
-      perc = 0;
-        
-      data.mapItems.forEach( item => {
-        if ( !not_countable.includes( item.iconType ) )
-        {
-          total++
-          if ( item.teamId == 'WARDENS')    wardens++;
-          if ( item.teamId == 'COLONIALS')  colonials++;
-          if ( item.teamId == 'NONE')       none++;
-        }        
-      });
-
-      let colonial = total ? colonials / total : 0,
-          warden   = total ? wardens / total : 0,
-          rest = 1 - colonial - warden
-
-      if ( colonial > warden && colonial > rest ) 
-      {
-        perc = colonial;
-        color = 'colonial';
-      }
-      if ( warden > colonial && warden > rest ) 
-      {
-        perc = warden;
-        color = 'warden'
-      }
-    }    
-  })  
-  
 </script>
 
 <DataHex bind:data={ data } { name } class={ `dynamic ${$$props.class || ''}` }>
-  { #if data && Array.isArray( data.mapItems ) }
-    { #each data.mapItems as item ( `${item.x}-${item.y}` ) }
+  { #if data && Array.isArray( data.d ) }
+    { #each data.d as item ( `${item.x}-${item.y}` ) }
       <Icon data={ item } {name}/>
     { /each }
-    <Polygon class={ 'team ' + color } style={ `opacity: ${perc}` }/>
     <Polygon class={ 'flasher ' + ( animate ? 'animate' : '' ) } />
   {/if }
 </DataHex>

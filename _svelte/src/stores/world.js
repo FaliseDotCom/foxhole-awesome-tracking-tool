@@ -1,105 +1,48 @@
 import { writable , get } from 'svelte/store';
-import { shards } from './shards';
+import { shards } from './shards'
+import { config } from './config'
 
       // api urls
-const api_url = 'https://fatt.fali.se/api.php',
-      load_url = api_url + '?static&shard=',
-      update_url = api_url + '?async&shard=',
+const api_url = config.urls.api + '?data&shard=',
       // time between updates in seconds
-      time = 10,
+      time = config.updates,
       // world 'writable' store
-      { subscribe, set, update } = writable( {}, () => {
+      { subscribe, set } = writable( {}, () => {
+        // run update for the first time
+        update();
         // cleanup
         return () => clearTimeout( timeout )
       } );
 
 let timeout = 0,
-    init = false,
     shard = get( shards );
 
-// load data once
-const loadStatics = () =>
-{
-	// initially load static world
-  fetch( load_url + shard )
-  .then( r => 
-  {
-    try { return r.json() }
-    catch ( e ) {
-      // try again in 10s on failure
-      timeout = setTimeout( loadStatics, 10 * 1000 )
-    }
-    return null
-  } )
-  .then( d => {
-    if ( d )
-    {
-      set( d )
-      updateDynamics()
-    }
-  })
-}
-
 // updates on the dynamic world run periodically
-const updateDynamics = () =>
+const update = () =>
 {
   clearTimeout( timeout )
-  fetch( update_url + shard )
-    .then( r => {
+  fetch( api_url + shard )
+    // try to get json
+    .then( r => {      
       try { return r.json() }
-      catch ( e ) { 
-        // rerun as scheduled
-        timeout = setTimeout( updateDynamics, time * 1000 )
-      }
+      catch ( e ) {}
       return null
-  } )
-  .then( d => {
-    if ( d ) mergeData( d )
-  })
-}
-
-// merge new data
-const mergeData = ( d ) =>
-{
-  update( data => {
-    for ( const name in data ) 
-    {
-      if ( name in d )
-      {
-        // use new data but old mapTextUItems
-        data[ name ] = { 
-          ...d[ name ],
-          mapTextItems: data[ name ].mapTextItems
-        }
-      }
-    }
-
-    // return / update the modified data
-    return data
-  } )
-
-  // rerun the update
-  timeout = setTimeout( updateDynamics, time * 1000 )
-}
-
-// create store
-const createStore = () => {
-  // load once
-  if ( !init )
-  {
-    init = true
-    loadStatics()
-  }
-  // return the subscribe method
-  return { subscribe } 
+    } )
+    // update store with whatever we get from the server
+    .then( set )     
+    // rerun the update no matter what)
+    .finally( () => timeout = setTimeout( update, time * 1000 ) )
 }
 
 // when shard changes reload everything
 shards.subscribe( s => {
   shard = s;
   clearTimeout( timeout );
-  loadStatics();
+  update();
 });
 
+// run update asap
+update();
+
 // only export the subscribe method
-export const world = createStore()
+export const world = { subscribe }

@@ -20,5 +20,6 @@
   </clipPath>
   <image {href} height="100%" width="100%" clip-path="url(#clip{name})"/>
   <text x="50%" y="50%">{ title }</text>
+  <Polygon class="border"/>
   <slot/>
 </Hex>

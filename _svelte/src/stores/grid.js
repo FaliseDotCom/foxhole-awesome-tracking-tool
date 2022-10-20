@@ -1,6 +1,86 @@
-import items from './grid_data.js';
+import world from './world_data.json';
 import intersector from 'robust-point-in-polygon'
+import { world as api } from '@stores/world'
 
+const rebuildJSON = () =>
+{
+  // rebuild items for better JSON file
+  const rebuildItems = () =>
+  {
+    const new_items = {}
+    for ( const [ hex, item ] of Object.entries( world ) )
+    {
+      const areas = {}
+      for ( const [ name, area ] of Object.entries( item.areas ) )
+      {
+        areas[ name ] = {
+          title: name,
+          x: 0,
+          y: 0,
+          points: area
+        };
+      };
+
+      new_items[ hex ] = {
+        id: 0,
+        hex: hex,
+        name: hex.replace( 'Hex', '' ),
+        title: hex.replace( 'Hex', '' ),
+        col: item.col,
+        row: item.row,
+        points: item.points,
+        areas: areas
+      }
+    }
+    return new_items
+  }
+
+  // only update hex data with matching name
+  api.subscribe( ( d = {} ) => 
+  {
+    const new_items = rebuildItems();
+    
+    for ( const [ hex, data ] of Object.entries( d ) )
+    {
+      const key = hex in new_items ? hex : hex + 'Hex',
+            item = new_items[ key ];
+
+      new_items[ key ].id = data.regionId;
+      new_items[ key ].labels = []
+
+      data.mapTextItems.forEach( label => 
+      {
+        if ( label.mapMarkerType == 'Major' )
+        {
+          if ( !( label.text in item.areas ) )
+          {
+            new_items[ key ].areas[ label.text ] = {
+              points: '',
+              x: label.x,
+              y: label.y
+            }
+          }
+          else
+          {
+            new_items[ key ].areas[ label.text ].title = label.text;
+            new_items[ key ].areas[ label.text ].x = label.x;
+            new_items[ key ].areas[ label.text ].y = label.y;
+          }
+        }
+        else
+        {
+          new_items[ key ].labels.push( {
+            x: label.x,
+            y: label.y,
+            text: label.text
+          })
+        }
+      })
+    }
+    // console.log( JSON.stringify( new_items ) )
+    return () => {}
+  })
+}
       // item width & height
 const w = 1024,
       h = 888,
@@ -16,7 +96,7 @@ let rows = 0,
 const containers = {}
 
 // get max number of rows and columns
-Object.values( items ).forEach( item => {
+Object.values( world ).forEach( item => {
   cols = Math.max( item.col, cols )
   rows = Math.max( item.row, rows )
 });
@@ -82,15 +162,15 @@ const getPoints = name =>
 
   // rebuild
   const points = {};
-  if ( name in items )
+  if ( name in world )
   {
-    const item = items[ name ];
+    const item = world[ name ];
     if ( 'points' in item )
     {        
       for ( const point_name in item.points )
       {
         // split coordinates string into [x,y] array
-        const coords = pointFromString( item.points[ point_name ] );
+        const coords = pointFromString( item.points[ point_name ]);
         if ( coords ) points[ point_name ] = coords;
       }
     }
@@ -130,9 +210,9 @@ const getCoords = name =>
   // maybe get from cache
   if ( name in all_coords ) return all_coords[ name ];
 
-  if ( name in items )
+  if ( name in world )
   {
-    const item = items[ name ],
+    const item = world[ name ],
           points = getPoints( name );
 
     if ( points && 'areas' in item  )
@@ -141,7 +221,7 @@ const getCoords = name =>
       for ( const area_name in item.areas )
       {        
         // area contains point names referring to previously retrieved points
-        const point_names = item.areas[ area_name ].split( ' ')
+        const point_names = item.areas[ area_name ].points.split( ' ')
         let coords = [];
         point_names.forEach( point_name => 
         {       
@@ -169,9 +249,9 @@ const getPolyArrays = name =>
   // maybe get from cache
   if ( name in all_arrays ) return all_arrays[ name ];
 
-  if ( name in items )
+  if ( name in world )
   {
-    const item = items[ name ],
+    const item = world[ name ],
           coords = getCoords( name );
 
     if ( coords && 'areas' in item  )
@@ -200,9 +280,9 @@ const getPolyStrings = name =>
   // maybe get from cache
   if ( name in all_polys ) return all_polys[ name ];
 
-  if ( name in items )
+  if ( name in world )
   {
-    const item = items[ name ],
+    const item = world[ name ],
           coords = getCoords( name );
 
     if ( coords && 'areas' in item  )
@@ -269,7 +349,7 @@ const areaContains = ( hex, area, item ) =>
 
 export const grid = {
   // item names
-  items: Object.keys( items ),
+  items: Object.keys( world ),
   // hex dimensions
   w,
   h,
@@ -285,9 +365,9 @@ export const grid = {
   // bounds of a single grid item (hex ) as { x, y, width, height }
   bounds: name => 
   {
-    if ( name in items )
+    if ( name in world )
     {
-      const item = items[ name ]
+      const item = world[ name ]
       return { 
         x: parseInt( item.col * w / c ),
         y: parseInt( item.row * h / r ),
