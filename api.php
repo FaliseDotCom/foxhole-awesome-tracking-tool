@@ -32,6 +32,13 @@
     $api->set_shard( $_GET[ 'shard' ] );
   }
 
+  // get data for specified shard
+  if ( isset( $_GET[ 'data' ] ) )
+  {
+    json( $api->async_dynamics() );
+  }
+
+  /*
   // get static world info
   if ( isset( $_GET[ 'maps' ] ) )
   {
@@ -70,12 +77,12 @@
       isset( $_GET[ 'version' ] ) ? $_GET[ 'version' ] : ''
     ) );
   }
-
   // async test
   if ( isset( $_GET[ 'async' ] ) )
   {
     json( $api->async_dynamics() );
   }
+  */
 
   // clean asset files
   if ( isset( $_GET[ 'clean' ] ) )

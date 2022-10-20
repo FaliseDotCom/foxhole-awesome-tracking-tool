@@ -28,6 +28,9 @@ class FoxholeApi
   // Default cache duration = 24 hours
   private $cache_duration = 24 * 60 * 60;
 
+  // round coordinates down to some decimal
+  private $coordinate_decimals = 5;
+
   /**
    * API roots
    * Live-1 / Able  : https://war-service-live.foxholeservices.com/api/
@@ -298,7 +301,29 @@ class FoxholeApi
     $responses = Promise\Utils::unwrap( $promises );
     foreach ( $responses as $name => $response )
     {
-      $data[ $name ] = json_decode( $response->getBody(), true );
+      $body = json_decode( $response->getBody(), true );
+      // compress item data
+      $items =  array_map( function( $item )
+      {
+        return [
+          // rounding decimals reduces file size, triggers less updates on the client side and you won't even notice
+          'x' => number_format( $item[ 'x' ], $this->coordinate_decimals ) * 1,
+          'y' => number_format( $item[ 'y' ], $this->coordinate_decimals ) * 1,
+          // just the first team letter will do
+          't' => $item[ 'teamId' ] !== 'NONE' ? substr( $item[ 'teamId' ], 0, 1 ) : '',
+          'i' => $item[ 'iconType'],
+          'f' => $item[ 'flags' ]
+        ];
+      }, $body[ 'mapItems'] );
+
+      // compress data
+      $data[ $name ] = [
+        'i' => $body[ 'regionId' ],
+        's' => $body[ 'scorchedVictoryTowns' ],
+        'l' => $body[ 'lastUpdated' ],
+        'v' => $body[ 'version' ],
+        'd' => $items
+      ];
     }
     return $data;
   }
