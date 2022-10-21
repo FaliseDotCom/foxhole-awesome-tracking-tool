@@ -1,7 +1,5 @@
 <script>
 	import { grid } from '@stores/grid'
-  import SvgFilters from '../svg/filters.svelte';
-	import Icons from '../svg/icons.svelte';
 </script>
 
 <svg 

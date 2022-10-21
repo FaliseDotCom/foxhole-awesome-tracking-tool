@@ -9,12 +9,9 @@ const base = 'https://fatt.fali.se/',
 
 const urls = { base, assets, icons, maps, api }
 
-// enable points tool
-const points = false;
-
 // enabled or disabled tools
 const tools = {
-  points
+  points : true
 }
 
 // log to console?
@@ -22,16 +19,16 @@ const log = {
   api     : false, // log API stuff
   data    : false, // log data changes in data component
   dynamic : false, // log changes in dynamic compoment
-  area    : true, // log area changes
-  icon    : true, // log icon changes
+  area    : false, // log area changes
+  icon    : false, // log icon changes
   zoom    : false // log (pan)zoom changes
 }
 
 // don't log if points tool is enabled or we're not in dev mode
-if ( points || !dev )  Object.keys( log ).forEach( key => log[ key ] = false )
+if ( tools.points || !dev )  Object.keys( log ).forEach( key => log[ key ] = false )
 
 // points tool is only allowed in dev mode
-if ( !dev )  tools.points = false
+if ( !dev ) tools.points = false
 
 export const config = { 
   urls,

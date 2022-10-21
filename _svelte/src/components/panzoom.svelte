@@ -2,7 +2,8 @@
   import { zoom } from '@stores/zoom.js'
   import { onMount } from 'svelte';
   import panzoom from 'panzoom';
-  import { config } from '@stores/config.js'
+  import { config } from '@stores/config.js';
+  import { debounce } from '@lib/debounce.js';
 
   export let  args = {
                 minZoom: zoom.min,
@@ -17,6 +18,8 @@
       pz = null,
       save = true;
 
+  const log = config.log.zoom;
+
   onMount( () =>
   {
     pz = panzoom( root, args );
@@ -26,15 +29,17 @@
     // add a short delay
     setTimeout( () =>
     {
-      // update zoom scale in store
-      pz.on( 'transform', () =>
+      /*
+      // update zoom scale in store      
+      pz.on( 'transform', debounce( () =>
       {
         if ( save )
         {
           const t = pz.getTransform();
           zoom.set( t.scale )
         }
-      } );
+      }, 333 ) );
+      */
 
       loadTransform();
 
@@ -250,6 +255,7 @@
       : pz.moveTo( x, y);
   };
   
+  /*
   zoom.subscribe( z => {
     if ( pz )
     {
@@ -267,13 +273,11 @@
       } );
     }
   } );
+  */
 
 </script>
 
-<svelte:window 
-  on:keyup={ onKeyUp }
-  on:resize={ onResize }
-/>
+<svelte:window  on:keyup={ onKeyUp }/>
 
 <div bind:this={root} class={ `panzoom ${$$props.class || ''}` }>
   <slot/>
