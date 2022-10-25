@@ -11,7 +11,7 @@ const urls = { base, assets, icons, maps, api }
 
 // enabled or disabled tools
 const tools = {
-  points : true
+  points : !true
 }
 
 // log to console?

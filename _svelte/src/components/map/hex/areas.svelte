@@ -97,7 +97,7 @@
       // console.log( 'area bases', name, key, area_bases)
       details[ key ].team = area_bases.length ? area_bases[ 0 ].t : '';
       // force another update
-      details = details
+      // details = details
     } );
   }
 
@@ -105,6 +105,7 @@
   afterUpdate( () => 
   { 
     if ( log ) console.log( 'Area: ' + name + ' update' );
+    
     // only update areas if there are any changes
     if ( data && 'd' in data && is_valid && data.v !== version )
     {      

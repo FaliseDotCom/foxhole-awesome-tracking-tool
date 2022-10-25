@@ -6,7 +6,7 @@ const data = {
         charlie: 'https://war-service-live-3.foxholeservices.com/api/'
       },
       names = Object.keys( data ),
-      store = writable( names[ 0 ] );
+      store = writable( 'baker' );
 
 export const shards = {
   // subscribe to store
