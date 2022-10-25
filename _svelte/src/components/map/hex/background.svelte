@@ -10,7 +10,8 @@
 	import Polygon from '../polygon.svelte';
   export let name = ''
 
-  const href= `${config.urls.maps}Map${name}.png`,
+  const ext = 'webp', // used to be png
+        href= `${config.urls.maps}Map${name}.${ext}`,
         title = grid.title( name )
 </script>
 
