@@ -8,10 +8,9 @@
   export let  args = {
                 minZoom: zoom.min,
                 maxZoom: zoom.max,
-                bounds: true,
-                filterKey: () => true
+                bounds: true                
               },
-              zoom_step = .5,
+              zoom_step = zoom.step,
               pan_step = 100;
 
   let root = null,
@@ -20,9 +19,17 @@
 
   const log = config.log.zoom;
 
+  // only block touch events on the panzoom itself, not when clicking on other elements
+  const onTouch = e => root ? root.contains( e.target ) : false
+
   onMount( () =>
   {
-    pz = panzoom( root, args );
+    pz = panzoom( root, {
+      ...args,      
+      onTouch,
+      // we use our own keyboard events so block the defaults
+      filterKey: () => true,
+    } );
     
     onResize();
     

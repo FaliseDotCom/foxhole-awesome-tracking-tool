@@ -8,7 +8,7 @@
 </script>
 
 <Clear/>
+<HexMap/>
 <Logo/>
 <Shard/>
 <!--<Zoom/>-->
-<HexMap/>

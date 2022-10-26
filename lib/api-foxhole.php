@@ -1,7 +1,8 @@
 <?php
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\Promise;
+use GuzzleHttp\Promise\Utils as PromiseUtils;
 use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Katzgrau\KLogger\Logger;
@@ -120,6 +121,56 @@ class FoxholeApi
   }
 
   /**
+   * Do an async call that maybe loads from cache
+   * @param  string       $what           [description]
+   * @param  int|integer  $cache_duration [description]
+   * @param  bool|boolean $force          [description]
+   * @return [type]                       [description]
+   */
+  private function get_async( string $what = '', int $cache_duration = 3, bool $force = false )
+  {
+    // get data from cache
+    $key = 'get-async-' . $this->shard . '-' . $what;
+    $data = $this->getCache( $key );
+
+    // (re)load from server when there's no data
+    if ( !$data || $force )
+    {
+      // get a promise
+      $promise = $this->client->getAsync( $what );
+
+      // store reponse data in cache
+      $promise->then( function( $response ) use ( $key, $cache_duration )
+      {
+        // get data as JSON
+        $body = $response->getBody();
+        $data = json_decode( $body, true );
+
+        // store in cache
+        $this->saveCache( $key, $data, $cache_duration );
+
+        // return the body
+        return $data;
+      } );
+
+      return $promise;
+    }
+    else
+    {
+      $promise = new Promise(
+        function () use ( &$promise, $data, $key )
+        {
+          // return the data
+          $promise->resolve( $data );
+        }
+      );
+
+      // return the promise
+      return $promise;
+    }
+  }
+
+  /**
    * Get cache by key
    * @param  string $key [description]
    * @return [type]      [description]
@@ -149,6 +200,7 @@ class FoxholeApi
   {
     try
     {
+      $data[ 'cached' ] = date( 'Y-m-d H:i:s' );
       $this->cache->save( $this->cache_prefix . '-' . $key, $data, $duration ?: $this->cache_duration );
     }
     catch( exception $e )
@@ -285,6 +337,10 @@ class FoxholeApi
     return $data;
   }
 
+  /**
+   * Get async updates
+   * @return [type] [description]
+   */
   public function async_dynamics()
   {
     $this->logger->debug( 'Starting async' );
@@ -294,14 +350,15 @@ class FoxholeApi
     foreach ( $maps as $map )
     {
       $name = $this->map_name( $map );
-      $promises[ $name  ] = $this->client->getAsync( 'worldconquest/maps/' . $map . '/dynamic/public' );
+      $promises[ $name ] = $this->get_async( 'worldconquest/maps/' . $map . '/dynamic/public' );
     }
 
     $data = array();
-    $responses = Promise\Utils::unwrap( $promises );
+    $responses = PromiseUtils::unwrap( $promises );
     foreach ( $responses as $name => $response )
     {
-      $body = json_decode( $response->getBody(), true );
+      // cached results are in Array form, non cached need to be decoded first
+      $body = is_array( $response ) ? $response : json_decode( $response->getBody(), true );
       // compress item data
       $items =  array_map( function( $item )
       {

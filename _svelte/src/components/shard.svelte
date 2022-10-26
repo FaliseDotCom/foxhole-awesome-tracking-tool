@@ -1,7 +1,8 @@
 <script>
   import { shards } from '@stores/shards'
 
-  let shard = $shards;
+  let shard = $shards,
+      root = null;
 
   const onChange = e =>
   {
