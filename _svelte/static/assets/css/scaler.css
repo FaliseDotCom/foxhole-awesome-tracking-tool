@@ -1,0 +1,94 @@
+:root
+{
+  --transition-time: .3s;
+}
+
+
+.background text
+{
+  transition: fill .3s, font-size .3s;
+}
+
+.hex.dynamic,
+.hex.static
+{
+  opacity: 1;
+  transition: opacity var( --transition-time );
+}
+
+.hex.static text
+{
+  opacity: 1;
+  transition: font-size var( --transition-time ), opacity var( --transition-time );
+}
+
+/*
+.hex.dynamic .icon
+{
+  transition: all var( --transition-time );
+}
+*/
+
+.scaler[class*="scale-0."] .hex.dynamic,
+.scaler[class*="scale-1."] .hex.dynamic,
+.scaler[class*="scale-2."] .hex.dynamic,
+.scaler[class*="scale-1."] .hex.static,
+.scaler[class*="scale-2."] .hex.static
+{
+  opacity: 0;
+}
+
+.scaler[class*="scale-0."] .background text,
+.scaler[class*="scale-1."] .background text,
+.scaler[class*="scale-2."] .background text
+{
+  fill: rgba( 0, 0, 0, .8 );
+  font-size: 120px;
+}
+
+.scaler[class*="scale-0."] .hex.static text.minor,
+.scaler[class*="scale-1."] .hex.static text.minor,
+.scaler[class*="scale-2."] .hex.static text.minor,
+.scaler[class*="scale-3."] .hex.static text.minor,
+.scaler[class*="scale-4."] .hex.static text.minor
+.scaler[class*="scale-0."] .hex.static text.major,
+.scaler[class*="scale-1."] .hex.static text.major,
+.scaler[class*="scale-2."] .hex.static text.major
+{
+  opacity: 0;
+}
+
+.scaler[class*="scale-4."] .hex.static text.minor
+{
+  font-size: 16px;
+}
+
+.scaler[class*="scale-3."] .hex.static text.major
+{
+  font-weight: normal;
+  font-size: 26px;
+}
+
+.scaler[class*="scale-4."] .hex.static text.major
+{
+  font-weight: normal;
+  font-size: 22px;
+}
+
+.scaler[class*="scale-3."] .hex.dynamic .icon
+{
+  --icon-size: 40px;
+}
+
+.scaler[class*="scale-3."] .hex.dynamic .icon
+{
+  --icon-size: 30px;
+}
+
+@media screen and ( max-width: 640px )
+{
+  :root
+  {
+    --transition-time: 0;
+  } 
+}

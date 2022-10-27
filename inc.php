@@ -2,7 +2,7 @@
   // make sure all errors are reported
   @ini_set( 'display_errors', 1 );
   @ini_set( 'display_startup_errors', 1 );
-  error_reporting( E_ALL );
+  error_reporting( E_ERROR );
 
   // log errors to daily error log in our logs dir
   @ini_set( 'error_log', 'logs/error-' . date( 'Y-m-d' ) . '.log');

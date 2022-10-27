@@ -3,6 +3,7 @@
   import { afterUpdate } from 'svelte';
   import { icons } from '@stores/icons.js'
   import { config } from '@stores/config.js'
+  import { fade } from 'svelte/transition';
 
   export let data = null,
              name = '';
@@ -70,5 +71,5 @@
 
 </script>
 {#if data}
-  <image { x } { y } { href } { title } class={ 'icon' + ( animate ? ' animate' : '' ) }/>
+  <image { x } { y } { href } { title } class={ 'icon' + ( animate ? ' animate' : '' ) } transition:fade/>
 {/if}

@@ -200,7 +200,6 @@ class FoxholeApi
   {
     try
     {
-      $data[ 'cached' ] = date( 'Y-m-d H:i:s' );
       $this->cache->save( $this->cache_prefix . '-' . $key, $data, $duration ?: $this->cache_duration );
     }
     catch( exception $e )
@@ -360,7 +359,7 @@ class FoxholeApi
       // cached results are in Array form, non cached need to be decoded first
       $body = is_array( $response ) ? $response : json_decode( $response->getBody(), true );
       // compress item data
-      $items =  array_map( function( $item )
+      $items = array_map( function( $item )
       {
         return [
           // rounding decimals reduces file size, triggers less updates on the client side and you won't even notice

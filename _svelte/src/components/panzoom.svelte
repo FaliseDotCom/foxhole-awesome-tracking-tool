@@ -15,12 +15,13 @@
 
   let root = null,
       pz = null,
-      save = true;
+      save = true,
+      scale = 0;
 
   const log = config.log.zoom;
 
   // only block touch events on the panzoom itself, not when clicking on other elements
-  const onTouch = e => root ? root.contains( e.target ) : false
+  const onTouch = e => root ? root.contains( e.target ) : false;
 
   onMount( () =>
   {
@@ -36,17 +37,17 @@
     // add a short delay
     setTimeout( () =>
     {
-      /*
       // update zoom scale in store      
       pz.on( 'transform', debounce( () =>
       {
+        
         if ( save )
         {
           const t = pz.getTransform();
-          zoom.set( t.scale )
+          scale = t.scale;
+          zoom.set( scale ); 
         }
       }, 333 ) );
-      */
 
       loadTransform();
 
@@ -80,7 +81,7 @@
           pz.moveTo( t.x, t.y );
         }
       }
-      catch( e ) {}
+      catch( e ) { console.error( 'loadTransform failed', e ) }
     }
   }
 
