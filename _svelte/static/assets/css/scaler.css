@@ -31,9 +31,7 @@
 
 .scaler[class*="scale-0."] .hex.dynamic,
 .scaler[class*="scale-1."] .hex.dynamic,
-.scaler[class*="scale-2."] .hex.dynamic,
-.scaler[class*="scale-1."] .hex.static,
-.scaler[class*="scale-2."] .hex.static
+.scaler[class*="scale-1."] .hex.static
 {
   opacity: 0;
 }
@@ -50,10 +48,9 @@
 .scaler[class*="scale-1."] .hex.static text.minor,
 .scaler[class*="scale-2."] .hex.static text.minor,
 .scaler[class*="scale-3."] .hex.static text.minor,
-.scaler[class*="scale-4."] .hex.static text.minor
+
 .scaler[class*="scale-0."] .hex.static text.major,
 .scaler[class*="scale-1."] .hex.static text.major,
-.scaler[class*="scale-2."] .hex.static text.major
 {
   opacity: 0;
 }
