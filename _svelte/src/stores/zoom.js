@@ -1,8 +1,8 @@
 import { writable} from 'svelte/store';
 
 const store = writable( 1 ),
-      min = .5,
-      max = 10,
+      min = .1,
+      max = 30,
       step = .2
 
 export const zoom = {

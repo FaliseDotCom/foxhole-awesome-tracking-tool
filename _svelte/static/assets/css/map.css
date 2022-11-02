@@ -4,12 +4,6 @@ svg text
   dominant-baseline: middle;
 }
 
-.map
-{
-  width: 100%;
-  height: auto;
-}
-
 .background text
 {
   font-family: var( --font-header );
@@ -57,7 +51,7 @@ svg text
 .dynamic .team
 {
   --fill: rgba( 255, 255, 255, 0 );
-  opacity: 0;
+  /*opacity: 0;*/
   transition: all 1s;  
 }
 

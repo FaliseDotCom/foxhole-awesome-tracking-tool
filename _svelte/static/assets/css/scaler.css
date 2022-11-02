@@ -3,12 +3,12 @@
   --transition-time: .3s;
 }
 
-
 .background text
 {
   transition: fill .3s, font-size .3s;
 }
 
+/*
 .hex.dynamic,
 .hex.static
 {
@@ -19,7 +19,13 @@
 .hex.static text
 {
   opacity: 1;
-  transition: font-size var( --transition-time ), opacity var( --transition-time );
+  transition: font-size var( --transition-time ), opacity var( --transition-time ); 
+}
+*/
+
+.hex.static text
+{
+  transition: font-size var( --transition-time ); 
 }
 
 /*
@@ -29,21 +35,23 @@
 }
 */
 
+/*
 .scaler[class*="scale-0."] .hex.dynamic,
 .scaler[class*="scale-1."] .hex.dynamic,
 .scaler[class*="scale-1."] .hex.static
 {
   opacity: 0;
 }
+*/
 
 .scaler[class*="scale-0."] .background text,
-.scaler[class*="scale-1."] .background text,
-.scaler[class*="scale-2."] .background text
+.scaler[class*="scale-1."] .background text
 {
   fill: rgba( 0, 0, 0, .8 );
   font-size: 120px;
 }
 
+/*
 .scaler[class*="scale-0."] .hex.static text.minor,
 .scaler[class*="scale-1."] .hex.static text.minor,
 .scaler[class*="scale-2."] .hex.static text.minor,
@@ -54,7 +62,6 @@
 {
   opacity: 0;
 }
-
 .scaler[class*="scale-4."] .hex.static text.minor
 {
   font-size: 16px;
@@ -89,3 +96,5 @@
     --transition-time: 0;
   } 
 }
+
+*/

@@ -1,10 +1,14 @@
  <script>
+  import { fade } from 'svelte/transition';
 	import { grid } from '@stores/grid'
   import Hex from '@components/map/hex/base.svelte' 
-  export let component = Hex;
+
+  export let component = Hex,
+             show = false;
 </script>
 
-<svg class={ `layer ${$$props.class || ''}` }>
+{#if show}
+<svg class={ `layer ${$$props.class || ''}` } transition:fade|local>
   <slot>
     {#if component && grid && Array.isArray( grid.items ) }
       {#each grid.items as name ( name ) }
@@ -13,3 +17,4 @@
     {/if}
   </slot>
 </svg> 
+{/if}

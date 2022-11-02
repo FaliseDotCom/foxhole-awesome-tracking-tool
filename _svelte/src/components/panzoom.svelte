@@ -1,14 +1,17 @@
  <script>
-  import { zoom } from '@stores/zoom.js'
+  
   import { onMount } from 'svelte';
   import panzoom from 'panzoom';
-  import { config } from '@stores/config.js';
-  import { debounce } from '@lib/debounce.js';
+  import { zoom } from '@stores/zoom'
+  import { visible } from '@stores/visible';
+  import { config } from '@stores/config';
+  import { debounce } from '@lib/debounce';
 
   export let  args = {
                 minZoom: zoom.min,
                 maxZoom: zoom.max,
-                bounds: true                
+                smoothScroll: false,
+                // bounds: true                
               },
               zoom_step = zoom.step,
               pan_step = 100;
@@ -37,25 +40,29 @@
     // add a short delay
     setTimeout( () =>
     {
-      // update zoom scale in store      
-      pz.on( 'transform', debounce( () =>
-      {
-        
-        if ( save )
-        {
-          const t = pz.getTransform();
-          scale = t.scale;
-          zoom.set( scale ); 
-        }
-      }, 333 ) );
-
       loadTransform();
 
-      // do this AFTER the initial transform has been loaded;
-      pz.on( 'zoomend', saveTransform );
-      pz.on( 'panend', saveTransform );
+      // update transform stuff here and there     
+      pz.on( 'transform', debounce( onPanzoomUpdate, 200 ) );
+
+      // run once on startup
+      onPanzoomUpdate();
     }, 0 )
   } );
+
+  // on pan or zoom end event
+  const onPanzoomUpdate = () =>
+  {
+    // store zoom 
+    const t = pz.getTransform();
+    zoom.set( t.scale );
+
+    // update visible rows / cols
+    visible.setVisible( t );
+
+    // store current transform
+    setTimeout( () => saveTransform, 300 );    
+  }
 
   // save transform (x, y, scale) in localstorage
   const saveTransform = () =>

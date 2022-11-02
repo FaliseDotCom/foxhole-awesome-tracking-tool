@@ -10,8 +10,7 @@
     import HexAreas from '@components/map/hex/areas.svelte';
     import HexPoints from '@components/map/hex/points.svelte';
     import { config } from '@stores/config.js'
-	  import { onDestroy, onMount } from 'svelte';
-
+    
     export let name = '';
 </script>
 

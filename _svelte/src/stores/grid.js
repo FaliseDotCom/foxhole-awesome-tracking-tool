@@ -2,6 +2,7 @@ import world from './world_data.json';
 import intersector from 'robust-point-in-polygon'
 import { world as api } from '@stores/world'
 
+// development tool
 const rebuildJSON = () =>
 {
   // rebuild items for better JSON file
@@ -82,17 +83,17 @@ const rebuildJSON = () =>
   })
 }
       // item width & height
-const w = 1024,
-      h = 888,
-      // row and column size multipliers
-      c = 1.333,
-      r = 2
+const item_width = 1024,
+      item_height = 888,
+      // row and column size divisions
+      column_factor = 1.333,
+      row_factor = 2
 
       // rows and colums totals
 let rows = 0,
     cols = 0;
 
-      // cache for icons in areas
+// cache for icons in areas
 const containers = {}
 
 // get max number of rows and columns
@@ -102,8 +103,8 @@ Object.values( world ).forEach( item => {
 });
 
 // entire size
-const width =  parseInt( cols * w / c + w ), // 5633, //
-      height = parseInt( rows * h / r + h )  // 6216 // 
+const width =  parseInt( cols * item_width / column_factor + item_width ), // 5633, //
+      height = parseInt( rows * item_height / row_factor + item_height )  // 6216 // 
 
 // for caching
 const all_points = {},
@@ -145,8 +146,8 @@ const pointFromString = raw =>
        fx : 1 * coords[ 0 ],
        fy : 1 * coords[ 1 ],
        // pixel coordinates
-       x : 1 * coords[ 0 ] * w, 
-       y : 1 * coords[ 1 ] * h,
+       x : 1 * coords[ 0 ] * item_width, 
+       y : 1 * coords[ 1 ] * item_height,
        // raw data string
        raw
      }
@@ -354,12 +355,20 @@ const areaContains = ( hex, area, item ) =>
 export const grid = {
   // item names
   items: Object.keys( world ),
-  // hex dimensions
-  w,
-  h,
+  // raw world data
+  world,
+  // cols and rows number
+  cols,
+  rows,
+  // hex /item dimensions
+  item_width,
+  item_height,
   // total grid dimensions 
   width,
   height,
+  // factors
+  column_factor,
+  row_factor,
   // viewbox for svg
   viewbox: `0 0  ${width} ${height}`,
   // id to name
@@ -373,10 +382,10 @@ export const grid = {
     {
       const item = world[ id ]
       return { 
-        x: parseInt( item.col * w / c ),
-        y: parseInt( item.row * h / r ),
-        width: w,
-        height: h
+        x: parseInt( item.col * item_width / column_factor ),
+        y: parseInt( item.row * item_height / row_factor ),
+        width: item_width,
+        height: item_height
       }
     }
     return null   

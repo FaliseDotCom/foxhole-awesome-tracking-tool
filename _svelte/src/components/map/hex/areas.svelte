@@ -96,8 +96,6 @@
       const area_bases = region_bases.filter( item => grid.areaContains( name, key, item ) )
       // console.log( 'area bases', name, key, area_bases)
       details[ key ].team = area_bases.length ? area_bases[ 0 ].t : '';
-      // force another update
-      // details = details
     } );
   }
 
@@ -107,17 +105,22 @@
     if ( log ) console.log( 'Area: ' + name + ' update' );
     
     // only update areas if there are any changes
-    if ( data && 'd' in data && is_valid && data.v !== version )
+    if ( data && 'd' in data && is_valid )
     {      
-      if ( log ) console.log( 'Area: ' + name + ' version changed from ' + version + ' to ' + data.v );
+      if ( data.v !== version )
+      {
+        if ( log ) console.log( 'Area: ' + name + ' version changed from ' + version + ' to ' + data.v );
 
-      // check for area changes and set flash value in settings accordingly
-      flashAreas();
+        // check for area changes and set flash value in settings accordingly
+        flashAreas();
+        
+        // store new version
+        version = data.v;
+      }
+
       // check for team changes and set team value in settings accordingly
-      colorAreas();    
-
-      // store new version
-      version = data.v;
+      // always do this; an update may also be from show / hide
+      colorAreas();          
     }  
   } );
 
