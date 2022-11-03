@@ -3,24 +3,44 @@ import intersector from 'robust-point-in-polygon'
 import { world as api } from '@stores/world'
 
 // remove digits from x and y coordinates
-const lessNumbers = ( precision = 3 ) =>
+const lessNumbers = ( precision = 2 ) =>
 {
   for ( const [ hex, item ] of Object.entries( world ) )
   {
-    for ( const [ name, label ] of Object.entries( item.labels ) )
+    for ( const [ l, label ] of Object.entries( item.labels ) )
     {
       label.x = (label.x * 1 ).toFixed( precision ) * 1;
       label.y = (label.y * 1 ).toFixed( precision ) * 1;
     }
 
-    for ( const [ name, area ] of Object.entries( item.areas ) )
+    for ( const [ a, area ] of Object.entries( item.areas ) )
     {
       area.x = ( area.x * 1 ).toFixed( precision ) * 1;
       area.y = ( area.y * 1 ).toFixed( precision ) * 1;
     }
+
+    for ( let [ p, point ] of Object.entries( item.points ) )
+    {
+      if ( point )
+      {
+        const coords = point.split( ' ' );
+        if ( coords.length === 2 )
+        {
+          let x = coords[ 0 ], 
+              y = coords[ 0 ];
+
+          x = ( x * 1 ).toFixed( precision ) * 1;
+          y = ( y * 1 ).toFixed( precision ) * 1;
+          point = `${x} ${y}`;
+          item.points[ p ] = point;
+        }
+      }   
+    }
   }
   console.log( JSON.stringify( world ) )
 }
+
+// lessNumbers();
 
 // development tool
 const rebuildJSON = () =>

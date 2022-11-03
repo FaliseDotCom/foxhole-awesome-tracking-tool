@@ -77,7 +77,7 @@
           fx = x / ( b.width * w ),
           fy = y / ( b.height * h ),
           // number of characters per coordinate; 2 + decimals
-          d = 5,
+          d = 4,
           // string data 
           raw = String( fx ).substring( 0, d ) + ' ' + String( fy ).substring( 0, d );
         
