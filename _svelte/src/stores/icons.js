@@ -113,21 +113,40 @@ const teams = {
 
 const ucFirst = word => word.charAt(0).toUpperCase() + word.toLowerCase().slice(1)
 
-// get icon from ID
-const getIcon = ( id = 0, team = '' ) => 
+// get flags bits as object
+const getFlags = f =>
 {
+  return {
+    isVictoryBase : f & 0x01,
+    isHomeBase    : f & 0x02,
+    isBuildSite   : f & 0x04,
+    isScorched    : f & 0x10,
+    isTownClaimed : f & 0x20
+  };
+}
+
+// get icon from ID
+const getIcon = d => 
+{
+  const id = 'i' in d ? d.i : 0,
+        team = 't' in d ? d.t : '',
+        flags = getFlags( 'f' in d ? d.f : 0 );
+
   if  ( id && id in list ) 
   {
     let name = list[ id ].replaceAll( ' ', '' ) 
 
-    if ( team && team.toLowerCase() in teams )
+    if ( flags.isScorched )
     {
-      name += ucFirst( teams[ team.toLowerCase() ] )
+      name += 'Scorched';
     }
-
-    if ( isResource( id ) )
+    else if ( isResource( id ) )
     {
       name += 'Color'
+    }
+    else if ( team && team.toLowerCase() in teams )
+    {
+      name += ucFirst( teams[ team.toLowerCase() ] )
     }
 
     return `${ config.urls.assets }icons/${ name }.png`

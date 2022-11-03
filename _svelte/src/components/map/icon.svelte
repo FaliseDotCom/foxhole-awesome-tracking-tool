@@ -12,11 +12,19 @@
       flags = -1,
       icon = '',
       json = '',
+      css = 'icon',
       animate = false,
+      // coordinates
       x = data ? `${ data.x * 100 }%` : '',
-      y = data ? `${ data.y * 100 }%` : '';
+      y = data ? `${ data.y * 100 }%` : '',
+      // flags
+      isVictoryBase = false,  // 0x01
+      isHomeBase = false,     // 0x02 Removed in v0.29
+      isBuildSite  = false,   // 0x04
+      isScorched = false,     // 0x10 v0.22
+      isTownClaimed  = false; // 0x20 v0.26
 
-  const href = icons.getIcon( data.i, data.t ),
+  const href = icons.getIcon( data ),
         title = icons.getName( data.i ),
         log = config.log.icon;
 
@@ -29,6 +37,12 @@
     {
       const str = log ? JSON.stringify( data ) : '';
       let changed = false;
+
+      isVictoryBase = data.f & 0x01;
+      isHomeBase    = data.f & 0x02;
+      isBuildSite   = data.f & 0x04;
+      isScorched    = data.f & 0x10;
+      isTownClaimed = data.f & 0x20;
 
       // animate when both team and old_team or not empty but also differ
       if ( team && team !== data.t )
@@ -44,8 +58,9 @@
         }, 1000 )
       }
 
+      
       if ( flags >= 0 && flags !== data.f )
-      {
+      {               
         changed = true;
         if ( log ) console.log( pre + ' flags change from ' + flags + ' to ' + data.f );  
       }
@@ -67,9 +82,13 @@
       icon = data.i;
       json = str;
     }
+    
+    css = 'icon';
+    if ( animate ) icon += ' animate';
+    if ( isScorched ) icon += ' scorched'
   });
 
 </script>
 {#if data}
-  <image { x } { y } { href } { title } class={ 'icon' + ( animate ? ' animate' : '' ) } transition:fade/>
+  <image { x } { y } { href } { title } class={ css } transition:fade/>
 {/if}
