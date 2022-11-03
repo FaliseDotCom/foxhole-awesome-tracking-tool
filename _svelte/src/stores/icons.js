@@ -182,6 +182,30 @@ const isRegionBase = id => region_bases.includes( id )
 // get region bases icon ids
 const getRegionBases = () => region_bases
 
+// get scorced state from flags
+const isScorched = d => {
+  const flags = getFlags( 'f' in d ? d.f : 0 )
+  return flags.isScorched;
+}
+
+// get build site state from flags
+const isBuildSite = d => {
+  const flags = getFlags( 'f' in d ? d.f : 0 )
+  return flags.isBuildSite;
+}
+
+// get victory base state from flags
+const isVictoryBase = d => {
+  const flags = getFlags( 'f' in d ? d.f : 0 )
+  return flags.isVictoryBase;
+}
+
+// get town claimned state from flags
+const isTownClaimed = d => {
+  const flags = getFlags( 'f' in d ? d.f : 0 )
+  return flags.isTownClaimed;
+}
+
 export const icons = {
   list,
   getIcon,
@@ -192,5 +216,10 @@ export const icons = {
   isBase,
   isWinBase,
   isRegionBase,
-  getRegionBases
+  getRegionBases,
+  getFlags,
+  isScorched,
+  isTownClaimed,
+  isVictoryBase,
+  isBuildSite
 }

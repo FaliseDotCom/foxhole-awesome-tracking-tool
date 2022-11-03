@@ -65,24 +65,29 @@ svg text
 .areas .area 
 {
   /* base color should be white for flash animation */
-  --fill: rgba( 255, 255, 255, 0 );
-  fill: var( --fill );
+  --area-fill: rgba( 255, 255, 255, 0 );
+  fill: var( --area-fill );
 
   stroke: #444;
   stroke-width: .5px;
   transition: all 1s;  
 }
 
+.areas .area.scorched
+{
+  --area-fill: rgba( 255, 0, 0, .3 );
+}
+
 /*.dynamic .team.colonial,*/
 .areas .area.team-C
 {
-  --fill: rgba( 0, 255, 0, .15 );
+  --area-fill: rgba( 0, 255, 0, .15 );
 }
 
 /*.dynamic .team.warden,*/
 .areas .area.team-W
 {
-  --fill:rgba( 0, 0, 255, .15 );
+  --area-fill:rgba( 0, 0, 255, .15 );
 }
 
 .areas .area.flash.animate
@@ -123,7 +128,7 @@ div.map.dynamics
   /* flash from original color */
   0%, 40%, 60%, 100%
   {
-    fill: var( --fill );
+    fill: var( --area-fill );
   }
 
   /* flash to white */

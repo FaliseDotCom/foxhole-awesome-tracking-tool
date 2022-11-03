@@ -90,6 +90,11 @@
   // set area colors based on owned bases
   const colorAreas = () =>
   {
+    // get scorched items
+    const scorched_items = data.d.filter( icons.isScorched );
+
+    if ( scorched_items.length && log ) console.log( name + ' has scorched: ' + scorched_items.length );
+
     // get region bases for this hex
     const region_bases = data.d.filter( item => item.t && icons.isRegionBase( item.i ) )
 
@@ -98,11 +103,21 @@
     // go over each area
     Object.keys( details ).forEach( key =>
     {
-      // find based per area, should be ONE, could be NONE
-      const area_bases = region_bases.filter( item => grid.areaContains( name, key, item ) )
+      // find bases per area, should be ONE, could be NONE
+      const area_bases = region_bases.filter( item => grid.areaContains( name, key, item ) );
 
-      if ( log ) console.log( name + ', ' + key + ' area bases', area_bases );
-      // console.log( 'area bases', name, key, area_bases)
+      // find scorched items in this area
+      const area_scorched = scorched_items.filter( item => grid.areaContains( name, key, item ) );
+
+      if ( area_scorched.length && log ) console.log(  name + ', ' + key + ' has scorched: ' + area_scorched.length );
+
+      if ( log ) 
+      {
+        console.log( name + ', ' + key + ' area bases', area_bases );
+        console.log( name + ', ' + key + ' scorched items', area_scorched );
+      }
+      
+      details[ key ].scorched = area_scorched.length > 0;
       details[ key ].team = area_bases.length ? area_bases[ 0 ].t : '';
     } );
   }
@@ -135,9 +150,11 @@
   // get detail css classes
   const getDetailCSS = detail => 
   {
-    let css = 'area team-' + detail.team ;
-    if ( detail.flash ) css += ' flash';
-    if ( animate ) css += ' animate';
+    let css = 'area';
+    if ( detail.team )      css += ' team-' + detail.team;
+    if ( detail.flash )     css += ' flash';
+    if ( detail.scorched )  css += ' scorched';
+    if ( animate )          css += ' animate';
     return css;
   }
 

@@ -16,13 +16,7 @@
       animate = false,
       // coordinates
       x = data ? `${ data.x * 100 }%` : '',
-      y = data ? `${ data.y * 100 }%` : '',
-      // flags
-      isVictoryBase = false,  // 0x01
-      isHomeBase = false,     // 0x02 Removed in v0.29
-      isBuildSite  = false,   // 0x04
-      isScorched = false,     // 0x10 v0.22
-      isTownClaimed  = false; // 0x20 v0.26
+      y = data ? `${ data.y * 100 }%` : ''
 
   const href = icons.getIcon( data ),
         title = icons.getName( data.i ),
@@ -38,12 +32,6 @@
       const str = log ? JSON.stringify( data ) : '';
       let changed = false;
 
-      isVictoryBase = data.f & 0x01;
-      isHomeBase    = data.f & 0x02;
-      isBuildSite   = data.f & 0x04;
-      isScorched    = data.f & 0x10;
-      isTownClaimed = data.f & 0x20;
-
       // animate when both team and old_team or not empty but also differ
       if ( team && team !== data.t )
       {
@@ -58,7 +46,6 @@
         }, 1000 )
       }
 
-      
       if ( flags >= 0 && flags !== data.f )
       {               
         changed = true;
@@ -85,7 +72,6 @@
     
     css = 'icon';
     if ( animate ) icon += ' animate';
-    if ( isScorched ) icon += ' scorched'
   });
 
 </script>
