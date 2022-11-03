@@ -27,9 +27,9 @@
       <Layer class="backgrounds" component={ HexBackground } show={ true }/>
       <Layer class="areas" component={ HexAreas } show={ true }/>   
       <Layer class="borders" component={ HexBorder } show={ true }/>
-      <Layer class="dynamics" component={ HexDynamic } show={ $zoom >= 2 }/>
-      <Layer class="labels-major" component={ HexMajor } show={ $zoom >= 2 }/> 
-      <Layer class="labels-minor" component={ HexMinor } show={ $zoom >= 2 }/> 
+      <Layer class="dynamics" component={ HexDynamic } show={ $zoom.toFixed( 1 ) >= .4 }/>
+      <Layer class="labels-major" component={ HexMajor } show={  $zoom >= .6 }/> 
+      <Layer class="labels-minor" component={ HexMinor } show={ $zoom >= .8 }/> 
       {#if config.tools.points }
         <Layer class="points" component={ HexPoints } show={ true }/>
       {/if}

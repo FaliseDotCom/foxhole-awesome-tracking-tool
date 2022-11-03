@@ -9,17 +9,20 @@
 	import { onDestroy } from 'svelte';
   import { fade } from 'svelte/transition';
 
-  export let name = ''
+  export let name = '',
+             toggle = true;
              
   const bounds = grid.bounds( name )
   let show = true;
 
-  const unsubscribe = visible.subscribe( v => {
-    show = visible.getVisible( name ) !== false;
-    // console.log( 'update visible', name, show )    
-  })
+  if ( toggle )
+  {
+    const unsubscribe = visible.subscribe( () => {
+      show = visible.getVisible( name ) !== false 
+    })
 
-  onDestroy( unsubscribe )
+    onDestroy( unsubscribe )
+  }
 </script>
 
 {#if show}

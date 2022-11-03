@@ -29,7 +29,7 @@ const setVisible = t =>
         cw = grid.item_width * t.scale,
         rh = grid.item_height * t.scale,
         // out of screen offset
-        offset = 200;
+        offset = 100;
 
   // calculate column visibility
   for ( let i=0; i<=grid.cols; i++ )

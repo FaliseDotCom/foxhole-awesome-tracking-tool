@@ -325,7 +325,7 @@ const areaContains = ( hex, area, item ) =>
 
   if ( !details || !( area in details ) ) 
   {
-    // console.log( 'No details for ', hex, area )
+    console.warn( 'No details for ', hex, area )
     return false;
   }
 
@@ -343,7 +343,7 @@ const areaContains = ( hex, area, item ) =>
   if ( !( area_key in containers ) ) containers[ area_key ] = {}
 
   // do a hit test
-  const hit = intersector( details[ area ].arr, [ item.x * grid.w, item.y * grid.h ] ) <= 0;
+  const hit = intersector( details[ area ].arr, [ item.x * grid.item_width, item.y * grid.item_height ] ) <= 0;
 
   // store in cache
   containers[ area_key ][ item_key ] = hit

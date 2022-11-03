@@ -25,12 +25,15 @@
 
   onMount( () =>
   {
+    // reset version on each (re)mount
+    version = '';
+
     // get polygon details by name ONCE
     details = grid.getDetails( name ),
     // is data valid?
     is_valid = details && typeof details === 'object' && Object.keys( details );
     
-    if ( is_valid ) 
+    if ( is_valid && !data ) 
     {
       // prefill areas with an empty string
       Object.keys( details ).forEach( key => areas[ key ] = '' )
@@ -89,11 +92,16 @@
   {
     // get region bases for this hex
     const region_bases = data.d.filter( item => item.t && icons.isRegionBase( item.i ) )
+
+    if ( log && region_bases.length ) console.log( name + ' region bases', region_bases );
+
     // go over each area
     Object.keys( details ).forEach( key =>
     {
       // find based per area, should be ONE, could be NONE
       const area_bases = region_bases.filter( item => grid.areaContains( name, key, item ) )
+
+      if ( log ) console.log( name + ', ' + key + ' area bases', area_bases );
       // console.log( 'area bases', name, key, area_bases)
       details[ key ].team = area_bases.length ? area_bases[ 0 ].t : '';
     } );
@@ -102,7 +110,7 @@
   // run after each data update
   afterUpdate( () => 
   { 
-    if ( log ) console.log( 'Area: ' + name + ' update' );
+    if ( log ) console.log( 'Area: ' + name + ' update', data && 'd' in data, is_valid );
     
     // only update areas if there are any changes
     if ( data && 'd' in data && is_valid )

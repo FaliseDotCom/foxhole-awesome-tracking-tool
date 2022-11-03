@@ -15,7 +15,7 @@
         title = grid.title( name )
 </script>
 
-<Hex name={ name } class={ `background ${$$props.class || ''}` }>
+<Hex name={ name } class={ `background ${$$props.class || ''}` } toggle={ false }>
   <clipPath id="clip{name}">
     <Polygon/>
   </clipPath>

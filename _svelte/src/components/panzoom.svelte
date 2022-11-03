@@ -47,10 +47,10 @@
 
       // run once on startup
       onPanzoomUpdate();
-    }, 0 )
+    }, 10 )
   } );
 
-  // on pan or zoom end event
+  // pan / zoom update event
   const onPanzoomUpdate = () =>
   {
     // store zoom 
@@ -61,7 +61,7 @@
     visible.setVisible( t );
 
     // store current transform
-    setTimeout( () => saveTransform, 300 );    
+    setTimeout( saveTransform, 100 );    
   }
 
   // save transform (x, y, scale) in localstorage
@@ -77,18 +77,27 @@
   // retrieve transform (x, y, scale) from localstorage and apply it
   const loadTransform = () =>
   {
+    let done = false;
     if ( window && window.localStorage )
     {
       try
       {
-        const t = JSON.parse( window.localStorage.getItem( 'pzt' ) )
-        if ( t )
+        const data = window.localStorage.getItem( 'pzt' );
+        if ( false && data )
         {
-          pz.zoomAbs( 0, 0, t.scale );
-          pz.moveTo( t.x, t.y );
+          const t = JSON.parse( data )
+          if ( t )
+          {
+            pz.zoomAbs( 0, 0, t.scale );
+            pz.moveTo( t.x, t.y );
+            done = true;
+          }
         }
       }
       catch( e ) { console.error( 'loadTransform failed', e ) }
+
+      // at least center the map on screen
+      if ( !done ) panCenter();
     }
   }
 
@@ -134,13 +143,14 @@
       case 'Numpad3':
         return panUpLeft( e );
       case 'Numpad5':
-        //return panCenter( e );
+        return panCenter( e );
     }
   }
 
   // this one is buggy!
   const panCenter = e =>
   {
+    if ( !root ) return;
     const r = root.getBoundingClientRect(),
           p = pz.getTransform(),
           w = window.innerWidth,
@@ -225,7 +235,7 @@
   }
 
   // set map zoom
-  const zoomBy = ( z = 1, smooth = false,) =>
+  const zoomBy = ( z = 1, smooth = false ) =>
   {
     if ( isNaN( z ) ) return;
 
@@ -240,7 +250,7 @@
   }
 
   // set map zoom
-  const zoomTo = ( z = 1, smooth = false,) =>
+  const zoomTo = ( z = 1, smooth = false ) =>
   {
     if ( isNaN( z ) || typeof window == 'undefined' || !pz ) return;
 
