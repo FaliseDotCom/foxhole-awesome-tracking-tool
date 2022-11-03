@@ -21,14 +21,14 @@ svg text
 .static text
 {
   font-family: var( --font-body );
-  font-size: 11px;
+  font-size: 12px;
   fill: var( --clr-white );
   filter: drop-shadow( 0 0 2px black );
 }
 
 .static text.major
 {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
 }
 
@@ -68,8 +68,8 @@ svg text
   --fill: rgba( 255, 255, 255, 0 );
   fill: var( --fill );
 
-  stroke: rgba( 0, 0, 0, .5 );
-  stroke-width: 1px;
+  stroke: #444;
+  stroke-width: .5px;
   transition: all 1s;  
 }
 
@@ -104,7 +104,7 @@ svg text
 .points text
 {
   font-weight: bold;
-  filter: drop-shadow( 0 0 2px white );
+  /*filter: drop-shadow( 0 0 2px white );*/
   user-select: none;
   pointer-events: none;
 }

@@ -2,6 +2,26 @@ import world from './world_data.json';
 import intersector from 'robust-point-in-polygon'
 import { world as api } from '@stores/world'
 
+// remove digits from x and y coordinates
+const lessNumbers = ( precision = 3 ) =>
+{
+  for ( const [ hex, item ] of Object.entries( world ) )
+  {
+    for ( const [ name, label ] of Object.entries( item.labels ) )
+    {
+      label.x = (label.x * 1 ).toFixed( precision ) * 1;
+      label.y = (label.y * 1 ).toFixed( precision ) * 1;
+    }
+
+    for ( const [ name, area ] of Object.entries( item.areas ) )
+    {
+      area.x = ( area.x * 1 ).toFixed( precision ) * 1;
+      area.y = ( area.y * 1 ).toFixed( precision ) * 1;
+    }
+  }
+  console.log( JSON.stringify( world ) )
+}
+
 // development tool
 const rebuildJSON = () =>
 {
@@ -296,7 +316,7 @@ const getPolyStrings = name =>
         points.forEach( point => 
         {      
           // append to string for SVG polygon points
-          poly += ` ${point.x} ${point.y}`;
+          poly += ` ${ parseInt( point.x ) } ${ parseInt( point.y ) }`;
         });
         areas[ area_name ] = poly.trim();
       }

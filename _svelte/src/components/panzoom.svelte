@@ -83,7 +83,7 @@
       try
       {
         const data = window.localStorage.getItem( 'pzt' );
-        if ( false && data )
+        if ( data )
         {
           const t = JSON.parse( data )
           if ( t )
@@ -150,6 +150,7 @@
   // this one is buggy!
   const panCenter = e =>
   {
+    return;
     if ( !root ) return;
     const r = root.getBoundingClientRect(),
           p = pz.getTransform(),
