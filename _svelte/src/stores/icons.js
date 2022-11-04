@@ -149,7 +149,7 @@ const getIcon = d =>
       name += ucFirst( teams[ team.toLowerCase() ] )
     }
 
-    return `${ config.urls.assets }icons/${ name }.png`
+    return `${ config.urls.icons }/${ name }.png`
   }
   else
   {

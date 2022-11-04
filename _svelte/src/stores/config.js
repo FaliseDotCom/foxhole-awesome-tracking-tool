@@ -3,7 +3,7 @@ import { dev } from '$app/environment';
 // urls
 const base = 'https://fatt.fali.se/',
       assets = base + 'assets/',
-      icons = assets + 'icons/',
+      icons = assets + 'icons/brighter',
       maps = assets + 'maps/',
       api = base + 'api.php';
 

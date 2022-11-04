@@ -40,6 +40,11 @@ svg text
   transform: translate( calc( var( --icon-size ) / -2 ), calc( var( --icon-size ) / -2 ) );
 }
 
+.dynamic .icon
+{
+  transition: all .3s;
+}
+
 .summary .icon
 {
   --icon-size: 150px;

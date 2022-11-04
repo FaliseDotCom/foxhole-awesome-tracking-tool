@@ -26,3 +26,11 @@
 {
   fill: rgba( 0, 0, 0, .4 );
 }
+
+.scaler[class*="scale-0.4"] .dynamics .icon,
+.scaler[class*="scale-0.5"] .dynamics .icon,
+.scaler[class*="scale-0.6"] .dynamics .icon,
+.scaler[class*="scale-0.7"] .dynamics .icon
+{
+  --icon-size: calc( 100px * ( 1 - var( --scale ) ) );
+}
