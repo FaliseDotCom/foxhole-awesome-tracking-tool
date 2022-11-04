@@ -14,6 +14,7 @@
   import HexMinor from '@components/map/hex/labels-minor.svelte';
   //import HexStatic from '@components/map/hex/static.svelte';
   import HexDynamic from '@components/map/hex/dynamic.svelte';
+  import HexSummary from '@components/map/hex/summary.svelte'
   import HexAreas from '@components/map/hex/areas.svelte';
   import HexPoints from '@components/map/hex/points.svelte';
   import { config } from '@stores/config.js'
@@ -27,6 +28,7 @@
       <Layer class="backgrounds" component={ HexBackground } show={ true }/>
       <Layer class="areas" component={ HexAreas } show={ true }/>   
       <Layer class="borders" component={ HexBorder } show={ true }/>
+      <Layer class="summaries" component={ HexSummary } show={ $zoom < .4 }/>
       <Layer class="dynamics" component={ HexDynamic } show={ $zoom.toFixed( 1 ) >= .4 }/>
       <Layer class="labels-major" component={ HexMajor } show={  $zoom >= .6 }/> 
       <Layer class="labels-minor" component={ HexMinor } show={ $zoom >= .8 }/> 

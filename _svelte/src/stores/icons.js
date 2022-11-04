@@ -206,6 +206,9 @@ const isTownClaimed = d => {
   return flags.isTownClaimed;
 }
 
+// check if icon is a rocket site
+const isRocket = d => d.i === 37;
+
 export const icons = {
   list,
   getIcon,
@@ -221,5 +224,6 @@ export const icons = {
   isScorched,
   isTownClaimed,
   isVictoryBase,
-  isBuildSite
+  isBuildSite,
+  isRocket
 }

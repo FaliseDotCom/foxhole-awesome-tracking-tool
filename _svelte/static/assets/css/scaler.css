@@ -12,17 +12,17 @@
 .scaler[class*="scale-0.2"] .background text
 {
   fill: rgba( 0, 0, 0, .8 );
-  font-size: 120px;
+  font-size: 100px;
 }
 
 .scaler[class*="scale-0.3"] .background text
 {
   fill: rgba( 0, 0, 0, .6 );
-  font-size: 120px;
+  font-size: 100px;
 }
 
 .scaler[class*="scale-0.4"] .background text,
 .scaler[class*="scale-0.5"] .background text
 {
-  fill: rgba( 0, 0, 0, .3 );
+  fill: rgba( 0, 0, 0, .4 );
 }

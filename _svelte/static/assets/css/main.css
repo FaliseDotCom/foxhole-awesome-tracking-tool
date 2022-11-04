@@ -20,54 +20,6 @@ h1, h2, h3, h4, h5, h6
   font-family: var( --font-header );
 }
 
-.header
-{
-  background: #777777ee;
-  padding: 10px;
-  box-shadow: 0 0 5px 5px rgba( 0, 0, 0, .3 );
-  display: flex;
-  flex-wrap: nowrap;
-  align-content: center;
-  height: 60px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 9999;
-}
-
-.header > *
-{
-  margin-right: 10px;
-}
-
-.header .logo
-{
-  font-size: 12px;
-  margin: 2px 20px 0 0;
-}
-
-.header h1,
-.header h2
-{
-  margin: 0;
-  line-height: 1;
-  text-align: center;
-  color: rgba( 0, 0, 0, .6 );
-}
-
-.header h1
-{
-  font-size: 6.3em;
-  margin: -.2em 0;
-}
-
-.header h2
-{
-  font-size: 1em;
-  letter-spacing: .05em;
-}
-
 .block
 {
   border: none;

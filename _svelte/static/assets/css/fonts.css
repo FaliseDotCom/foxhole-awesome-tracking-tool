@@ -1,8 +1,8 @@
 @font-face {
-    font-family: 'ARMY RUST';
-    src: url('/assets/fonts/ARMYRUST.woff2') format('woff2'),
-         url('/assets/fonts/ARMYRUST.woff') format('woff'),
-         url('/assets/fonts/ARMYRUST.ttf') format('truetype');
+    font-family: 'ARMY';
+    src: url('/assets/fonts/BILLIE.woff2') format('woff2'),
+         url('/assets/fonts/BILLIE.woff') format('woff'),
+         url('/assets/fonts/BILLIE.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;

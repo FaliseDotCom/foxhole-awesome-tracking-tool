@@ -24,7 +24,7 @@
 
 {#if title}
 <div class="logo">
-  <h1>F.A.T.T.</h1>
+  <h1><b>F</b><b>A</b><b>T</b><b>T</b></h1>
   <h2>{ title }</h2>
 </div>
 {/if}
@@ -55,13 +55,25 @@
 
 .logo h1
 {
-  font-size: 6.3em;
-  margin: -.2em 0;  
+  font-size: 4.2em;
+  letter-spacing: -2px;
+}
+
+.logo h1 b:after
+{
+  content: ".";
+  display: inline-block;
+  margin-left: -.1em;
+}
+
+.logo h1 b:nth-child(2)::after
+{
+  margin-left: 0;
 }
 
 .logo h2
 {
   font-size: 1em;
-  letter-spacing: .05em;
+  font-family: var( --font-body );
 }
 </style>

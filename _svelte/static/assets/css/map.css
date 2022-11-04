@@ -7,8 +7,8 @@ svg text
 .background text
 {
   font-family: var( --font-header );
-  fill: rgba( 0, 0, 0, .2 );
-  font-size: 80px;
+  fill: rgba( 0, 0, 0, .3 );
+  font-size: 90px;
 }
 
 .border
@@ -32,11 +32,18 @@ svg text
   font-weight: bold;
 }
 
+.summary .icon,
 .dynamic .icon
 {
   width: var( --icon-size );
   height: var( --icon-size );
   transform: translate( calc( var( --icon-size ) / -2 ), calc( var( --icon-size ) / -2 ) );
+}
+
+.summary .icon
+{
+  --icon-size: 150px;
+  filter: drop-shadow( 0 0 20px white );
 }
 
 .dynamic .flash
@@ -76,6 +83,7 @@ svg text
 .areas .area.scorched
 {
   --area-fill: rgba( 255, 0, 0, .3 );
+  filter: drop-shadow( 0 0 20px red);
 }
 
 /*.dynamic .team.colonial,*/
@@ -113,15 +121,6 @@ svg text
   user-select: none;
   pointer-events: none;
 }
-
-div.map.dynamics
-{
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%
-} 
 
 @keyframes flash 
 {

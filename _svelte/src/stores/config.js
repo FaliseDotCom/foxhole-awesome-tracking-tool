@@ -21,7 +21,8 @@ const log = {
   dynamic : false, // log changes in dynamic compoment
   area    : false, // log area changes
   icon    : false, // log icon changes
-  zoom    : false // log (pan)zoom changes
+  zoom    : false, // log (pan)zoom changes
+  summary  : false // log summary changes
 }
 
 // don't log if points tool is enabled or we're not in dev mode
