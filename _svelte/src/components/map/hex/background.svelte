@@ -11,7 +11,7 @@
   export let name = ''
 
   const ext = 'webp', // used to be png
-        href= `${config.urls.maps}Map${name}.${ext}`,
+        href= `${config.urls.maps}/${ name.toLowerCase().replace( 'hex', '' ) }.${ext}`,
         title = grid.title( name )
 </script>
 

@@ -1,11 +1,6 @@
-:root
-{
-  --transition-time: .3s;
-}
-
 .background text
 {
-  transition: all .3s;
+  transition: all var( --transition-time );
 }
 
 .scaler[class*="scale-0.1"] .background text,

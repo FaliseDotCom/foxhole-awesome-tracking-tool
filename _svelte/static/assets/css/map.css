@@ -42,7 +42,7 @@ svg text
 
 .dynamic .icon
 {
-  transition: all .3s;
+  transition: all var( --transition-time );
 }
 
 .summary .icon
@@ -64,7 +64,7 @@ svg text
 {
   --fill: rgba( 255, 255, 255, 0 );
   /*opacity: 0;*/
-  transition: all 1s;  
+  transition: all var( --transition-time );  
 }
 
 .area .bounds 
@@ -82,7 +82,7 @@ svg text
 
   stroke: #444;
   stroke-width: .5px;
-  transition: all 1s;  
+  transition: all var( --transition-time );  
 }
 
 .areas .area.scorched

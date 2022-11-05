@@ -58,7 +58,7 @@
     color: var( --clr-white );
     margin: 0 0 1px 0;
     cursor: pointer;
-    transition: background-color .3s;
+    transition: background-color var( --transition-time );
     text-transform: uppercase;
   }
 
@@ -71,7 +71,7 @@
   {
     padding: 4px 6px;
     background-color:  rgba( 0, 0, 0, 0 );
-    transition: background-color .3s;
+    transition: background-color var( --transition-time );
   }
 
   .shard label:hover

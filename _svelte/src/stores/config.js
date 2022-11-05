@@ -3,11 +3,19 @@ import { dev } from '$app/environment';
 // urls
 const base = 'https://fatt.fali.se/',
       assets = base + 'assets/',
-      icons = assets + 'icons/brighter',
+      icons = assets + 'icons/',
+      icon_type = 'brighter',
       maps = assets + 'maps/',
+      map_type = 'color',
       api = base + 'api.php';
 
-const urls = { base, assets, icons, maps, api }
+const urls = { 
+  base, 
+  assets, 
+  icons: icons + icon_type + '/', 
+  maps: maps + map_type + '/',  
+  api 
+}
 
 // enabled or disabled tools
 const tools = {

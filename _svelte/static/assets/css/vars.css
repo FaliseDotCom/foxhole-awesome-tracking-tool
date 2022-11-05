@@ -20,4 +20,6 @@
   --icon-size: 20px;
 
   --points-display: none;
+
+  --transition-time: .3s;
 }
