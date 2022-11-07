@@ -130,7 +130,8 @@ const getIcon = d =>
 {
   const id = 'i' in d ? d.i : 0,
         team = 't' in d ? d.t : '',
-        flags = getFlags( 'f' in d ? d.f : 0 );
+        flags = getFlags( 'f' in d ? d.f : 0 ),
+        ext = 'png'; // considered webp icons but there's hardly any gain
 
   if  ( id && id in list ) 
   {
@@ -149,13 +150,23 @@ const getIcon = d =>
       name += ucFirst( teams[ team.toLowerCase() ] )
     }
 
-    return `${ config.urls.icons }/${ name }.png`
+    return `${ config.urls.icons }/${ name }.${ ext }`
   }
   else
   {
     console.warn( 'Icon missing ' + id )
   }
   return ''
+}
+
+// get css class for an icon
+const getCss = d =>
+{
+  let css = 'icon';
+  if ( isScorched( d ) ) css += ' scorched';
+  if ( isVictoryBase( d ) ) css += ' victory';
+  if ( isBuildSite( d ) ) css += ' build';
+  return css;
 }
 
 // get name from ID
@@ -225,5 +236,6 @@ export const icons = {
   isTownClaimed,
   isVictoryBase,
   isBuildSite,
-  isRocket
+  isRocket,
+  getCss
 }

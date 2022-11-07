@@ -5,23 +5,22 @@
   import { config } from '@stores/config.js'
   import { fade } from 'svelte/transition';
 
-  export let data = null,
-             name = '';
+  export let data = null;
 
   let team = '',
-      flags = -1,
-      icon = '',
+      //flags = -1,
+      //icon = '',
       json = '',
-      css = 'icon',
       animate = false,
       // coordinates
       x = data ? `${ data.x * 100 }%` : '',
       y = data ? `${ data.y * 100 }%` : ''
 
   const href = icons.getIcon( data ),
-        title = icons.getName( data.i ),
-        log = config.log.icon;
+        title = icons.getName( data.i )
+        //log = config.log.icon;
 
+  /*
   afterUpdate( () =>
   {
     const pre = `Icon: ${name}, ${name} at ${x}, ${y}`;
@@ -70,11 +69,12 @@
       json = str;
     }
     
-    css = 'icon';
+    css = icons.getClass( data );
     if ( animate ) icon += ' animate';
   });
+  */
 
 </script>
 {#if data}
-  <image { x } { y } { href } { title } class={ css } transition:fade/>
+  <image { x } { y } { href } { title } class={ icons.getCss( data ) } transition:fade/>
 {/if}

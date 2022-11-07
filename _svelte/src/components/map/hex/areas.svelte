@@ -169,11 +169,8 @@
 
 {#if is_valid }
   <DataHex bind:data={ data } class={ `areas ${$$props.class || ''}` } { name }>    
-    <clipPath id="clip{name}">
-      <Polygon/>
-    </clipPath>
     {#each Object.entries( details ) as [ key, detail ] }
-      <polygon points={ detail.poly } title={ key } class={ getDetailCSS( detail ) } clip-path="url(#clip{ name })" />
+      <polygon points={ detail.poly } title={ key } class={ getDetailCSS( detail ) } clip-path="url(#clipPoly)" />
     {/each}  
   </DataHex>
 {/if}

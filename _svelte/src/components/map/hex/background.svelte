@@ -11,15 +11,13 @@
   export let name = ''
 
   const ext = 'webp', // used to be png
-        href= `${config.urls.maps}/${ name.toLowerCase().replace( 'hex', '' ) }.${ext}`,
+        map = name.toLowerCase().replace( 'hex', '' ).replace( 'map', '' ),
+        href= `${ config.urls.maps }/${ map }.${ ext }`,
         title = grid.title( name )
 </script>
 
 <Hex name={ name } class={ `background ${$$props.class || ''}` } toggle={ false }>
-  <clipPath id="clip{name}">
-    <Polygon/>
-  </clipPath>
-  <image {href} height="100%" width="100%" clip-path="url(#clip{name})"/>
+  <image {href} height="100%" width="100%" clip-path="url(#clipPoly)"/>
   <text x="50%" y="50%">{ title }</text>
   <Polygon class="border"/>
   <slot/>

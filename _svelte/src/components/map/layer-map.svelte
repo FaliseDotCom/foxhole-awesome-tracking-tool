@@ -20,11 +20,13 @@
   import { config } from '@stores/config.js'
   import { zoom } from '@stores/zoom'
 	import Scaler from '../scaler.svelte';
+	import Polygon from './polygon.svelte';
 </script>
 
 <Scaler>
   <PanZoom>
     <SvgMap>
+      <clipPath id="clipPoly"><Polygon/></clipPath>
       <Layer class="backgrounds" component={ HexBackground } show={ true }/>
       <Layer class="areas" component={ HexAreas } show={ true }/>   
       <Layer class="borders" component={ HexBorder } show={ true }/>
