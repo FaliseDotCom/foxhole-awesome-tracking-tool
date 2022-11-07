@@ -6,6 +6,7 @@
   import { visible } from '@stores/visible';
   import { config } from '@stores/config';
   import { debounce } from '@lib/debounce';
+  import { grid } from '@stores/grid';
 
   export let  args = {
                 minZoom: zoom.min,
@@ -96,11 +97,37 @@
       }
       catch( e ) { console.error( 'loadTransform failed', e ) }
 
-      // at least center the map on screen
-      if ( !done ) panCenter();
+      // center the map on screen if no transform was loaded
+      if ( !done ) centerMap();
     }
   }
 
+  const centerMap = ( smooth = false ) =>
+  {
+          // get map width & height
+    const mw = grid.width,
+          mh = grid.height,
+          // get window width & height
+          ww = window.innerWidth,
+          wh = window.innerHeight,
+          // get aspect ratio's
+          ma = mw / mh,
+          wa = ww / wh,
+          // get smallest scale so map fits inside the window
+          s = ( ma > wa ) ? ww / mw : wh / mh,
+          // move map so it's centered in the window
+          x = ww/2 - s * mw/2,
+          y = wh/2 - s * mh/2;
+
+    // :TODO: the x * y part of the function below don't seem to work when pressing numpad 5
+
+    // apply transform
+    smooth
+      ? pz.smoothZoomAbs( x, y, s )
+      : pz.zoomAbs( x, y, s );
+  }
+
+  // resize event
   const onResize = () =>
   {
     if ( !root || !pz ) return;
@@ -147,21 +174,11 @@
     }
   }
 
-  // this one is buggy!
+  // reset map
   const panCenter = e =>
   {
-    return;
-    if ( !root ) return;
-    const r = root.getBoundingClientRect(),
-          p = pz.getTransform(),
-          w = window.innerWidth,
-          h = window.innerHeight,
-          left = 0,
-          top = 0,
-          x = -( r.left + r.width / 2) * p.scale + w / 2 + left,
-          y = -( r.top + r.height / 2) * p.scale + h / 2 + top;
-
-    panTo( x, y,  true );
+    console.log( 'panCenter')
+    centerMap( true );
     return cancelEvent( e );
   };
 
@@ -303,7 +320,7 @@
 
 </script>
 
-<svelte:window  on:keyup={ onKeyUp }/>
+<svelte:window on:keyup={ onKeyUp }/>
 
 <div bind:this={root} class={ `panzoom ${$$props.class || ''}` }>
   <slot/>
