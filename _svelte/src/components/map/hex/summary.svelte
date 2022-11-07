@@ -22,18 +22,20 @@
   {
     if ( data && data.v !== version )
     {
-            // get all victory towns in this hex
       const victory = data.d.filter( icons.isVictoryBase ),
-            // which one of those are scorched?
-            scorched = victory.filter( icons.isScorched ),
-            // which on of those are claimed?
-            claimed = victory.filter( icons.isTownClaimed ),
-            // get rockets in this hex
-            rockets = data.d.filter( icons.isRocket )
+            rocket = data.d.filter( icons.isRocket ),
+            scorced = data.d.filter( icons.isScorched )
 
-      // add icons to the list
-      list = [ victory[ 0 ] ]
-      if ( rockets.length ) list.push( rockets[ 0 ] )
+      // merge
+      list = [ ...victory, ...rocket, ...scorced ];
+
+      // remove duplicates
+      const keys = []
+      list = list.filter( item => {
+        const exists = keys.includes( item.key );
+        if ( !exists) keys.push( item.key );
+        return !exists;
+      });
 
       // update version
       version = data.v;
@@ -43,7 +45,7 @@
 </script>
 
 <DataHex bind:data={ data } { name } class={ `summary ${$$props.class || ''}` }>
-  { #each list as item ( `${item.x}-${item.y}-${item.i}` ) }
+  { #each list as item ( item.key ) }
     <Icon data={ item } {name}/>
   { /each }
 </DataHex>

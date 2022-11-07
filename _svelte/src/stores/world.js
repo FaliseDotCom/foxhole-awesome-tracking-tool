@@ -49,10 +49,26 @@ const update = () =>
     })
     // update store with whatever we get from the server
     .then( d =>  {
-      if ( d ) set( d )      
+      if ( d ) set( augmentData( d ) )
     } )
     // rerun the update no matter what)
     .finally( () => timeout = setTimeout( update, time * 1000 ) )
+}
+
+// do stuff with data
+const augmentData = d =>
+{
+  Object.entries( d ).forEach( ( [ key, data ] ) =>
+  {
+    if ( 'd' in data )
+    {
+      // add keys
+      data.d.forEach( item => {
+        item.key = `${item.x}-${item.y}-${item.i}`
+      })
+    }
+  } );
+  return d;
 }
 
 // when shard changes reload everything
