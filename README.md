@@ -39,19 +39,19 @@ F.A.T.T. can stand for any of the following:
 - Only renders hexes that are on screen.
 - Supports mouse, touch, and keyboard pan and zoom (arrows / WASD / numpad to pan, `+` / `-`
   to zoom, numpad 5 to recentre), and remembers the last view.
-- Lets you switch between live shards in the top-right corner. Since May 2026 Foxhole runs a
+- Lets you switch between live shards in the Shard tab at the top right. Since May 2026 Foxhole runs a
   single shard, so the picker is hidden until there is more than one.
 - Shows the war number, the day of the war, and victory towns held per team against the
   number needed (lowered by one for every scorched victory town), bottom left.
 - Shows a tooltip when you hover over a structure: type, team, state, and the nearest named
   place, such as "Town Base Tier 3 · Wardens · Victory town / The Spine, Dead Lands".
 - Has a legend (region colours, team colours, and every structure type on the map with its
-  in-game name) and settings (icon brightness, map style) behind the buttons bottom right;
+  in-game name) and settings (icon brightness, map style) in tabs at the top right;
   settings are remembered in the browser.
 - Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
   point at the screen centre, zoom), so a link opens the same view. Without a link it
   restores the last view from `localStorage`.
-- Keeps a war log on the left: captures, losses, upgrades, scorched towns, structures built
+- Keeps a war log (the first tab at the top right, open by default on wide screens): captures, losses, upgrades, scorched towns, structures built
   or destroyed, and victory town totals; click an entry to go there. The server records it
   (`.api/data/warlog.sqlite`), so it is the same for everyone and has history; when the server
   log does not answer, the browser shows the changes it sees itself. Major events (victory
@@ -148,7 +148,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
   `dynamic.svelte`, and `summary.svelte` build on that.
 - `panzoom.svelte` wraps the `panzoom` library and adds keyboard controls and view
   persistence.
-- `shard.svelte`, `logo.svelte`, `war.svelte`, `status.svelte`, and `menu.svelte` (with `legend.svelte` and `settings.svelte`) are the panels over the map; their styles are in `assets/css/panels.css`.
+- `logo.svelte`, `search.svelte`, `war.svelte`, and `status.svelte` are the panels over the map, and `tabs.svelte` holds the tabs at the top right: `warlog.svelte`, `legend.svelte`, `settings.svelte`, and `shard.svelte` (only with more than one live shard). Their styles are in `assets/css/panels.css` and the per-feature files next to it.
 
 ### Assets
 

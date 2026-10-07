@@ -7,7 +7,8 @@
   left: 50%;
   transform: translateX( -50% );
   z-index: 10001;
-  width: min( 420px, calc( 100% - 360px ) );
+  /* keep clear of the logo (left) and the tabs (right) */
+  width: min( 420px, calc( 100% - 660px ) );
   font-family: var( --font-body );
   font-size: 14px;
 }
@@ -155,13 +156,20 @@
   opacity: .65;
 }
 
-/* narrow screens: below the logo and shard picker, nearly full width */
+/* narrow screens: below the logo and the tabs, nearly full width; tab panels open below it */
 
-@media ( max-width: 760px )
+@media ( max-width: 1000px )
 {
   .search
   {
     top: 72px;
     width: calc( 100% - 16px );
+  }
+
+  .tab-panel
+  {
+    /* below the search field, which sits under the tabs on narrow screens */
+    margin-top: 82px;
+    max-height: calc( 100vh - 140px );
   }
 }

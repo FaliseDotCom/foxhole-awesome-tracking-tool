@@ -1,57 +1,4 @@
-/* War log, left side between the logo and the war overview */
-
-.warlog
-{
-  position: absolute;
-  left: 8px;
-  top: 76px;
-  z-index: 9999;
-  width: 290px;
-  max-width: calc( 100% - 16px );
-  font-family: var( --font-body );
-  font-size: 13px;
-}
-
-.warlog-toggle
-{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var( --font-body );
-  font-size: 14px;
-  color: var( --clr-white );
-  background-color: rgba( 0, 0, 0, .7 );
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  text-transform: uppercase;
-}
-
-.warlog.open .warlog-toggle
-{
-  background-color: var( --clr-focus );
-  color: var( --clr-black );
-}
-
-.warlog-badge
-{
-  min-width: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
-  background-color: var( --clr-focus );
-  color: var( --clr-black );
-  font-size: 12px;
-  text-align: center;
-}
-
-.warlog-panel
-{
-  margin-top: 6px;
-  /* leave room for the war overview at the bottom */
-  max-height: calc( 100vh - 76px - 200px );
-  overflow-y: auto;
-}
+/* War log tab: filter, entries, and the fallback notice */
 
 .warlog-filter
 {
@@ -151,21 +98,6 @@
   overflow: hidden;
   clip-path: inset( 50% );
   white-space: nowrap;
-}
-
-/* narrow screens: the search field sits below the logo, so start lower */
-
-@media ( max-width: 760px )
-{
-  .warlog
-  {
-    top: 124px;
-  }
-
-  .warlog-panel
-  {
-    max-height: calc( 100vh - 124px - 160px );
-  }
 }
 
 /* shown while the server log is unavailable and the browser's own comparison is used */

@@ -26,7 +26,7 @@ test( 'map renders without errors', async ( { page } ) =>
   await expect( page.locator( '.logo h1' ) ).toHaveText( 'FATT' );
   // the shard picker only shows when there is more than one live shard to choose from
   const live = await ( await page.request.get( '/api/shards' ) ).json();
-  await expect( page.locator( '.shard label' ) ).toHaveCount( live.length > 1 ? live.length : 0 );
+  await expect( page.getByRole( 'tab', { name: 'Shard' } ) ).toHaveCount( live.length > 1 ? 1 : 0 );
   await expect( page.locator( 'svg.layer.backgrounds svg.hex' ).first() ).toBeVisible();
 
   expect( errors ).toEqual( [] );
@@ -124,8 +124,8 @@ test( 'the legend lists the structures on the map', async ( { page } ) =>
   await page.goto( '/' );
   await expect( page.locator( 'image.icon' ).first() ).toBeAttached( { timeout: 20000 } );
 
-  await page.getByRole( 'button', { name: 'Legend' } ).click();
-  const legend = page.getByRole( 'dialog', { name: 'Legend' } );
+  await page.getByRole( 'tab', { name: 'Legend' } ).click();
+  const legend = page.getByRole( 'tabpanel', { name: 'Legend' } );
   await expect( legend ).toContainText( 'Colors' );
   await expect( legend ).toContainText( 'Town Base Tier 3' );
   await expect( legend ).toContainText( 'Town Hall' );
@@ -136,7 +136,7 @@ test( 'settings change the icon style and are remembered', async ( { page } ) =>
   await page.goto( '/' );
   await expect( page.locator( 'image.icon' ).first() ).toBeAttached( { timeout: 20000 } );
 
-  await page.getByRole( 'button', { name: 'Settings' } ).click();
+  await page.getByRole( 'tab', { name: 'Settings' } ).click();
   await page.getByLabel( 'superbright' ).check();
   await expect( page.locator( 'image.icon' ).first() ).toHaveAttribute( 'href', /\/superbright\// );
 
@@ -148,11 +148,11 @@ test( 'legend opens and closes', async ( { page } ) =>
 {
   await page.goto( '/' );
 
-  await page.getByRole( 'button', { name: 'Legend' } ).click();
-  await expect( page.getByRole( 'dialog', { name: 'Legend' } ) ).toContainText( 'Held by the Wardens' );
+  await page.getByRole( 'tab', { name: 'Legend' } ).click();
+  await expect( page.getByRole( 'tabpanel', { name: 'Legend' } ) ).toContainText( 'Held by the Wardens' );
 
   await page.keyboard.press( 'Escape' );
-  await expect( page.getByRole( 'dialog' ) ).toHaveCount( 0 );
+  await expect( page.getByRole( 'tabpanel' ) ).toHaveCount( 0 );
 } );
 
 test( 'the view is kept in a shareable link', async ( { page } ) =>
@@ -401,4 +401,23 @@ test( 'the search button goes to the first suggestion', async ( { page } ) =>
   await expect( page.getByRole( 'option' ).first() ).toContainText( 'Dead Lands' );
   await page.getByRole( 'button', { name: 'Search', exact: true } ).click();
   await expect( field ).toHaveValue( 'Dead Lands' );
+} );
+
+test( 'the tabs switch panels and close again', async ( { page } ) =>
+{
+  await page.goto( '/' );
+
+  // the war log is open on a wide screen
+  const warlog = page.getByRole( 'tab', { name: 'War log' } );
+  await expect( warlog ).toHaveAttribute( 'aria-selected', 'true' );
+  await expect( page.getByRole( 'tabpanel', { name: 'War log' } ) ).toBeVisible();
+
+  // arrow keys move to the next tab
+  await warlog.focus();
+  await page.keyboard.press( 'ArrowRight' );
+  await expect( page.getByRole( 'tabpanel', { name: 'Legend' } ) ).toBeVisible();
+
+  // clicking the open tab closes its panel
+  await page.getByRole( 'tab', { name: 'Legend' } ).click();
+  await expect( page.getByRole( 'tabpanel' ) ).toHaveCount( 0 );
 } );
