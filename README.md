@@ -225,24 +225,25 @@ curl and pdo_sqlite extensions, and write access for PHP to `.api/`, where it cr
 
 For the war log, add a DirectAdmin cron job that runs every minute (`*` in all five time
 fields) and records every live shard. Any of these commands works; pick the one that matches
-how the other cron jobs on the server are set up:
+how the other cron jobs on the server are set up. They can be pasted as they are: cron runs
+them with `sh`, which reads `~` as the account's home folder (`/home/<user>`).
 
 ```
 # run the script directly
-/usr/local/php84/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php
+/usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php
 
 # from its own folder, at low priority and without output (as the server's other PHP cron jobs)
-cd /home/<user>/domains/fatt.fali.se/public_html/.api/cron; /bin/nice -n15 /usr/local/php84/bin/php -q record.php >/dev/null 2>&1
+cd ~/domains/fatt.fali.se/public_html/.api/cron; /bin/nice -n15 /usr/local/php84/bin/php -q record.php >/dev/null 2>&1
 
 # keep a log of each run instead, to see what it recorded or why it failed
-/usr/local/php84/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php >> /home/<user>/fatt-cron.log 2>&1
+/usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php >> ~/fatt-cron.log 2>&1
 ```
 
 Use the PHP version the site runs on, not the system PHP: on this server `/usr/bin/php` is PHP
 7.2, which cannot load the dependencies (the error log then shows "Composer detected issues in
 your platform"). DirectAdmin installs each PHP version it offers as `/usr/local/phpXY/bin/php`,
 here `/usr/local/php84/bin/php`; `/usr/local/bin/php` is its default version, which may differ
-from the site's. A test cron job such as `/usr/local/php84/bin/php -v > /home/<user>/php.txt`
+from the site's. A test cron job such as `/usr/local/php84/bin/php -v > ~/php.txt`
 shows what a binary is. The script refuses web requests: opening it in a browser gives a 404.
 Errors go to the API's daily error log, `.api/logs/error-YYYY-MM-DD.log`.
 

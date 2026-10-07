@@ -66,8 +66,8 @@ class FoxholeApi
     $this->logger = new Logger(
       // log file directory
       LOG_DIR,
-      // minimal log level
-      LogLevel::DEBUG,
+      // minimal log level: only problems, not every request
+      LogLevel::WARNING,
       // daily logfile specific for this class
       [ 'filename' => 'foxhole-' . date( 'Y-m-d' ) . '.log' ]
     );
@@ -411,7 +411,6 @@ class FoxholeApi
    */
   public function async_dynamics()
   {
-    $this->logger->debug( 'Starting async' );
     $maps = $this->get_map_list();
     $promises = array();
 
