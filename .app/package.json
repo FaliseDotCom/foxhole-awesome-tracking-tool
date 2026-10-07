@@ -8,9 +8,10 @@
 		"build": "vite build && node scripts/publish.js",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
-		"test": "playwright test",
+		"test": "npm run test:unit && playwright test",
 		"lint": "eslint .",
-		"api": "cd .. && php -S 127.0.0.1:8090 .api/router.php"
+		"api": "cd .. && php -S 127.0.0.1:8090 .api/router.php",
+		"test:unit": "node --test src/tests/*.unit.js"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.0",
@@ -18,10 +19,13 @@
 		"@sveltejs/adapter-static": "^4.0.0",
 		"@sveltejs/kit": "^3.0.1",
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
+		"d3-delaunay": "^6.0.4",
 		"eslint": "^10.12.0",
 		"eslint-plugin-svelte": "^3.23.0",
 		"globals": "^17.0.0",
+		"sharp": "^0.35.5",
 		"svelte": "^5.57.2",
+		"tga": "^1.0.7",
 		"vite": "^8.3.3"
 	},
 	"dependencies": {

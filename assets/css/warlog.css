@@ -1,0 +1,180 @@
+/* War log, left side between the logo and the war overview */
+
+.warlog
+{
+  position: absolute;
+  left: 8px;
+  top: 76px;
+  z-index: 9999;
+  width: 290px;
+  max-width: calc( 100% - 16px );
+  font-family: var( --font-body );
+  font-size: 13px;
+}
+
+.warlog-toggle
+{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var( --font-body );
+  font-size: 14px;
+  color: var( --clr-white );
+  background-color: rgba( 0, 0, 0, .7 );
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.warlog.open .warlog-toggle
+{
+  background-color: var( --clr-focus );
+  color: var( --clr-black );
+}
+
+.warlog-badge
+{
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background-color: var( --clr-focus );
+  color: var( --clr-black );
+  font-size: 12px;
+  text-align: center;
+}
+
+.warlog-panel
+{
+  margin-top: 6px;
+  /* leave room for the war overview at the bottom */
+  max-height: calc( 100vh - 76px - 200px );
+  overflow-y: auto;
+}
+
+.warlog-filter
+{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.warlog-list
+{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.warlog-entry
+{
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 4px 0;
+  padding: 4px 6px 4px 8px;
+  text-align: left;
+  font-family: inherit;
+  font-size: inherit;
+  color: var( --clr-black );
+  background: rgba( 0, 0, 0, .04 );
+  border: none;
+  /* team colour stripe, the region colours from vars.css */
+  border-left: 4px solid #bbb;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.warlog-entry:hover,
+.warlog-entry:focus-visible
+{
+  background: rgba( 255, 165, 0, .2 );
+}
+
+.warlog-entry:disabled
+{
+  cursor: default;
+}
+
+.warlog-entry.team-wardens
+{
+  border-left-color: var( --clr-wardens-region );
+}
+
+.warlog-entry.team-colonials
+{
+  border-left-color: var( --clr-colonials-region );
+}
+
+.warlog-entry.major
+{
+  font-weight: bold;
+}
+
+.warlog-text
+{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.warlog-place,
+.warlog-entry time
+{
+  font-size: 11px;
+  font-weight: normal;
+  opacity: .65;
+}
+
+.warlog-entry time
+{
+  white-space: nowrap;
+}
+
+.warlog-empty
+{
+  margin: 0;
+  font-size: 12px;
+  opacity: .75;
+}
+
+.visually-hidden
+{
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset( 50% );
+  white-space: nowrap;
+}
+
+/* narrow screens: the search field sits below the logo, so start lower */
+
+@media ( max-width: 760px )
+{
+  .warlog
+  {
+    top: 124px;
+  }
+
+  .warlog-panel
+  {
+    max-height: calc( 100vh - 124px - 160px );
+  }
+}
+
+/* shown while the server log is unavailable and the browser's own comparison is used */
+
+.warlog-notice
+{
+  margin: 0 0 6px 0;
+  padding: 4px 6px;
+  font-size: 12px;
+  background-color: rgba( 255, 236, 200, .95 );
+  border-radius: 4px;
+}

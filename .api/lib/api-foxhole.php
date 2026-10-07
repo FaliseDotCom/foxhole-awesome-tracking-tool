@@ -3,8 +3,6 @@
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\Utils as PromiseUtils;
-use GuzzleHttp\HandlerStack;
-use Kevinrob\GuzzleCache\CacheMiddleware;
 use Katzgrau\KLogger\Logger;
 use Psr\Log\LogLevel;
 
@@ -286,6 +284,18 @@ class FoxholeApi
   public function get_map_list()
   {
     return $this->strip_private_data( $this->get( 'worldconquest/maps' ) );
+  }
+
+  /**
+   * Get the state of the current war: number, start, winner and victory towns needed.
+   * Cached for a minute; it only changes when a war starts or ends.
+   * @return array<string, mixed>
+   */
+  public function get_war() : array
+  {
+    $war = $this->get( 'worldconquest/war', 60 );
+    $keys = [ 'warNumber', 'winner', 'conquestStartTime', 'conquestEndTime', 'requiredVictoryTowns' ];
+    return array_intersect_key( $war, array_flip( $keys ) );
   }
 
   /**

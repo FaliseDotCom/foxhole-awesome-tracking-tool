@@ -8,6 +8,7 @@
 .api/vendor/
 .api/cache/
 .api/logs/
+.api/data/
 
 # editor and OS files
 .idea/

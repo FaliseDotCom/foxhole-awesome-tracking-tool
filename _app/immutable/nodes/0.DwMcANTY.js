@@ -1,1 +1,0 @@
-import{N as e,O as t,P as n,Y as r}from"../chunks/CPcrPe78.js";function i(i,a){var o=n(),s=r(o);t(s,()=>a.children),e(i,o)}export{i as component};

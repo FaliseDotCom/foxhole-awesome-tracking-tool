@@ -16,6 +16,12 @@ const api_url = config.urls.api + 'data/',
       // should we log?
       log = config.log.api;
 
+/**
+ * State of the last data request: loading (none finished yet), ok, or error.
+ * @type {import('svelte/store').Writable<string>}
+ */
+const status = writable( 'loading' );
+
 let timeout = 0,
     shard = get( shards );
 
@@ -52,6 +58,12 @@ const update = () =>
     // update store with whatever we get from the server
     .then( d =>  {
       if ( d ) set( augmentData( d ) )
+      status.set( d ? 'ok' : 'error' )
+    } )
+    // network errors: keep the last data, report it, and try again on the next round
+    .catch( e => {
+      if ( log ) console.warn( 'API request failed', e )
+      status.set( 'error' )
     } )
     // rerun the update no matter what)
     .finally( () => timeout = setTimeout( update, time * 1000 ) )
@@ -79,8 +91,12 @@ shards.subscribe( s => {
   clearTimeout( timeout );
   // drop the previous shard's data so it is not shown if the new shard fails to load
   set( {} );
+  status.set( 'loading' );
   update();
 });
 
-// only export the subscribe method
-export const world = { subscribe }
+export const world = {
+  subscribe,
+  // state of the last request, for showing an error message
+  status: { subscribe: status.subscribe }
+}

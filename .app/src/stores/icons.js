@@ -77,6 +77,30 @@ const list = {
 };
 
 /**
+ * Other names players use for a structure type, shown in the legend and matched by search.
+ * The names in `list` double as icon file names, so in-game or common names go here.
+ * @type {Record<number, string[]>}
+ */
+const aliases = {
+  11: [ 'Field Hospital' ],
+  12: [ 'Garage', 'Vehicle Factory' ],
+  20: [ 'Salvage Field' ],
+  21: [ 'Component Field' ],
+  23: [ 'Sulfur Field' ],
+  27: [ 'Special Base' ],
+  33: [ 'Storage Depot' ],
+  35: [ 'Garrison Station' ],
+  51: [ 'MPF' ],
+  56: [ 'Town Hall' ],
+  57: [ 'Town Hall' ],
+  58: [ 'Town Hall' ],
+  88: [ 'Airfield' ],
+  89: [ 'Airfield' ],
+  91: [ 'Airfield', 'Airstrip' ],
+  92: [ 'Airfield', 'Airstrip' ]
+};
+
+/**
  * Icon ids the War API documents but has no artwork for; these are not drawn.
  * @type {number[]}
  */
@@ -150,8 +174,14 @@ const getFlags = f =>
   };
 }
 
-// get icon from ID
-const getIcon = d => 
+/**
+ * Get the icon url for a map item.
+ *
+ * @param {object} d     Map item from the API ({ i, t, f }).
+ * @param {string} style Icon style folder, one of config.styles.icons.
+ * @returns {string} Icon url, or an empty string when there is no icon for this type.
+ */
+const getIcon = ( d, style = config.styles.icons[ 0 ] ) =>
 {
   const id = 'i' in d ? d.i : 0,
         team = 't' in d ? d.t : '',
@@ -177,7 +207,7 @@ const getIcon = d =>
       name += ucFirst( teams[ team.toLowerCase() ] )
     }
 
-    return `${ config.urls.icons }/${ name }.${ ext }`
+    return `${ config.urls.icons }${ style }/${ name }.${ ext }`
   }
   else if ( !reported.has( id ) )
   {
@@ -199,6 +229,47 @@ const getCss = d =>
 
 // get name from ID
 const getName = id => ( id in list ) ? list[ id ] : '';
+
+/**
+ * Other names of a structure type, for search.
+ *
+ * @param {number} id Icon type id.
+ * @returns {string[]} Alternative names, or an empty array.
+ */
+const getAliases = id => aliases[ id ] || [];
+
+/**
+ * Team names by the one-letter team id the API proxy sends.
+ * @type {Record<string, string>}
+ */
+const team_names = {
+  W: 'Wardens',
+  C: 'Colonials'
+};
+
+/**
+ * Get the team name for a map item.
+ *
+ * @param {object} d Map item from the API ({ t }).
+ * @returns {string} Wardens, Colonials, or an empty string for neutral items.
+ */
+const getTeam = d => team_names[ d.t ] || '';
+
+/**
+ * Get a short description of a map item for its tooltip, such as
+ * "Town Base Tier 3 · Wardens · Victory town".
+ *
+ * @param {object} d Map item from the API ({ i, t, f }).
+ * @returns {string} Name, team and state joined with dots.
+ */
+const getTitle = d =>
+{
+  const parts = [ getName( d.i ), getTeam( d ) ];
+  if ( isVictoryBase( d ) ) parts.push( 'Victory town' );
+  if ( isScorched( d ) ) parts.push( 'Scorched' );
+  if ( isBuildSite( d ) ) parts.push( 'Build site' );
+  return parts.filter( Boolean ).join( ' · ' );
+};
 
 // is this icon a resource?
 const isResource = id => id in resources
@@ -252,6 +323,9 @@ export const icons = {
   list,
   getIcon,
   getName,
+  getAliases,
+  getTeam,
+  getTitle,
   isResource,
   getResource,
   isConquerable,

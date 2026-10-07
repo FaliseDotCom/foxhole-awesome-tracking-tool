@@ -14,7 +14,7 @@
   }
 </script>
 
-{#if $available.length}
+{#if $available.length > 1}
 <div class="shard">
   <div class="title">Shard:</div>
   <div class="list">

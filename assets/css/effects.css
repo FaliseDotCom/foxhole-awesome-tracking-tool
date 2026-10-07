@@ -1,0 +1,233 @@
+/* Rocket effects: launch beacon, impact shockwave, screen flash and shake */
+
+/* launch site: a red beacon that keeps flashing; sizes divided by --scale stay the same on screen */
+
+.effect-launch
+{
+  pointer-events: none;
+}
+
+.effect-launch-glow
+{
+  r: calc( 26px / var( --scale ) );
+  fill: rgba( 255, 40, 0, .55 );
+  animation: effect-beacon .5s ease-in-out infinite alternate;
+}
+
+.effect-launch-ring
+{
+  r: calc( 26px / var( --scale ) );
+  fill: none;
+  stroke: #ff2800;
+  stroke-width: calc( 3px / var( --scale ) );
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: effect-ring 1s ease-out infinite;
+}
+
+/* impact: a white-hot fireball and two expanding shockwaves */
+
+.effect-impact
+{
+  pointer-events: none;
+}
+
+.effect-impact-fireball
+{
+  r: calc( 40px / var( --scale ) );
+  fill: #fff6c8;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: effect-fireball 4s ease-out forwards;
+}
+
+.effect-impact-wave
+{
+  r: calc( 40px / var( --scale ) );
+  fill: none;
+  stroke: rgba( 255, 120, 0, .9 );
+  stroke-width: calc( 6px / var( --scale ) );
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: effect-wave 1.6s ease-out forwards;
+}
+
+.effect-impact-wave.late
+{
+  animation-delay: .4s;
+  opacity: 0;
+}
+
+/* the whole screen flashes on impact */
+
+.effect-flash
+{
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  pointer-events: none;
+  background: radial-gradient( circle, #fffbe6 0%, #ffd27a 60%, rgba( 255, 120, 0, .6 ) 100% );
+  animation: effect-flash .7s ease-out forwards;
+}
+
+/* the map shakes: a rumble on launch, a quake on impact */
+
+.scaler.shake-rumble
+{
+  animation: effect-rumble .12s linear infinite;
+}
+
+.scaler.shake-quake
+{
+  animation: effect-quake .1s linear infinite;
+}
+
+@keyframes effect-beacon
+{
+  from
+  {
+    fill-opacity: .25;
+  }
+
+  to
+  {
+    fill-opacity: .9;
+  }
+}
+
+@keyframes effect-ring
+{
+  from
+  {
+    transform: scale( 1 );
+    stroke-opacity: 1;
+  }
+
+  to
+  {
+    transform: scale( 3 );
+    stroke-opacity: 0;
+  }
+}
+
+@keyframes effect-fireball
+{
+  0%
+  {
+    transform: scale( .2 );
+    opacity: 1;
+  }
+
+  15%
+  {
+    transform: scale( 1.6 );
+    fill: #ffb347;
+  }
+
+  100%
+  {
+    transform: scale( 2 );
+    fill: #5a2a12;
+    opacity: 0;
+  }
+}
+
+@keyframes effect-wave
+{
+  from
+  {
+    transform: scale( 1 );
+    opacity: 1;
+  }
+
+  to
+  {
+    transform: scale( 8 );
+    opacity: 0;
+  }
+}
+
+@keyframes effect-flash
+{
+  from
+  {
+    opacity: .9;
+  }
+
+  to
+  {
+    opacity: 0;
+  }
+}
+
+@keyframes effect-rumble
+{
+  0%,
+  100%
+  {
+    transform: translate( 0, 0 );
+  }
+
+  25%
+  {
+    transform: translate( -2px, 1px );
+  }
+
+  50%
+  {
+    transform: translate( 2px, -1px );
+  }
+
+  75%
+  {
+    transform: translate( -1px, -2px );
+  }
+}
+
+@keyframes effect-quake
+{
+  0%,
+  100%
+  {
+    transform: translate( 0, 0 ) rotate( 0 );
+  }
+
+  20%
+  {
+    transform: translate( -10px, 6px ) rotate( -.4deg );
+  }
+
+  40%
+  {
+    transform: translate( 9px, -8px ) rotate( .4deg );
+  }
+
+  60%
+  {
+    transform: translate( -7px, -5px ) rotate( -.3deg );
+  }
+
+  80%
+  {
+    transform: translate( 8px, 7px ) rotate( .3deg );
+  }
+}
+
+/* respect "reduce motion": no shaking or flashing, only still markers */
+
+@media ( prefers-reduced-motion: reduce )
+{
+  .scaler.shake-rumble,
+  .scaler.shake-quake,
+  .effect-launch-glow,
+  .effect-launch-ring,
+  .effect-impact-wave
+  {
+    animation: none;
+  }
+
+  .effect-flash
+  {
+    display: none;
+  }
+}

@@ -23,8 +23,8 @@ F.A.T.T. can stand for any of the following:
 
 ## What it does
 
-- Renders the whole world as one large SVG of hexagons, each with its background map image,
-  border, and region polygons.
+- Renders the whole world, all 53 hexes, as one large SVG of hexagons, each with its
+  background map image, border, and region polygons.
 - Polls the War API (through a small PHP proxy) every 10 seconds and draws all public map
   items — town halls, relic bases, keeps, factories, mines, rocket sites, and so on — with
   a Warden, Colonial, neutral, or scorched icon.
@@ -39,7 +39,36 @@ F.A.T.T. can stand for any of the following:
 - Only renders hexes that are on screen.
 - Supports mouse, touch, and keyboard pan and zoom (arrows / WASD / numpad to pan, `+` / `-`
   to zoom, numpad 5 to recentre), and remembers the last view.
-- Lets you switch between the shards (servers) that are live, in the top-right corner.
+- Lets you switch between live shards in the top-right corner. Since May 2026 Foxhole runs a
+  single shard, so the picker is hidden until there is more than one.
+- Shows the war number, the day of the war, and victory towns held per team against the
+  number needed (lowered by one for every scorched victory town), bottom left.
+- Shows a tooltip when you hover over a structure: type, team, state, and the nearest named
+  place, such as "Town Base Tier 3 · Wardens · Victory town / The Spine, Dead Lands".
+- Has a legend (region colours, team colours, and every structure type on the map with its
+  in-game name) and settings (icon brightness, map style) behind the buttons bottom right;
+  settings are remembered in the browser.
+- Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
+  point at the screen centre, zoom), so a link opens the same view. Without a link it
+  restores the last view from `localStorage`.
+- Keeps a war log on the left: captures, losses, upgrades, scorched towns, structures built
+  or destroyed, and victory town totals; click an entry to go there. The server records it
+  (`.api/data/warlog.sqlite`), so it is the same for everyone and has history; when the server
+  log does not answer, the browser shows the changes it sees itself. Major events (victory
+  towns, relics, rockets) from the whole war are loaded too, not only the latest 100. See
+  `.docs/plans/2026-10-07-war-log.md`.
+- Draws rocket launches as an arc from the launch site to the impact, with one war log entry
+  ("Wardens fired a rocket from … hit …"); see `.docs/plans/2026-10-07-rocket-arcs.md`. A
+  launch seen live sets off an air raid siren, a flashing beacon on the launch site and a
+  rumble; the impact a screen flash, a shockwave, an explosion and a quake (`stores/effects.js`,
+  sounds made with Web Audio in `lib/sound.js`). Sound can be turned off in Settings;
+  "reduce motion" turns off the shaking and flashing.
+- Keeps the map point at the screen centre in place when the window is resized.
+- Searches hexes, regions, locations, and structures from the field at the top (`/` jumps to
+  it). Structures are listed as "type – nearest place", so "hosp dead" finds the hospitals in
+  Dead Lands. Choosing a result fits a hex or region on screen, or zooms in on a location or
+  structure, and marks it briefly. The last five choices show when the field is empty.
+- Shows a message when no shard is online or the war data cannot be loaded.
 
 ## How it is built
 
@@ -65,7 +94,7 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 
 | File | Purpose |
 | --- | --- |
-| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex. A shard that is down or unknown answers `502` with a JSON error. |
+| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events). Fresh `/api/data` is also handed to the war log recorder. A shard that is down or unknown answers `502` with a JSON error. |
 | `router.php` | Router for `php -S`, mirroring `.htaccess`. |
 | `bootstrap.php` | Error logging to `logs/` (never to the response), Composer autoloader, library includes. |
 | `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`). |
@@ -73,7 +102,9 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 | `lib/cache.php` | `Cache`: thin wrapper around `inouet/file-cache` writing to `cache/`. |
 | `lib/grid.php`, `lib/icons.php`, `lib/point-location.php` | Leftovers from the earlier server-rendered version; not used. |
 | `composer.json`, `vendor/` | PHP dependencies; `vendor/` is not committed. |
-| `cache/`, `logs/` | Runtime output, created on first use and not committed. |
+| `lib/warlog-*.php`, `lib/warlog.php` | Server-side war log: the comparison (a port of `.app/src/lib/warlog-diff.js`, tested with the same fixtures by `tests/warlog-diff-test.php`), the SQLite storage, and the recorder. |
+| `cron/record.php` | Records the war log for every live shard; run every minute by a cron job. |
+| `cache/`, `logs/`, `data/` | Runtime output, created on first use and not committed. `data/` holds the war log database: never overwrite or delete it when deploying. |
 
 The compressed response per hex looks like:
 
@@ -95,7 +126,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
 
 | Store | Purpose |
 | --- | --- |
-| `config.js` | Site-relative URLs for `/assets/` and `/api/`, icon and map image sets, per-topic console logging switches, the dev-only points tool, update interval. |
+| `config.js` | Site-relative URLs for `/assets/` and `/api/`, the available icon and map styles, per-topic console logging switches, the dev-only points tool, update interval. |
 | `shards.js` | The live shards, loaded from `/api/shards`, and the selected one (the first live shard by default). |
 | `world.js` | Polls `/api/data/<shard>` and publishes the dynamic data, adding a stable `key` to each item. Restarts on shard change. |
 | `world_data.json` | Static, hand-built geometry for every hex: grid column/row, named points, region polygons built from those points, and label positions. |
@@ -103,6 +134,9 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
 | `icons.js` | War API icon type IDs, resource types, flag bits, and the icon file name and CSS class for an item. |
 | `visible.js` | Which grid rows and columns are on screen for the current pan/zoom. |
 | `zoom.js` | Current zoom level and its limits. |
+| `settings.js` | Icon and map style chosen by the viewer, saved in `localStorage`. |
+| `link.js` | Reads and writes the shareable link in the URL hash. |
+| `war.js` | War state from `/api/war/<shard>` plus victory towns counted from the world store. |
 
 **Components** (`src/components/`)
 
@@ -114,11 +148,11 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
   `dynamic.svelte`, and `summary.svelte` build on that.
 - `panzoom.svelte` wraps the `panzoom` library and adds keyboard controls and view
   persistence.
-- `shard.svelte`, `logo.svelte`, and `zoom.svelte` are the on-screen controls.
+- `shard.svelte`, `logo.svelte`, `war.svelte`, `status.svelte`, and `menu.svelte` (with `legend.svelte` and `settings.svelte`) are the panels over the map; their styles are in `assets/css/panels.css`.
 
 ### Assets
 
-`assets/` holds the map backgrounds (`maps/color`, `maps/classic`, WebP with PNG originals),
+`assets/` holds the map backgrounds (`maps/classic`: the official War API images of all 53 hexes, the default; `maps/color`: a recoloured 2022 set of the original 37, falling back to `classic`),
 icon sets in four brightness levels (`icons/default`, `bright`, `brighter`, `superbright`),
 fonts, stylesheets (`css/`), and the page background. They are served as they are and are
 not part of the app build.
@@ -128,11 +162,15 @@ their designers. They are not covered by this project's licence (see [Licence](#
 
 ### Adding or fixing a hex
 
-Region geometry is not available from the War API, so it is drawn by hand. Enable
-`tools.points` in `src/stores/config.js` (dev mode only), then click on a hex to place lettered
-points, and copy the result into the hex's `points` and `areas` in `world_data.json`. Label
-positions come from the War API's `worldconquest/maps/{hex}/static` endpoint
-(`mapTextItems`).
+`node scripts/build-hexes.js` (in `.app/`, add `--dry-run` to only report) rebuilds
+`world_data.json` and `assets/maps/classic/` from the War API: region ids, region names, label
+positions, and the official background images. Grid positions are in the script's `LAYOUT`
+table; add a row when Foxhole adds a hex. Region outlines are not in the API: the script keeps
+an outline when a hex still has exactly the same regions, and otherwise generates outlines (a
+Voronoi diagram of the region labels). Generated outlines are approximate; correct them with
+the points tool: enable `tools.points` in `src/stores/config.js` (dev mode only), click on a
+hex to place lettered points, and copy the result into the hex's `points` and `areas`. The
+script keeps corrected outlines on later runs.
 
 ### Adding map icons
 
@@ -158,7 +196,7 @@ npm run api       # PHP development server on 127.0.0.1:8090: the site, /api, an
 npm run dev       # Vite dev server; forwards /api and /assets to the PHP server
 npm run build     # build, then publish index.html and _app/ to the web root
 npm run lint      # ESLint (flat config in eslint.config.js)
-npm test          # Playwright smoke tests in src/tests, against the PHP server
+npm test          # unit tests (node --test, src/tests/*.unit.js), then Playwright tests against the PHP server
 ```
 
 Set `FATT_SERVER=https://fatt.fali.se` to develop against the live site instead of a local
@@ -179,7 +217,16 @@ It needs four repository secrets: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, 
 `FTP_SERVER_DIR` (the web root of fatt.fali.se as the FTP account sees it, ending in `/`).
 
 The server needs Apache with `mod_rewrite` and `.htaccess` overrides allowed, PHP with the
-curl extension, and write access for PHP to `.api/`, where it creates `cache/` and `logs/`.
+curl and pdo_sqlite extensions, and write access for PHP to `.api/`, where it creates
+`cache/`, `logs/`, and `data/`.
+
+For the war log, add a DirectAdmin cron job that runs every minute:
+
+```
+/usr/local/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php
+```
+
+Without it the log is still recorded, but only while someone has the page open.
 
 Commit the published `index.html` and `_app/` after `npm run build` too; the workflow
 rebuilds them anyway, but the committed copy keeps the repository a complete site.

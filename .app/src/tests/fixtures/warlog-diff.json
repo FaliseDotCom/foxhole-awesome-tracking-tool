@@ -1,0 +1,83 @@
+{
+  "_comment": "Test cases for diffHex, shared by the JavaScript (src/lib/warlog-diff.js) and PHP (.api/lib/warlog-diff.php) versions. Expected changes are { kind, i, t, from_i, from_t } in the order diffHex returns them; from_* is null for built.",
+  "cases": [
+    {
+      "name": "nothing changed",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 } ],
+      "expected": []
+    },
+    {
+      "name": "a neutral town is captured",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "W", "i": 56, "f": 0 } ],
+      "expected": [ { "kind": "captured", "i": 56, "t": "W", "from_i": 56, "from_t": "" } ]
+    },
+    {
+      "name": "a town is lost",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "C", "i": 56, "f": 0 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 } ],
+      "expected": [ { "kind": "lost", "i": 56, "t": "", "from_i": 56, "from_t": "C" } ]
+    },
+    {
+      "name": "a town changes hands directly",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "C", "i": 56, "f": 0 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "W", "i": 56, "f": 0 } ],
+      "expected": [ { "kind": "captured", "i": 56, "t": "W", "from_i": 56, "from_t": "C" } ]
+    },
+    {
+      "name": "a town hall is upgraded",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "W", "i": 56, "f": 0 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "W", "i": 57, "f": 0 } ],
+      "expected": [ { "kind": "upgraded", "i": 57, "t": "W", "from_i": 56, "from_t": "W" } ]
+    },
+    {
+      "name": "a town is scorched",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 16 } ],
+      "expected": [ { "kind": "scorched", "i": 56, "t": "", "from_i": 56, "from_t": "" } ]
+    },
+    {
+      "name": "a structure is built",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 }, { "x": 0.2, "y": 0.3, "t": "C", "i": 52, "f": 0 } ],
+      "expected": [ { "kind": "built", "i": 52, "t": "C", "from_i": null, "from_t": null } ]
+    },
+    {
+      "name": "a structure is destroyed",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 }, { "x": 0.2, "y": 0.3, "t": "C", "i": 52, "f": 0 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 } ],
+      "expected": [ { "kind": "destroyed", "i": 52, "t": "C", "from_i": 52, "from_t": "C" } ]
+    },
+    {
+      "name": "items at the same position are matched by type first",
+      "previous": [ { "x": 0.1, "y": 0.1, "t": "W", "i": 11, "f": 0 }, { "x": 0.1, "y": 0.1, "t": "W", "i": 33, "f": 0 } ],
+      "next": [ { "x": 0.1, "y": 0.1, "t": "W", "i": 33, "f": 0 }, { "x": 0.1, "y": 0.1, "t": "W", "i": 11, "f": 0 } ],
+      "expected": []
+    },
+    {
+      "name": "ignored types never produce changes",
+      "ignore": [ 20 ],
+      "previous": [ { "x": 0.4, "y": 0.4, "t": "", "i": 20, "f": 0 } ],
+      "next": [ { "x": 0.6, "y": 0.6, "t": "", "i": 20, "f": 0 } ],
+      "expected": []
+    },
+    {
+      "name": "several changes at once",
+      "previous": [
+        { "x": 0.5, "y": 0.5, "t": "", "i": 56, "f": 0 },
+        { "x": 0.7, "y": 0.2, "t": "W", "i": 45, "f": 0 }
+      ],
+      "next": [
+        { "x": 0.5, "y": 0.5, "t": "C", "i": 57, "f": 0 },
+        { "x": 0.7, "y": 0.2, "t": "", "i": 45, "f": 16 }
+      ],
+      "expected": [
+        { "kind": "upgraded", "i": 57, "t": "C", "from_i": 56, "from_t": "" },
+        { "kind": "captured", "i": 57, "t": "C", "from_i": 56, "from_t": "" },
+        { "kind": "lost", "i": 45, "t": "", "from_i": 45, "from_t": "W" },
+        { "kind": "scorched", "i": 45, "t": "", "from_i": 45, "from_t": "W" }
+      ]
+    }
+  ]
+}

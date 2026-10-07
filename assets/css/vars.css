@@ -11,6 +11,11 @@
   --clr-wardens-medium: #4a769b;
   --clr-wardens-dark: #081032;
 
+  /* regions as they look on the map: the area fills in map.css over the terrain */
+  --clr-wardens-region: #a3a1c0;
+  --clr-colonials-region: #94b37a;
+  --clr-scorched-region: #d9816c;
+
   --clr-black: #222;
   --clr-white: #eee;
   --clr-focus: orange;

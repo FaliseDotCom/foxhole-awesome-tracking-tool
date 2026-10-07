@@ -2,7 +2,6 @@
     "require": {
         "katzgrau/klogger": "dev-master",
         "inouet/file-cache": "dev-master",
-        "guzzlehttp/guzzle": "^7.5",
-        "kevinrob/guzzle-cache-middleware": "^4.0"
+        "guzzlehttp/guzzle": "^7.5"
     }
 }

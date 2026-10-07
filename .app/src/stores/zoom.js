@@ -1,7 +1,7 @@
 import { writable} from 'svelte/store';
 
 const store = writable( 1 ),
-      min = .1,
+      min = .03,
       max = 5,
       step = .2
 

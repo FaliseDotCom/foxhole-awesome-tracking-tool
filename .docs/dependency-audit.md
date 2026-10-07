@@ -83,11 +83,9 @@ shards whose War API answers (the API itself has no shard list endpoint).
 
 ## Suggested order
 
-1. `composer update guzzlehttp/guzzle` within 7.x and drop the unused middleware. Low risk,
-   fixes the advisories.
+1. ~~Update Guzzle within 7.x and drop the unused middleware.~~ Done: Guzzle 7.15.5, psr7 2.13.1,
+   promises 2.5.3; `composer audit` is clean.
 2. ~~Fix the shard name mismatch.~~ Done.
 3. ~~Add the new icon types and their images.~~ Done.
 4. ~~Upgrade the frontend toolchain in one go.~~ Done.
-5. Draw geometry for the 16 new hexes in `world_data.json` and add their map images; the
-   grid layout (column/row) must be checked since the world has expanded. Official images for
-   every hex are in the War API repository's `Images/Maps` (see [links.md](links.md)).
+5. ~~Add the 16 new hexes and refresh the old ones.~~ Done, see `plans/2026-10-07-new-hexes.md`.

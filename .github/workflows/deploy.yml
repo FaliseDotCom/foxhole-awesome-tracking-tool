@@ -47,6 +47,13 @@ jobs:
 
       - name: Install PHP dependencies
         run: composer install --working-dir=.api --no-dev --no-interaction --optimize-autoloader
+        
+      - name: Browser tests
+        working-directory: .app
+        run: |
+          npx playwright install --with-deps chromium
+          npm test
+
 
       - name: Upload over FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0

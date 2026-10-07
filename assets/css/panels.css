@@ -1,0 +1,268 @@
+/* Panels over the map: war overview, status message, legend and settings menu */
+
+.panel
+{
+  font-family: var( --font-body );
+  font-size: 14px;
+  color: var( --clr-black );
+  background-color: rgba( 255, 255, 255, .85 );
+  border-radius: 10px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 4px rgba( 0, 0, 0, .25 );
+  user-select: none;
+}
+
+/* war overview, bottom left */
+
+.war
+{
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 9999;
+  min-width: 170px;
+}
+
+.war-title
+{
+  font-family: var( --font-header );
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.war-row
+{
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  /* region colours are light, so dark text */
+  color: var( --clr-black );
+}
+
+.war-row + .war-row
+{
+  margin-top: 2px;
+}
+
+.war-row.team-wardens
+{
+  background-color: var( --clr-wardens-region );
+}
+
+.war-row.team-colonials
+{
+  background-color: var( --clr-colonials-region );
+}
+
+.war-row.scorched
+{
+  background-color: var( --clr-scorched-region );
+}
+
+.war-note
+{
+  font-size: 11px;
+  text-align: right;
+  opacity: .7;
+  margin-top: 2px;
+}
+
+.war-winner
+{
+  font-weight: bold;
+}
+
+/* connection and shard messages, bottom centre */
+
+.status
+{
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX( -50% );
+  z-index: 10000;
+  max-width: calc( 100% - 32px );
+  text-align: center;
+  background-color: rgba( 255, 236, 200, .95 );
+}
+
+/* legend and settings menu, bottom right */
+
+.menu
+{
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.menu-buttons
+{
+  display: flex;
+  gap: 4px;
+}
+
+.menu-buttons button
+{
+  font-family: var( --font-body );
+  font-size: 14px;
+  color: var( --clr-white );
+  background-color: rgba( 0, 0, 0, .7 );
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background-color var( --transition-time );
+}
+
+.menu-buttons button:hover
+{
+  background-color: rgba( 0, 0, 0, .6 );
+}
+
+.menu-buttons button.active
+{
+  background-color: var( --clr-focus );
+  color: var( --clr-black );
+}
+
+.menu-panel
+{
+  width: 240px;
+  max-height: calc( 100vh - 120px );
+  overflow-y: auto;
+}
+
+.menu-panel h3
+{
+  font-size: 15px;
+  margin: 4px 0;
+}
+
+.legend-section + .legend-section
+{
+  margin-top: 8px;
+}
+
+.legend-row
+{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.legend-swatch
+{
+  width: 20px;
+  height: 14px;
+  border: 1px solid #444;
+  border-radius: 2px;
+}
+
+/* the same colours as the regions on the map and the war overview */
+
+.legend-swatch.team-W
+{
+  background-color: var( --clr-wardens-region );
+}
+
+.legend-swatch.team-C
+{
+  background-color: var( --clr-colonials-region );
+}
+
+.legend-swatch.scorched
+{
+  background-color: var( --clr-scorched-region );
+}
+
+.legend-alias
+{
+  display: block;
+  font-size: 11px;
+  opacity: .65;
+}
+
+.legend-note
+{
+  font-size: 12px;
+  margin: 8px 0 0 0;
+}
+
+.settings-group
+{
+  border: none;
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+
+.settings-group legend
+{
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.settings-group label
+{
+  display: block;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+/* phones: smaller panels so the map stays usable */
+
+@media ( max-width: 600px )
+{
+  .panel
+  {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .war
+  {
+    min-width: 0;
+  }
+
+  .war-title
+  {
+    font-size: 15px;
+  }
+
+  .menu-panel
+  {
+    width: calc( 100vw - 16px );
+    max-width: 280px;
+  }
+}
+
+/* structure tooltip, next to the pointer; position is set inline from the pointer */
+
+.tooltip
+{
+  position: fixed;
+  z-index: 10002;
+  transform: translate( 14px, 14px );
+  pointer-events: none;
+  font-family: var( --font-body );
+  font-size: 13px;
+  color: var( --clr-white );
+  background-color: rgba( 0, 0, 0, .8 );
+  border-radius: 6px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.tooltip-detail
+{
+  font-size: 12px;
+  opacity: .75;
+}

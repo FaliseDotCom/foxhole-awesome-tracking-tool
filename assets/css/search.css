@@ -1,0 +1,167 @@
+/* Search field with suggestions, top centre */
+
+.search
+{
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX( -50% );
+  z-index: 10001;
+  width: min( 420px, calc( 100% - 360px ) );
+  font-family: var( --font-body );
+  font-size: 14px;
+}
+
+.search-field
+{
+  position: relative;
+}
+
+.search-field input
+{
+  box-sizing: border-box;
+  width: 100%;
+  /* room on the right for the clear and search buttons */
+  padding: 9px 68px 9px 12px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var( --clr-black );
+  background-color: rgba( 255, 255, 255, .9 );
+  border: 1px solid rgba( 0, 0, 0, .25 );
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba( 0, 0, 0, .25 );
+  outline: none;
+}
+
+.search-field input:focus
+{
+  border-color: var( --clr-focus );
+  background-color: #fff;
+}
+
+.search-clear,
+.search-forget
+{
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: rgba( 0, 0, 0, .5 );
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 6px;
+}
+
+.search-clear
+{
+  position: absolute;
+  right: 38px;
+  top: 50%;
+  transform: translateY( -50% );
+}
+
+.search-go
+{
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY( -50% );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: rgba( 0, 0, 0, .55 );
+  cursor: pointer;
+}
+
+.search-go:hover,
+.search-go:focus-visible
+{
+  color: var( --clr-black );
+  background-color: rgba( 255, 165, 0, .25 );
+}
+
+.search-go svg
+{
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.search-clear:hover,
+.search-forget:hover
+{
+  color: var( --clr-black );
+}
+
+.search-list
+{
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 4px 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba( 0, 0, 0, .3 );
+}
+
+.search-heading
+{
+  padding: 4px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  opacity: .6;
+}
+
+.search-option
+{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.search-option:hover,
+.search-option.active
+{
+  background-color: rgba( 255, 165, 0, .2 );
+}
+
+.search-text
+{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.search-name
+{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-meta
+{
+  font-size: 12px;
+  opacity: .65;
+}
+
+/* narrow screens: below the logo and shard picker, nearly full width */
+
+@media ( max-width: 760px )
+{
+  .search
+  {
+    top: 72px;
+    width: calc( 100% - 16px );
+  }
+}

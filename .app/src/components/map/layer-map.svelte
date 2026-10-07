@@ -15,6 +15,9 @@
   import HexSummary from '@components/map/hex/summary.svelte'
   import HexAreas from '@components/map/hex/areas.svelte';
   import HexPoints from '@components/map/hex/points.svelte';
+  import Marker from '@components/map/marker.svelte';
+  import Arcs from '@components/map/arcs.svelte';
+  import Effects from '@components/map/effects.svelte';
   import { config } from '@stores/config.js'
   import { zoom } from '@stores/zoom'
 	import Scaler from '../scaler.svelte';
@@ -35,6 +38,9 @@
       {#if config.tools.points }
         <Layer class="points" component={ HexPoints } show={ true }/>
       {/if}
+      <Arcs/>
+      <Effects/>
+      <Marker/>
     </SvgMap>
   </PanZoom>
 </Scaler>

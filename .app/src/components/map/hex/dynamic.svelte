@@ -60,7 +60,7 @@
 <DataHex bind:data={ data } { name } class={ `dynamic ${$$props.class || ''}` }>
   {#if data && Array.isArray( data.d ) }
     {#each data.d as item ( item.key ) }
-      <Icon data={ item }/>
+      <Icon data={ item } { name }/>
     {/each}
     {#if animate}
       <Polygon class="flash" />

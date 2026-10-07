@@ -4,18 +4,24 @@ import { dev } from '$app/env';
 // relative to the site root, where the app, assets/ and api/ are served side by side
 const base = '/',
       assets = base + 'assets/',
-      icons = assets + 'icons/',
-      icon_type = 'brighter',
-      maps = assets + 'maps/',
-      map_type = 'color',
       api = base + 'api/';
 
-const urls = { 
-  base, 
-  assets, 
-  icons: icons + icon_type + '/', 
-  maps: maps + map_type + '/',  
-  api 
+// icon and map folders; the style subfolder comes from the settings store
+const urls = {
+  base,
+  assets,
+  icons: assets + 'icons/',
+  maps: assets + 'maps/',
+  api
+}
+
+/**
+ * Available styles per asset type, each a subfolder of its url above; the first is the default.
+ * @type {{ icons: string[], maps: string[] }}
+ */
+const styles = {
+  icons: [ 'brighter', 'superbright', 'bright', 'default' ],
+  maps: [ 'classic', 'color' ]
 }
 
 // enabled or disabled tools
@@ -40,8 +46,9 @@ if ( tools.points || !dev )  Object.keys( log ).forEach( key => log[ key ] = fal
 // points tool is only allowed in dev mode
 if ( !dev ) tools.points = false
 
-export const config = { 
+export const config = {
   urls,
+  styles,
   log,
   tools,
   // update interval in seconds

@@ -12,3 +12,4 @@
   require_once( __DIR__ . '/vendor/autoload.php' );
   require_once( __DIR__ . '/lib/cache.php' );
   require_once( __DIR__ . '/lib/api-foxhole.php' );
+  require_once( __DIR__ . '/lib/warlog.php' );
