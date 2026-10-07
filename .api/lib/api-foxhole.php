@@ -48,6 +48,12 @@ class FoxholeApi
   private int $shard_check_duration = 5 * 60;
 
   /**
+   * How long an empty list of live shards is cached, in seconds: soon checked again.
+   * @var int
+   */
+  private int $shard_retry_duration = 30;
+
+  /**
    * Seconds to wait for a shard before it counts as down.
    * @var int
    */
@@ -64,12 +70,12 @@ class FoxholeApi
 
     // init logger
     $this->logger = new Logger(
-      // log file directory
-      LOG_DIR,
+      // today's log folder
+      log_dir(),
       // minimal log level: only problems, not every request
       LogLevel::WARNING,
-      // daily logfile specific for this class
-      [ 'filename' => 'foxhole-' . date( 'Y-m-d' ) . '.log' ]
+      // log file for this class
+      [ 'filename' => 'api-foxhole.log' ]
     );
 
     // init guzzle client by setting a shard
@@ -90,8 +96,9 @@ class FoxholeApi
     }
 
     $names = $this->find_live_shards();
-    // wrapped in an array so an empty list is still a valid cache entry
-    $this->saveCache( $key, [ 'names' => $names ], $this->shard_check_duration );
+    // wrapped in an array so an empty list is still a valid cache entry; no shard at all is
+    // more likely a network problem here than every shard being down, so check again soon
+    $this->saveCache( $key, [ 'names' => $names ], $names ? $this->shard_check_duration : $this->shard_retry_duration );
     return $names;
   }
 
@@ -118,7 +125,13 @@ class FoxholeApi
       if ( $result[ 'state' ] === 'fulfilled' && $result[ 'value' ]->getStatusCode() === 200 )
       {
         $names[] = $name;
+        continue;
       }
+      // a shard that is down answers with an error status; an exception is a connection problem
+      $reason = $result[ 'state' ] === 'fulfilled'
+        ? 'status ' . $result[ 'value' ]->getStatusCode()
+        : ( $result[ 'reason' ] instanceof Throwable ? $result[ 'reason' ]->getMessage() : 'no answer' );
+      $this->logger->warning( "Shard {$name} did not answer: {$reason}" );
     }
     return $names;
   }

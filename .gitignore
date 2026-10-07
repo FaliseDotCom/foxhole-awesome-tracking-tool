@@ -7,8 +7,11 @@
 # PHP dependencies and runtime output; run composer install in .api instead
 .api/vendor/
 .api/cache/
-.api/logs/
 .api/data/
+
+# logs, one folder per day; .api/logs/ is the old place
+.logs/
+.api/logs/
 
 # editor and OS files
 .idea/

@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Records the war log for every live shard. Run every minute by a DirectAdmin cron job:
+ * Records the war log for every live shard, and reports each run in .logs/<date>/cron-record.log.
+ * Run every minute by a DirectAdmin cron job:
  *
  *   /usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php
  *
@@ -16,21 +17,51 @@ if ( isset( $_SERVER[ 'REQUEST_METHOD' ] ) )
   exit;
 }
 
+// errors of this script go to cron-error.log, not to the API's
+define( 'LOG_CONTEXT', 'cron' );
+
+// logging first: when the rest fails to load (a wrong PHP version), the log still shows the run
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../lib/log.php';
+
+/**
+ * Report a line: to cron-record.log, and to the output for whoever runs the script by hand.
+ *
+ * @param  string $line Text to report.
+ * @return void
+ */
+function cron_report( string $line ) : void
+{
+  log_line( LOG_CONTEXT . '-record', $line );
+  echo date( 'c' ) . ' ' . $line . PHP_EOL;
+}
+
+cron_report( 'start, PHP ' . PHP_VERSION . ' (' . PHP_SAPI . ')' );
+
 require_once __DIR__ . '/../bootstrap.php';
 
 $api = new FoxholeApi();
-foreach ( $api->get_shards() as $shard )
+$shards = $api->get_shards();
+if ( !$shards )
+{
+  // no shard answered, or the War API is unreachable from here (a missing CA bundle shows up so)
+  cron_report( 'no live shards found, nothing recorded' );
+}
+
+foreach ( $shards as $shard )
 {
   try
   {
     $api->set_shard( $shard );
-    $events = warlog_record( $api, $shard, $api->async_dynamics(), true );
-    echo date( 'c' ) . " {$shard}: {$events} events" . PHP_EOL;
+    $data = $api->async_dynamics();
+    $events = warlog_record( $api, $shard, $data, true );
+    // the hex count shows whether map data came in at all: 0 events with 0 hexes is a failed fetch
+    cron_report( "{$shard}: {$events} events, " . count( $data ) . ' hexes' );
   }
   catch ( Throwable $e )
   {
     // one failing shard must not stop the others
     error_log( "War log cron failed for {$shard}: " . $e->getMessage() );
-    echo date( 'c' ) . " {$shard}: failed, see the error log" . PHP_EOL;
+    cron_report( "{$shard}: failed, see cron-error.log" );
   }
 }

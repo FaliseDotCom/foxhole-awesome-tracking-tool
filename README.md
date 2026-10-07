@@ -97,15 +97,16 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 | --- | --- |
 | `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events). Fresh `/api/data` is also handed to the war log recorder. A shard that is down or unknown answers `502` with a JSON error. |
 | `router.php` | Router for `php -S`, mirroring `.htaccess`. |
-| `bootstrap.php` | Error logging to `logs/` (never to the response), Composer autoloader, library includes. |
-| `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`). |
+| `bootstrap.php` | Error logging (never to the response), Composer autoloader, library includes. |
+| `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`, `DATA_DIR`) and the time zone. |
+| `lib/log.php` | Log files: `log_path()` and `log_line()` for today's log of a context, see [Logs](#logs). |
 | `lib/api-foxhole.php` | `FoxholeApi`: War API client. `get_shards()` checks which documented shard roots answer `worldconquest/war` (the API has no endpoint that lists shards) and caches the result for 5 minutes. `async_dynamics()` fetches `worldconquest/maps/{hex}/dynamic/public` for all hexes in parallel and compresses each item to `{ x, y, t, i, f }` (coordinates rounded to 5 decimals, team as one letter, icon type, flags). |
 | `lib/cache.php` | `Cache`: thin wrapper around `inouet/file-cache` writing to `cache/`. |
 | `lib/grid.php`, `lib/icons.php`, `lib/point-location.php` | Leftovers from the earlier server-rendered version; not used. |
 | `composer.json`, `vendor/` | PHP dependencies; `vendor/` is not committed. |
 | `lib/warlog-*.php`, `lib/warlog.php` | Server-side war log: the comparison (a port of `.app/src/lib/warlog-diff.js`, tested with the same fixtures by `tests/warlog-diff-test.php`), the SQLite storage, and the recorder. |
 | `cron/record.php` | Records the war log for every live shard; run every minute by a cron job. |
-| `cache/`, `logs/`, `data/` | Runtime output, created on first use and not committed. `data/` holds the war log database: never overwrite or delete it when deploying. |
+| `cache/`, `data/` | Runtime output, created on first use and not committed. `data/` holds the war log database: never overwrite or delete it when deploying. |
 
 The compressed response per hex looks like:
 
@@ -221,22 +222,36 @@ It needs four repository secrets: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, 
 
 The server needs Apache with `mod_rewrite` and `.htaccess` overrides allowed, PHP with the
 curl and pdo_sqlite extensions, and write access for PHP to `.api/`, where it creates
-`cache/`, `logs/`, and `data/`.
+`cache/` and `data/`, and to the web root, where it creates `.logs/`.
 
-For the war log, add a DirectAdmin cron job that runs every minute (`*` in all five time
-fields) and records every live shard. Any of these commands works; pick the one that matches
-how the other cron jobs on the server are set up. They can be pasted as they are: cron runs
-them with `sh`, which reads `~` as the account's home folder (`/home/<user>`).
+### Logs
+
+All logs are in `.logs/` in the web root (hidden from the web like every dot folder), one
+folder per day, one file per context and kind:
+
+| File | Contents |
+| --- | --- |
+| `.logs/YYYY-MM-DD/api-error.log` | PHP errors and failed War API requests from the API. |
+| `.logs/YYYY-MM-DD/api-foxhole.log` | War API client problems: shards that do not answer, cache failures. |
+| `.logs/YYYY-MM-DD/cron-record.log` | Every cron run: the PHP version, then per shard the events stored and the hexes received. |
+| `.logs/YYYY-MM-DD/cron-error.log` | PHP errors from the cron job. |
+
+Times are in Europe/Amsterdam for the website and cron alike. The error logs appear only once
+there is an error; `api-foxhole.log` is created as soon as the API runs, empty on a good day. No
+`cron-record.log` for today means cron did not start the script.
+
+For the war log, add one DirectAdmin cron job that runs every minute (`*` in all five time
+fields) and records every live shard. Either command works; pick the one that matches how the
+other cron jobs on the server are set up. They can be pasted as they are: cron runs them with
+`sh`, which reads `~` as the account's home folder (`/home/<user>`). The script logs each run
+itself (see [Logs](#logs)), so its output can go to `/dev/null`.
 
 ```
 # run the script directly
-/usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php
+/usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php >/dev/null 2>&1
 
-# from its own folder, at low priority and without output (as the server's other PHP cron jobs)
+# from its own folder, at low priority (as the server's other PHP cron jobs)
 cd ~/domains/fatt.fali.se/public_html/.api/cron; /bin/nice -n15 /usr/local/php84/bin/php -q record.php >/dev/null 2>&1
-
-# keep a log of each run instead, to see what it recorded or why it failed
-/usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php >> ~/fatt-cron.log 2>&1
 ```
 
 Use the PHP version the site runs on, not the system PHP: on this server `/usr/bin/php` is PHP
@@ -245,7 +260,6 @@ your platform"). DirectAdmin installs each PHP version it offers as `/usr/local/
 here `/usr/local/php84/bin/php`; `/usr/local/bin/php` is its default version, which may differ
 from the site's. A test cron job such as `/usr/local/php84/bin/php -v > ~/php.txt`
 shows what a binary is. The script refuses web requests: opening it in a browser gives a 404.
-Errors go to the API's daily error log, `.api/logs/error-YYYY-MM-DD.log`.
 
 When the server cannot run PHP from cron, a web request can stand in. Requesting the map data
 of a shard records that shard, just as a visitor would, so add one job per shard (`able`,
@@ -275,6 +289,7 @@ rebuilds them anyway, but the committed copy keeps the repository a complete sit
 | `favicon.png`, `.htaccess` | Served as they are. |
 | `.app/` | The SvelteKit source. |
 | `.api/` | The PHP API. |
+| `.logs/` | Logs, one folder per day (not committed). |
 | `.docs/` | Project notes; reference links are in [.docs/links.md](.docs/links.md). |
 | `.scripts/` | Development tooling (PHPStan wrapper). |
 | `.github/workflows/` | GitHub Actions: build and FTP deploy. |
