@@ -9,7 +9,7 @@
 </script>
 
 {#if $tooltip}
-  <div class="tooltip" style:left={ `${ $tooltip.x }px` } style:top={ `${ $tooltip.y }px` } aria-hidden="true">
+  <div class="tooltip" class:above={ $tooltip.above } style:left={ `${ $tooltip.x }px` } style:top={ `${ $tooltip.y }px` } aria-hidden="true">
     <div class="tooltip-title">{ $tooltip.title }</div>
     {#if $tooltip.detail}
       <div class="tooltip-detail">{ $tooltip.detail }</div>

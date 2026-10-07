@@ -97,9 +97,15 @@ test( 'war overview shows victory towns per team', async ( { page } ) =>
   await page.goto( '/' );
 
   const panel = page.locator( '.war' );
-  await expect( panel ).toContainText( /War \d+/, { timeout: 20000 } );
-  await expect( panel.locator( '.team-wardens' ) ).toContainText( /\d+ \/ \d+/ );
-  await expect( panel.locator( '.team-colonials' ) ).toContainText( /\d+ \/ \d+/ );
+  await expect( panel.locator( '.war-title' ) ).toContainText( /War \d+/, { timeout: 20000 } );
+  await expect( panel.locator( '.war-part.wardens' ) ).toHaveText( /\d+/ );
+  await expect( panel.locator( '.war-part.colonials' ) ).toHaveText( /\d+/ );
+
+  // hovering a part shows the count and share of all victory towns
+  await panel.locator( '.war-part.wardens' ).hover();
+  const tip = page.locator( '.tooltip' );
+  await expect( tip.locator( '.tooltip-title' ) ).toHaveText( 'Wardens' );
+  await expect( tip.locator( '.tooltip-detail' ) ).toContainText( /\d+ of \d+ victory towns \(\d+%\) · \d+ needed to win/ );
 } );
 
 test( 'hovering a structure shows its name and place', async ( { page } ) =>
@@ -277,7 +283,7 @@ test( 'the war log is filled from the server and moves the map to an entry', asy
   await expect( entry ).toContainText( /took Town Base Tier \d/ );
   await expect( entry ).toContainText( 'Dead Lands' );
   await expect( page.locator( '.warlog-notice' ) ).toHaveCount( 0 );
-  await expect( page.locator( '.warlog-status' ) ).toContainText( /Live · checked \d+ s ago · last change/ );
+  await expect( page.locator( '.warlog-status' ) ).toContainText( /Live · checked \d+s ago · last change/ );
 
   // a new event arrives with the next map update
   events = [ ...events, { ...captureEvent( 2, { ...town, t: from }, town.t ) } ];
@@ -432,5 +438,5 @@ test( 'the war log status says who recorded and when the cron job ran', async ( 
   await page.goto( '/' );
 
   const status = page.locator( '.warlog-status' );
-  await expect( status ).toHaveAttribute( 'title', /Last checked by a visitor's map update\. The cron job last ran 3\d s ago\./ );
+  await expect( status ).toHaveAttribute( 'title', /Last checked by a visitor's map update\. The cron job last ran 3\ds ago\./ );
 } );

@@ -1,4 +1,4 @@
-/* Panels over the map: war overview, status message, legend and settings menu */
+/* Panels over the map: war overview, status message, tabs, tooltip */
 
 .panel
 {
@@ -12,66 +12,82 @@
   user-select: none;
 }
 
-/* war overview, bottom left */
+/* war overview, bottom centre: war number and day above one bar of all victory towns */
 
 .war
 {
   position: absolute;
-  left: 8px;
-  bottom: 8px;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX( -50% );
   z-index: 9999;
-  min-width: 170px;
+  width: min( 560px, calc( 100% - 32px ) );
+  box-sizing: border-box;
+  padding: 6px 10px 10px 10px;
+  font-family: var( --font-body );
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba( 0, 0, 0, .25 );
+  user-select: none;
 }
 
 .war-title
 {
-  font-family: var( --font-header );
-  font-size: 18px;
+  font-size: 15px;
+  font-weight: bold;
+  text-align: center;
   margin-bottom: 4px;
-}
-
-.war-row
-{
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  /* region colours are light, so dark text */
   color: var( --clr-black );
 }
 
-.war-row + .war-row
+.war-bar
 {
-  margin-top: 2px;
+  position: relative;
+  display: flex;
+  height: 22px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba( 0, 0, 0, .25 );
 }
 
-.war-row.team-wardens
+/* the same colours as the regions on the map and the legend */
+
+.war-part
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: bold;
+  color: var( --clr-black );
+  cursor: default;
+}
+
+.war-part.wardens
 {
   background-color: var( --clr-wardens-region );
 }
 
-.war-row.team-colonials
+.war-part.colonials
 {
   background-color: var( --clr-colonials-region );
 }
 
-.war-row.scorched
+.war-part.neutral
 {
-  background-color: var( --clr-scorched-region );
+  background-color: #d4d4d4;
 }
 
-.war-note
+.war-part.scorched
 {
-  font-size: 11px;
-  text-align: right;
-  opacity: .7;
-  margin-top: 2px;
+  background-color: var( --clr-scorched-region );
 }
 
 .war-winner
 {
   font-weight: bold;
+  text-align: center;
 }
 
 /* connection and shard messages, bottom centre */
@@ -80,7 +96,8 @@
 {
   position: absolute;
   left: 50%;
-  bottom: 8px;
+  /* above the war overview */
+  bottom: 80px;
   transform: translateX( -50% );
   z-index: 10000;
   max-width: calc( 100% - 32px );
@@ -253,14 +270,9 @@
     padding: 6px 8px;
   }
 
-  .war
-  {
-    min-width: 0;
-  }
-
   .war-title
   {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .tab
@@ -290,6 +302,12 @@
   border-radius: 6px;
   padding: 4px 8px;
   white-space: nowrap;
+}
+
+/* centred above the pointer, for the war bar at the bottom of the screen */
+.tooltip.above
+{
+  transform: translate( -50%, calc( -100% - 14px ) );
 }
 
 .tooltip-detail

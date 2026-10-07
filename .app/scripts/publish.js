@@ -48,4 +48,15 @@ for ( const entry of entries )
   fs.cpSync( path.join( build, entry ), to, { recursive: true } );
 }
 
+/**
+ * Build version from SvelteKit (a timestamp), used as a cache buster for the stylesheets in
+ * assets/css: their names stay the same between builds, so every build gets a new ?v=.
+ * @type {string}
+ */
+const version = JSON.parse( fs.readFileSync( path.join( build, '_app', 'version.json' ), 'utf8' ) ).version;
+
+const page = path.join( root, 'index.html' );
+fs.writeFileSync( page, fs.readFileSync( page, 'utf8' )
+  .replace( /(href="\/assets\/css\/[^"?]+\.css)"/g, `$1?v=${ version }"` ) );
+
 console.info( `Published ${ entries.join( ', ' ) } to ${ root }` );

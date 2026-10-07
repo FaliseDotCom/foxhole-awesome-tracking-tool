@@ -49,13 +49,13 @@ shards.subscribe( s =>
 } );
 
 /**
- * Victory towns held per team and scorched victory towns, counted from the live map data.
+ * Victory towns held per team, unclaimed, and scorched, counted from the live map data.
  * Scorched victory towns count for nobody and lower the number needed to win.
- * @type {import('svelte/store').Readable<{ wardens: number, colonials: number, scorched: number }>}
+ * @type {import('svelte/store').Readable<{ wardens: number, colonials: number, neutral: number, scorched: number }>}
  */
 const towns = derived( world, $world =>
 {
-  const count = { wardens: 0, colonials: 0, scorched: 0 };
+  const count = { wardens: 0, colonials: 0, neutral: 0, scorched: 0 };
   Object.values( $world ).forEach( hex =>
   {
     count.scorched += hex.s || 0;
@@ -64,6 +64,7 @@ const towns = derived( world, $world =>
       if ( !icons.isVictoryBase( item ) || icons.isScorched( item ) ) return;
       if ( item.t === 'W' ) count.wardens++;
       if ( item.t === 'C' ) count.colonials++;
+      if ( !item.t ) count.neutral++;
     } );
   } );
   return count;
@@ -86,7 +87,10 @@ const summary = derived( [ state, towns ], ( [ $state, $towns ] ) =>
     required: Math.max( 0, ( $state.requiredVictoryTowns || 0 ) - $towns.scorched ),
     wardens: $towns.wardens,
     colonials: $towns.colonials,
-    scorched: $towns.scorched
+    // victory towns held by nobody, and scorched ones (which count for nobody)
+    neutral: $towns.neutral,
+    scorched: $towns.scorched,
+    total: $towns.wardens + $towns.colonials + $towns.neutral + $towns.scorched
   };
 } );
 

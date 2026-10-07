@@ -15,7 +15,7 @@
         checked = warlog.checked,
         recorder = warlog.recorder;
 
-  // a clock for "2 min ago" and "checked 5 s ago"
+  // a clock for "2 min ago" and "checked 5s ago"
   let now = Date.now(),
       clock = 0;
 
@@ -42,12 +42,12 @@
    *
    * @param {number} time Time in ms.
    * @param {number} current Current time in ms.
-   * @returns {string} "5 s ago", or as ago() from a minute on.
+   * @returns {string} "5s ago", or as ago() from a minute on.
    */
   const agoShort = ( time, current ) =>
   {
     const seconds = Math.max( 0, Math.round( ( current - time ) / 1000 ) );
-    return seconds < 60 ? `${ seconds } s ago` : ago( time, current );
+    return seconds < 60 ? `${ seconds }s ago` : ago( time, current );
   };
 
   /**

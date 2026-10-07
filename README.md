@@ -223,13 +223,36 @@ The server needs Apache with `mod_rewrite` and `.htaccess` overrides allowed, PH
 curl and pdo_sqlite extensions, and write access for PHP to `.api/`, where it creates
 `cache/`, `logs/`, and `data/`.
 
-For the war log, add a DirectAdmin cron job that runs every minute:
+For the war log, add a DirectAdmin cron job that runs every minute (`*` in all five time
+fields) and records every live shard. Any of these commands works; pick the one that matches
+how the other cron jobs on the server are set up:
 
 ```
-/usr/local/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php
+# run the script directly
+/usr/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php
+
+# from its own folder, at low priority and without output (as the server's other PHP cron jobs)
+cd /home/<user>/domains/fatt.fali.se/public_html/.api/cron; /bin/nice -n15 /usr/bin/php -q record.php >/dev/null 2>&1
+
+# keep a log of each run instead, to see what it recorded or why it failed
+/usr/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php >> /home/<user>/fatt-cron.log 2>&1
 ```
 
-Without it the log is still recorded, but only while someone has the page open.
+The PHP binary is `/usr/bin/php` or `/usr/local/bin/php` depending on the server; `which php`
+in a test cron job (`which php > /home/<user>/which-php.txt`) shows which. The script runs only
+from the command line: opening it in a browser gives a 404.
+
+When the server cannot run PHP from cron, a web request can stand in. Requesting the map data
+of a shard records that shard, just as a visitor would, so add one job per shard (`able`,
+`baker`):
+
+```
+/usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/data/<shard>' >/dev/null 2>&1
+```
+
+These recordings count as `request`, not `cron`, so `cronAt` stays 0 with this method.
+
+Without any cron job the log is still recorded, but only while someone has the page open.
 
 To check the cron job runs: `/api/log/<shard>` returns `cronAt` (when the cron job last ran,
 0 if never) and `recordedBy` (`cron` or `request`, who made the last recording), and every
