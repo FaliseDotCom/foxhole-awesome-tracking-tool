@@ -10,7 +10,7 @@ Live at <https://fatt.fali.se/>. Source at
 
 ## The name
 
-F.A.T.T. has no single expansion. The logo picks one of these at random on each page load:
+F.A.T.T. can stand for any of the following:
 
 - Foxhole Artillery Targeting Tool
 - Foxhole Analytics Tracking Tool
