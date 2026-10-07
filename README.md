@@ -200,8 +200,9 @@ npm test          # unit tests (node --test, src/tests/*.unit.js), then Playwrig
 ```
 
 Set `FATT_SERVER=https://fatt.fali.se` to develop against the live site instead of a local
-PHP server. The tests need a browser once (`npx playwright install chromium`) and load live
-War API data, so they fail when the War API is down. PHP needs a CA bundle
+PHP server. The browser tests need a browser once (`npx playwright install chromium`) and
+load live War API data, so they fail when the War API is down. They only run locally: run
+`npm test` before every push. The deploy runs only the unit tests. PHP needs a CA bundle
 (`curl.cainfo` in `php.ini`) to reach the War API over HTTPS.
 
 ## Deploying
@@ -209,7 +210,8 @@ War API data, so they fail when the War API is down. PHP needs a CA bundle
 The server (DirectAdmin) has no git or SSH, so GitHub Actions deploys over FTP:
 [.github/workflows/deploy.yml](.github/workflows/deploy.yml) runs on every push to `master`
 (or by hand from the Actions tab). It lints and builds the app, runs `composer install
---no-dev` for `.api/`, and uploads the served files. Source and tooling (`.app/`, `.docs/`,
+--no-dev` for `.api/`, runs the unit tests (JavaScript and the PHP war log diff), and uploads
+the served files; a failing step stops the upload. The browser tests are not part of it. Source and tooling (`.app/`, `.docs/`,
 `.scripts/`, `README.md`, `LICENSE`) stay off the server. The first run uploads everything;
 later runs upload only changed files, tracked in `.ftp-deploy-sync-state.json` on the server.
 

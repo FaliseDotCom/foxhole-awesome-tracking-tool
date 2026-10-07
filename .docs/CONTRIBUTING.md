@@ -19,12 +19,15 @@ and say where it came from.
 ## Getting started
 
 See the [README](../README.md) for how the project fits together and how to run it. Before
-opening a pull request:
+opening a pull request (the deploy only runs the unit tests, so the browser tests are up to
+you):
 
 ```bash
 cd .app
 npm run lint
 npm test
+cd ..
+php .api/tests/warlog-diff-test.php
 ```
 
 Keep pull requests focused on one change and describe what you changed and why.

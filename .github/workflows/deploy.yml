@@ -48,12 +48,11 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --working-dir=.api --no-dev --no-interaction --optimize-autoloader
         
-      - name: Browser tests
-        working-directory: .app
+      # unit tests only; the browser tests need a live War API and run locally (npm test)
+      - name: Unit tests
         run: |
-          npx playwright install --with-deps chromium
-          npm test
-
+          npm run test:unit --prefix .app
+          php .api/tests/warlog-diff-test.php
 
       - name: Upload over FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
@@ -66,7 +65,7 @@ jobs:
           exclude: |
             **/.git*
             **/.git*/**
-            **/node_modules/**
+            **/node_modules/**            
             .app/**
             .docs/**
             .scripts/**
@@ -74,5 +73,6 @@ jobs:
             .claude/**
             .api/cache/**
             .api/logs/**
+            .api/data/**
             README.md
             LICENSE
