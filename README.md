@@ -231,6 +231,10 @@ For the war log, add a DirectAdmin cron job that runs every minute:
 
 Without it the log is still recorded, but only while someone has the page open.
 
+To check the cron job runs: `/api/log/<shard>` returns `cronAt` (when the cron job last ran,
+0 if never) and `recordedBy` (`cron` or `request`, who made the last recording), and every
+event has a `recordedBy` too. Hovering the war log status line shows the same in words.
+
 Commit the published `index.html` and `_app/` after `npm run build` too; the workflow
 rebuilds them anyway, but the committed copy keeps the repository a complete site.
 

@@ -92,7 +92,7 @@ class WarlogRecorder
 
     try
     {
-      return $this->recordLocked( $shard, $data, $war, $war_number, $status, $now );
+      return $this->recordLocked( $shard, $data, $war, $war_number, $status, $now, $force ? 'cron' : 'request' );
     }
     finally
     {
@@ -110,9 +110,10 @@ class WarlogRecorder
    * @param  int                  $war_number War number.
    * @param  array<string, mixed> $status     Recording status before this run.
    * @param  int                  $now        Current time in ms.
+   * @param  string               $trigger    Who recorded: cron (the cron job) or request (a visitor).
    * @return int Number of events stored.
    */
-  private function recordLocked( string $shard, array $data, array $war, int $war_number, array $status, int $now ) : int
+  private function recordLocked( string $shard, array $data, array $war, int $war_number, array $status, int $now, string $trigger ) : int
   {
     $totals = $this->countVictoryTowns( $data );
     $required = max( 0, (int) ( $war[ 'requiredVictoryTowns' ] ?? 0 ) - $totals[ 'scorched' ] );
@@ -120,7 +121,7 @@ class WarlogRecorder
     $new_war = !$status || (int) $status[ 'war' ] !== $war_number;
     $events = [];
 
-    $this->store->transaction( function () use ( $shard, $data, $war_number, $status, $now, $totals, $required, $winner, $new_war, &$events )
+    $this->store->transaction( function () use ( $shard, $data, $war_number, $status, $now, $totals, $required, $winner, $new_war, $trigger, &$events )
     {
       // a new war (or the first run) only sets the starting point
       if ( $new_war )
@@ -156,13 +157,21 @@ class WarlogRecorder
       {
         $events = array_merge( $events, $this->totalEvents( $shard, $war_number, $now, $status, $totals, $required, $winner ) );
       }
+      // note who found the changes, so a missing cron job shows up in the data
+      foreach ( $events as &$event )
+      {
+        $event[ 'recorded_by' ] = $trigger;
+      }
+      unset( $event );
       $this->store->addEvents( $events );
       $this->store->saveStatus( $shard, [
         'war'         => $war_number,
         'recorded_at' => $now,
         'wardens'     => $totals[ 'W' ],
         'colonials'   => $totals[ 'C' ],
-        'winner'      => $winner
+        'winner'      => $winner,
+        'recorded_by' => $trigger,
+        'cron_at'     => $trigger === 'cron' ? $now : ( $status[ 'cron_at' ] ?? null )
       ] );
     } );
 

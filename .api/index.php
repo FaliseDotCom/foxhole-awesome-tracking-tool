@@ -113,6 +113,9 @@
     json( [
       'war'        => $war,
       'recordedAt' => (int) $status[ 'recorded_at' ],
+      // who recorded last (cron or request), and when the cron job last ran (0: never)
+      'recordedBy' => $status[ 'recorded_by' ] ?? '',
+      'cronAt'     => (int) ( $status[ 'cron_at' ] ?? 0 ),
       'events'     => array_map( warlog_event_json( ... ), $rows )
     ] );
   }

@@ -423,3 +423,14 @@ test( 'the tabs switch panels and close again', async ( { page } ) =>
   await page.getByRole( 'tab', { name: 'Legend' } ).click();
   await expect( page.getByRole( 'tabpanel' ) ).toHaveCount( 0 );
 } );
+
+test( 'the war log status says who recorded and when the cron job ran', async ( { page } ) =>
+{
+  await page.route( '**/api/log/able**', route => route.fulfill( { json: {
+    war: 141, recordedAt: Date.now(), recordedBy: 'request', cronAt: Date.now() - 30000, events: []
+  } } ) );
+  await page.goto( '/' );
+
+  const status = page.locator( '.warlog-status' );
+  await expect( status ).toHaveAttribute( 'title', /Last checked by a visitor's map update\. The cron job last ran 3\d s ago\./ );
+} );

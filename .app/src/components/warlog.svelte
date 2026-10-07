@@ -12,7 +12,8 @@
 
   const major_only = warlog.majorOnly,
         source = warlog.source,
-        checked = warlog.checked;
+        checked = warlog.checked,
+        recorder = warlog.recorder;
 
   // a clock for "2 min ago" and "checked 5 s ago"
   let now = Date.now(),
@@ -49,18 +50,34 @@
     return seconds < 60 ? `${ seconds } s ago` : ago( time, current );
   };
 
+  /**
+   * Who keeps the log up to date, for the status line's tooltip: shows whether the cron job runs.
+   *
+   * @param {{ by: string, cronAt: number }} info Recorder info from the server.
+   * @param {string} from Current source: server or browser.
+   * @param {number} current Current time in ms.
+   * @returns {string} Tooltip text.
+   */
+  const recorderText = ( info, from, current ) =>
+  {
+    if ( from === 'browser' ) return 'The server log is not answering; this browser compares the map itself.';
+    const last = info.by === 'cron' ? 'the cron job' : "a visitor's map update";
+    const cron = info.cronAt ? `The cron job last ran ${ agoShort( info.cronAt, current ) }.` : 'The cron job has not run yet.';
+    return `Last checked by ${ last }. ${ cron }`;
+  };
+
   const teamClass = team => team ? `team-${ team.toLowerCase() }` : 'team-none';
 
 </script>
 
   <label class="warlog-filter">
     <input type="checkbox" checked={ $major_only } on:change={ e => warlog.setMajorOnly( e.target.checked ) }/>
-    Major only
+    Major updates only
   </label>
 
   <!-- shows the log is working even when nothing has changed for a while -->
   {#if $checked}
-    <p class="warlog-status" class:fallback={ $source === 'browser' }>
+    <p class="warlog-status" class:fallback={ $source === 'browser' } title={ recorderText( $recorder, $source, now ) }>
       <span class="warlog-live">{ $source === 'browser' ? 'This browser' : 'Live' }</span>
       · checked { agoShort( $checked, now ) }
       {#if $warlog.length}· last change { ago( $warlog[ 0 ].time, now ) }{/if}

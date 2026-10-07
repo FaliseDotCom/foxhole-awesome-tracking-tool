@@ -42,7 +42,7 @@ const stale_after = 3 * 60 * 1000;
 const request_timeout = 5000;
 
 /**
- * localStorage key for the "Major only" filter.
+ * localStorage key for the "Major updates only" filter.
  * @type {string}
  */
 const filter_key = 'fatt-warlog-major';
@@ -81,6 +81,8 @@ const server_entries = writable( [] ),
       // when the War API was last checked for changes, in ms: by the server's recorder, or by
       // this browser during the fallback
       checked = writable( 0 ),
+      // who made the server's last recording (cron or request), and when the cron job last ran
+      recorder = writable( { by: '', cronAt: 0 } ),
       unseen = writable( 0 ),
       major_only = writable( readFilter() );
 
@@ -96,7 +98,7 @@ let shard = '',
     fallback_since = 0;
 
 /**
- * Read the "Major only" filter.
+ * Read the "Major updates only" filter.
  *
  * @returns {boolean} Whether only major entries are shown.
  */
@@ -314,6 +316,7 @@ const loadServer = async () =>
     const fresh = log.recordedAt && Date.now() - log.recordedAt < stale_after;
     if ( !fresh ) throw new Error( 'server log is not being recorded' );
     checked.set( log.recordedAt );
+    recorder.set( { by: log.recordedBy || '', cronAt: log.cronAt || 0 } );
 
     const events = Array.isArray( log.events ) ? log.events : [];
     // events are live (worth an alarm) only after the first answer, and not when catching up
@@ -468,7 +471,7 @@ const combined = derived( [ server_entries, browser_entries, source ], ( [ $serv
 } );
 
 /**
- * Entries to show, after the "Major only" filter.
+ * Entries to show, after the "Major updates only" filter.
  * @type {import('svelte/store').Readable<object[]>}
  */
 const visible = derived( [ combined, major_only ], ( [ $combined, $major_only ] ) =>
@@ -488,6 +491,7 @@ export const warlog = {
   // loading, server, or browser (the fallback)
   source: { subscribe: source.subscribe },
   checked: { subscribe: checked.subscribe },
+  recorder: { subscribe: recorder.subscribe },
 
   /**
    * Show only major entries, or all; remembered in the browser.

@@ -80,6 +80,28 @@ class WarlogStore
       colonials   INTEGER,
       winner      TEXT
     )' );
+
+    // columns added after the first release; databases created before get them here
+    $this->addColumn( 'events', 'recorded_by', 'TEXT' );
+    $this->addColumn( 'status', 'recorded_by', 'TEXT' );
+    $this->addColumn( 'status', 'cron_at', 'INTEGER' );
+  }
+
+  /**
+   * Add a column to a table unless it already exists.
+   *
+   * @param  string $table  Table name.
+   * @param  string $column Column name.
+   * @param  string $type   SQLite column type.
+   * @return void
+   */
+  private function addColumn( string $table, string $column, string $type ) : void
+  {
+    $columns = array_column( $this->db->query( "PRAGMA table_info( {$table} )" )->fetchAll( PDO::FETCH_ASSOC ), 'name' );
+    if ( !in_array( $column, $columns, true ) )
+    {
+      $this->db->exec( "ALTER TABLE {$table} ADD COLUMN {$column} {$type}" );
+    }
   }
 
   /**
@@ -107,7 +129,8 @@ class WarlogStore
    * Recording status of a shard.
    *
    * @param  string $shard Shard name.
-   * @return array<string, mixed> war, recorded_at, wardens, colonials, winner; empty when never recorded.
+   * @return array<string, mixed> war, recorded_at, wardens, colonials, winner, recorded_by, cron_at;
+   *   empty when never recorded.
    */
   public function getStatus( string $shard ) : array
   {
@@ -120,20 +143,24 @@ class WarlogStore
    * Save the recording status of a shard.
    *
    * @param  string               $shard  Shard name.
-   * @param  array<string, mixed> $status war, recorded_at, wardens, colonials, winner.
+   * @param  array<string, mixed> $status war, recorded_at, wardens, colonials, winner,
+   *   recorded_by (cron or request), cron_at (last cron run, ms).
    * @return void
    */
   public function saveStatus( string $shard, array $status ) : void
   {
-    $query = $this->db->prepare( 'INSERT OR REPLACE INTO status ( shard, war, recorded_at, wardens, colonials, winner )
-      VALUES ( ?, ?, ?, ?, ?, ? )' );
+    $query = $this->db->prepare( 'INSERT OR REPLACE INTO status
+      ( shard, war, recorded_at, wardens, colonials, winner, recorded_by, cron_at )
+      VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )' );
     $query->execute( [
       $shard,
       $status[ 'war' ],
       $status[ 'recorded_at' ],
       $status[ 'wardens' ],
       $status[ 'colonials' ],
-      $status[ 'winner' ]
+      $status[ 'winner' ],
+      $status[ 'recorded_by' ] ?? null,
+      $status[ 'cron_at' ] ?? null
     ] );
   }
 
@@ -194,10 +221,10 @@ class WarlogStore
   public function addEvents( array $events ) : void
   {
     $query = $this->db->prepare( 'INSERT INTO events
-      ( shard, war, time, hex, kind, major, icon, icon_from, team, team_from, flags, flags_from, x, y, value, required )
-      VALUES ( :shard, :war, :time, :hex, :kind, :major, :icon, :icon_from, :team, :team_from, :flags, :flags_from, :x, :y, :value, :required )' );
+      ( shard, war, time, hex, kind, major, icon, icon_from, team, team_from, flags, flags_from, x, y, value, required, recorded_by )
+      VALUES ( :shard, :war, :time, :hex, :kind, :major, :icon, :icon_from, :team, :team_from, :flags, :flags_from, :x, :y, :value, :required, :recorded_by )' );
 
-    $columns = [ 'shard', 'war', 'time', 'hex', 'kind', 'major', 'icon', 'icon_from', 'team', 'team_from', 'flags', 'flags_from', 'x', 'y', 'value', 'required' ];
+    $columns = [ 'shard', 'war', 'time', 'hex', 'kind', 'major', 'icon', 'icon_from', 'team', 'team_from', 'flags', 'flags_from', 'x', 'y', 'value', 'required', 'recorded_by' ];
     foreach ( $events as $event )
     {
       $values = [];

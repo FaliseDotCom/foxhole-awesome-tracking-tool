@@ -77,6 +77,8 @@ function warlog_event_json( array $row ) : array
     'x'         => $row[ 'x' ] === null ? null : (float) $row[ 'x' ],
     'y'         => $row[ 'y' ] === null ? null : (float) $row[ 'y' ],
     'value'     => $int( $row[ 'value' ] ),
-    'required'  => $int( $row[ 'required' ] )
+    'required'  => $int( $row[ 'required' ] ),
+    // cron or request: whether the cron job or a visitor's map update found this change
+    'recordedBy' => $row[ 'recorded_by' ] ?? null
   ];
 }
