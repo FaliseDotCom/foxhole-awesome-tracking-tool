@@ -82,16 +82,11 @@ test( 'zooming in shows every layer', async ( { page } ) =>
 {
   const errors = collectErrors( page );
 
-  await page.goto( '/' );
+  // open Dead Lands at zoom 1, where the minor labels show; a link is quicker and steadier
+  // than pressing + many times, which depends on the speed of the machine
+  await page.goto( '/#able/5121/3108/1.00' );
 
-  // zoom in far enough for the minor labels to appear
-  for ( let step = 0; step < 12; step++ )
-  {
-    await page.keyboard.press( 'Equal' );
-    await page.waitForTimeout( 400 );
-  }
-
-  await expect( page.locator( 'svg.layer.labels-minor text.minor' ).first() ).toBeAttached();
+  await expect( page.locator( 'svg.layer.labels-minor text.minor' ).first() ).toBeAttached( { timeout: 10000 } );
   await expect( page.locator( 'svg.layer.dynamics image.icon' ).first() ).toBeAttached( { timeout: 20000 } );
 
   expect( errors ).toEqual( [] );
@@ -309,7 +304,8 @@ test( 'the war log falls back to the browser and back to the server', async ( { 
 
   // server down: the notice shows, and the browser's own comparison finds the capture
   await expect( page.locator( '.warlog-notice' ) ).toBeVisible();
-  await expect( page.locator( '.warlog-entry' ).first() ).toContainText( /took Town Base Tier \d/, { timeout: 15000 } );
+  // the capture also changes the victory town total, so look for its entry among the others
+  await expect( page.locator( '.warlog-entry', { hasText: /took Town Base Tier \d/ } ) ).toHaveCount( 1, { timeout: 15000 } );
 
   // server back: the notice goes and the server's entry replaces the browser's
   server_up = true;
