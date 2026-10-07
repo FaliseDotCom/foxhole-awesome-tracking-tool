@@ -170,11 +170,21 @@ War API data, so they fail when the War API is down. PHP needs a CA bundle
 
 ## Deploying
 
-The whole repository is the site. Run `npm run build` in `.app/` and commit the published
-`index.html` and `_app/` with your change, so the server needs neither Node.js nor a build
-step. On the server: pull the repository, run `composer install --no-dev` in `.api/`, and
-make sure PHP can create and write `.api/cache/` and `.api/logs/`. Apache needs
-`mod_rewrite` and must allow `.htaccess` overrides.
+The server (DirectAdmin) has no git or SSH, so GitHub Actions deploys over FTP:
+[.github/workflows/deploy.yml](.github/workflows/deploy.yml) runs on every push to `master`
+(or by hand from the Actions tab). It lints and builds the app, runs `composer install
+--no-dev` for `.api/`, and uploads the served files. Source and tooling (`.app/`, `.docs/`,
+`.scripts/`, `README.md`, `LICENSE`) stay off the server. The first run uploads everything;
+later runs upload only changed files, tracked in `.ftp-deploy-sync-state.json` on the server.
+
+It needs four repository secrets: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, and
+`FTP_SERVER_DIR` (the web root of fatt.fali.se as the FTP account sees it, ending in `/`).
+
+The server needs Apache with `mod_rewrite` and `.htaccess` overrides allowed, PHP with the
+curl extension, and write access for PHP to `.api/`, where it creates `cache/` and `logs/`.
+
+Commit the published `index.html` and `_app/` after `npm run build` too; the workflow
+rebuilds them anyway, but the committed copy keeps the repository a complete site.
 
 ## Repository layout
 
@@ -187,6 +197,7 @@ make sure PHP can create and write `.api/cache/` and `.api/logs/`. Apache needs
 | `.api/` | The PHP API. |
 | `.docs/` | Project notes; reference links are in [.docs/links.md](.docs/links.md). |
 | `.scripts/` | Development tooling (PHPStan wrapper). |
+| `.github/workflows/` | GitHub Actions: build and FTP deploy. |
 | `.org/` | Original source material (ignored by git). |
 
 ## Contributing

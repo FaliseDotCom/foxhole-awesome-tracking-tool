@@ -1,0 +1,71 @@
+# Build F.A.T.T. and upload it to the web server over FTP on every push to master.
+#
+# Repository secrets (Settings > Secrets and variables > Actions):
+#   FTP_SERVER      FTP host, for example ftp.fali.se
+#   FTP_USERNAME    FTP account from DirectAdmin
+#   FTP_PASSWORD    its password
+#   FTP_SERVER_DIR  web root of fatt.fali.se as seen by that account, ending in /
+#
+# The first run uploads everything; later runs upload only what changed, tracked in
+# .ftp-deploy-sync-state.json on the server (a dot file, so .htaccess hides it).
+
+name: Deploy
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+# never run two uploads at the same time
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: .app/package-lock.json
+
+      - name: Lint and build the app
+        working-directory: .app
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer
+
+      - name: Install PHP dependencies
+        run: composer install --working-dir=.api --no-dev --no-interaction --optimize-autoloader
+
+      - name: Upload over FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          protocol: ftp
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .app/**
+            .docs/**
+            .scripts/**
+            .agents/**
+            .claude/**
+            .api/cache/**
+            .api/logs/**
+            README.md
+            LICENSE
