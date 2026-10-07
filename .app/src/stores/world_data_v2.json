@@ -1,0 +1,5469 @@
+{
+  "NevishLineHex": {
+    "id": 29,
+    "hex": "NevishLineHex",
+    "name": "NevishLine",
+    "title": "Nevish Line",
+    "col": 0,
+    "row": 3,
+    "points": {
+      "a": "0.482 0",
+      "b": "0.490 0.080",
+      "c": "0.772 0.232",
+      "d": "0.844 0.192",
+      "e": "0.682 0.379",
+      "f": "0.696 0.491",
+      "g": "0.915 0.665",
+      "h": "0.633 1",
+      "i": "0.524 0.709",
+      "j": "0.529 0.766",
+      "k": "0.145 0.79",
+      "l": "0.355 0.446",
+      "m": "0.042 0.413",
+      "n": "0.453 0.334",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Blackcoat Way": {
+        "points": "k j i l m ww",
+        "x": 0.35,
+        "y": 0.69
+      },
+      "Blinding Stones": {
+        "points": "m l n b a nw",
+        "x": 0.39,
+        "y": 0.21
+      },
+      "Grief Mother": {
+        "points": "g f i j h se",
+        "x": 0.7,
+        "y": 0.65
+      },
+      "Mistle Shrine": {
+        "points": "d c e f g ee",
+        "x": 0.83,
+        "y": 0.44
+      },
+      "Princefal": {
+        "points": "l n e f i",
+        "x": 0.56,
+        "y": 0.51
+      },
+      "The Scrying Belt": {
+        "points": "b c e n",
+        "x": 0.59,
+        "y": 0.23
+      },
+      "Tomb Father": {
+        "points": "h sw k j",
+        "x": 0.36,
+        "y": 0.84
+      },
+      "Unruly": {
+        "points": "a b c d ne",
+        "x": 0.66,
+        "y": 0.08
+      }
+    },
+    "labels": [
+      {
+        "x": 0.36,
+        "y": 0.08,
+        "text": "Nevish Trail"
+      },
+      {
+        "x": 0.68,
+        "y": 0.78,
+        "text": "Plumage"
+      },
+      {
+        "x": 0.55,
+        "y": 0.71,
+        "text": "Princefal Burn"
+      },
+      {
+        "x": 0.38,
+        "y": 0.47,
+        "text": "Tear Road"
+      },
+      {
+        "x": 0.16,
+        "y": 0.43,
+        "text": "The Aging Ocean"
+      },
+      {
+        "x": 0.79,
+        "y": 0.56,
+        "text": "The Arrow"
+      }
+    ]
+  },
+  "OarbreakerHex": {
+    "id": 16,
+    "hex": "OarbreakerHex",
+    "name": "Oarbreaker",
+    "title": "Oarbreaker",
+    "col": 0,
+    "row": 5,
+    "points": {
+      "a": "0.624 0",
+      "b": "0.830 0.162",
+      "c": "0.95 0.4",
+      "d": "0.92 0.656",
+      "e": "0.83 0.87",
+      "f": "0.545 1",
+      "g": "0.04 0.4",
+      "h": "0.374 0.385",
+      "i": "0.545 0.299",
+      "j": "0.719 0.357",
+      "k": "0.774 0.524",
+      "l": "0.717 0.511",
+      "m": "0.66 0.6",
+      "n": "0.500 0.835",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Base Akri": {
+        "points": "c ee d k",
+        "x": 0.91,
+        "y": 0.51
+      },
+      "Gold": {
+        "points": "a i h g nw",
+        "x": 0.5,
+        "y": 0.17
+      },
+      "Integrum": {
+        "points": "e se f n m",
+        "x": 0.67,
+        "y": 0.77
+      },
+      "Lion's Head": {
+        "points": "f sw ww g n",
+        "x": 0.33,
+        "y": 0.9
+      },
+      "Posterus": {
+        "points": "d e m l k",
+        "x": 0.79,
+        "y": 0.68
+      },
+      "Reliqua": {
+        "points": "a ne b j i",
+        "x": 0.65,
+        "y": 0.21
+      },
+      "Skelter Course": {
+        "points": "h i j l m",
+        "x": 0.6,
+        "y": 0.42
+      },
+      "The Conclave": {
+        "points": "g h m n",
+        "x": 0.51,
+        "y": 0.62
+      },
+      "The Ides": {
+        "points": "b c k l j",
+        "x": 0.85,
+        "y": 0.39
+      }
+    },
+    "labels": [
+      {
+        "x": 0.21,
+        "y": 0.58,
+        "text": "Barrenson"
+      },
+      {
+        "x": 0.26,
+        "y": 0.5,
+        "text": "Castor"
+      },
+      {
+        "x": 0.44,
+        "y": 0.35,
+        "text": "Crach Woods"
+      },
+      {
+        "x": 0.72,
+        "y": 0.13,
+        "text": "Fogwood"
+      },
+      {
+        "x": 0.31,
+        "y": 0.65,
+        "text": "Grisly Refuge"
+      },
+      {
+        "x": 0.46,
+        "y": 0.83,
+        "text": "Kofteri Channel"
+      },
+      {
+        "x": 0.84,
+        "y": 0.28,
+        "text": "Martius"
+      },
+      {
+        "x": 0.58,
+        "y": 0.31,
+        "text": "Mount Marce"
+      },
+      {
+        "x": 0.6,
+        "y": 0.18,
+        "text": "Neptune's Throne"
+      },
+      {
+        "x": 0.56,
+        "y": 0.92,
+        "text": "Oasis"
+      },
+      {
+        "x": 0.57,
+        "y": 0.75,
+        "text": "Obitum"
+      },
+      {
+        "x": 0.21,
+        "y": 0.51,
+        "text": "Pollux"
+      },
+      {
+        "x": 0.51,
+        "y": 0.3,
+        "text": "Sandalwood Beach"
+      },
+      {
+        "x": 0.43,
+        "y": 0.96,
+        "text": "Sheep's Head"
+      },
+      {
+        "x": 0.27,
+        "y": 0.28,
+        "text": "Silver"
+      },
+      {
+        "x": 0.49,
+        "y": 0.45,
+        "text": "Skull Beach"
+      },
+      {
+        "x": 0.44,
+        "y": 0.79,
+        "text": "The Dirk"
+      },
+      {
+        "x": 0.72,
+        "y": 0.25,
+        "text": "The Emblem"
+      }
+    ]
+  },
+  "FishermansRowHex": {
+    "id": 15,
+    "hex": "FishermansRowHex",
+    "name": "FishermansRow",
+    "title": "Fishermans Row",
+    "col": 0,
+    "row": 7,
+    "points": {
+      "a": "0.452 0",
+      "b": "0.875 0.254",
+      "c": "0.91 0.31",
+      "d": "0.867 0.762",
+      "e": "0.672 1",
+      "f": "0.491 1",
+      "g": "0.096 0.687",
+      "h": "0.146 0.207",
+      "i": "0.392 0.433",
+      "j": "0.493 0.120",
+      "k": "0.616 0.286",
+      "l": "0.598 0.468",
+      "m": "0.609 0.496",
+      "n": "0.663 0.503",
+      "o": "0.554 0.586",
+      "p": "0.431 0.630",
+      "q": "0.344 0.588",
+      "r": "0.448 0.404",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Arcadia": {
+        "points": "f sw g q p",
+        "x": 0.39,
+        "y": 0.73
+      },
+      "Black Well": {
+        "points": "h nw a j r i",
+        "x": 0.39,
+        "y": 0.31
+      },
+      "Eidolo": {
+        "points": "i r l m o p q",
+        "x": 0.46,
+        "y": 0.52
+      },
+      "Fort Ember": {
+        "points": "e f p o",
+        "x": 0.5,
+        "y": 0.7
+      },
+      "Hangmen's Court": {
+        "points": "c ee d n",
+        "x": 0.77,
+        "y": 0.54
+      },
+      "Oceanwatch": {
+        "points": "j k l r",
+        "x": 0.53,
+        "y": 0.33
+      },
+      "Partisan Island": {
+        "points": "a ne b k j",
+        "x": 0.67,
+        "y": 0.2
+      },
+      "Peripti Landing": {
+        "points": "g ww h i q",
+        "x": 0.29,
+        "y": 0.45
+      },
+      "The Satyr Stone": {
+        "points": "d se e o m n",
+        "x": 0.67,
+        "y": 0.64
+      },
+      "The Three Sisters": {
+        "points": "b c n m l k",
+        "x": 0.69,
+        "y": 0.35
+      }
+    },
+    "labels": [
+      {
+        "x": 0.91,
+        "y": 0.49,
+        "text": "A Lost Sot"
+      },
+      {
+        "x": 0.43,
+        "y": 0.62,
+        "text": "Bident Crossroads"
+      },
+      {
+        "x": 0.62,
+        "y": 0.03,
+        "text": "Cat Step"
+      },
+      {
+        "x": 0.3,
+        "y": 0.64,
+        "text": "Dankana Post"
+      },
+      {
+        "x": 0.35,
+        "y": 0.47,
+        "text": "Heart of Rites"
+      },
+      {
+        "x": 0.26,
+        "y": 0.77,
+        "text": "House Roloi"
+      },
+      {
+        "x": 0.33,
+        "y": 0.54,
+        "text": "Lake Nerites"
+      },
+      {
+        "x": 0.37,
+        "y": 0.36,
+        "text": "Liberty Hill"
+      },
+      {
+        "x": 0.5,
+        "y": 0.43,
+        "text": "Progonos Watch"
+      },
+      {
+        "x": 0.84,
+        "y": 0.61,
+        "text": "The Dire Strings"
+      },
+      {
+        "x": 0.45,
+        "y": 0.39,
+        "text": "The Rite Road"
+      },
+      {
+        "x": 0.42,
+        "y": 0.68,
+        "text": "Torch of Demeter"
+      }
+    ]
+  },
+  "OriginHex": {
+    "id": 42,
+    "hex": "OriginHex",
+    "name": "Origin",
+    "title": "Origin",
+    "col": 0,
+    "row": 9,
+    "points": {
+      "a": "0.471 0",
+      "b": "0.88 0.26",
+      "c": "0.84 0.82",
+      "d": "0.475 1",
+      "e": "0.036 0.564",
+      "f": "0.202 0.548",
+      "g": "0.443 0.244",
+      "h": "0.595 0.554",
+      "i": "0.621 0.555",
+      "j": "0.475 0.666",
+      "k": "",
+      "l": "",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Arise": {
+        "points": "f g h j",
+        "x": 0.42,
+        "y": 0.46
+      },
+      "Dormio": {
+        "points": "b ee c i",
+        "x": 0.81,
+        "y": 0.59
+      },
+      "Finis": {
+        "points": "e f g a nw ww",
+        "x": 0.26,
+        "y": 0.29
+      },
+      "Initium": {
+        "points": "a ne b i h g",
+        "x": 0.62,
+        "y": 0.34
+      },
+      "Teichotima": {
+        "points": "d sw e f j",
+        "x": 0.32,
+        "y": 0.78
+      },
+      "World Star": {
+        "points": "c se d j h i",
+        "x": 0.64,
+        "y": 0.78
+      }
+    },
+    "labels": [
+      {
+        "x": 0.25,
+        "y": 0.48,
+        "text": "Cado"
+      },
+      {
+        "x": 0.57,
+        "y": 0.89,
+        "text": "Exorior"
+      },
+      {
+        "x": 0.72,
+        "y": 0.52,
+        "text": "Temple Field"
+      },
+      {
+        "x": 0.57,
+        "y": 0.48,
+        "text": "The Dreamer's Road"
+      },
+      {
+        "x": 0.73,
+        "y": 0.67,
+        "text": "The Echo"
+      },
+      {
+        "x": 0.47,
+        "y": 0.64,
+        "text": "The Sundering"
+      }
+    ]
+  },
+  "CallumsCapeHex": {
+    "id": 32,
+    "hex": "CallumsCapeHex",
+    "name": "CallumsCape",
+    "title": "Callums Cape",
+    "col": 1,
+    "row": 2,
+    "points": {
+      "a": "0.592 0",
+      "b": "0.99 0.48",
+      "c": "0.945 0.61",
+      "d": "0.652 1",
+      "e": "0.298 1",
+      "f": "0.088 0.675",
+      "g": "0.143 0.21",
+      "h": "0.561 0.394",
+      "i": "0.598 0.697",
+      "j": "0.444 0.531",
+      "k": "0.394 0.509",
+      "l": "",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Callum's Keep": {
+        "points": "g z a h j k",
+        "x": 0.4,
+        "y": 0.23
+      },
+      "Camp Hollow": {
+        "points": "a w b h",
+        "x": 0.75,
+        "y": 0.28
+      },
+      "Holdout": {
+        "points": "b v c i j h",
+        "x": 0.71,
+        "y": 0.57
+      },
+      "Ire": {
+        "points": "d e j i",
+        "x": 0.48,
+        "y": 0.85
+      },
+      "Lookout": {
+        "points": "c x d i",
+        "x": 0.75,
+        "y": 0.78
+      },
+      "Naofa": {
+        "points": "f u g k",
+        "x": 0.15,
+        "y": 0.5
+      },
+      "Scouts Jest": {
+        "points": "e y f k j",
+        "x": 0.24,
+        "y": 0.74
+      }
+    },
+    "labels": [
+      {
+        "x": 0.62,
+        "y": 0.16,
+        "text": "Hollowhill"
+      },
+      {
+        "x": 0.2,
+        "y": 0.55,
+        "text": "Princefal Burn"
+      },
+      {
+        "x": 0.53,
+        "y": 0.24,
+        "text": "The Dreg"
+      },
+      {
+        "x": 0.44,
+        "y": 0.38,
+        "text": "The Gunwall"
+      },
+      {
+        "x": 0.55,
+        "y": 0.5,
+        "text": "The River Vein"
+      },
+      {
+        "x": 0.42,
+        "y": 0.62,
+        "text": "Trail of the Dead"
+      },
+      {
+        "x": 0.65,
+        "y": 0.83,
+        "text": "Valta Downs"
+      },
+      {
+        "x": 0.38,
+        "y": 0.87,
+        "text": "Vex"
+      }
+    ]
+  },
+  "StonecradleHex": {
+    "id": 12,
+    "hex": "StonecradleHex",
+    "name": "Stonecradle",
+    "title": "Stonecradle",
+    "col": 1,
+    "row": 4,
+    "points": {
+      "a": "0.2 0.1",
+      "b": "0.747 0",
+      "c": "0.9 0.27",
+      "d": "0.94 0.62",
+      "e": "0.671 1",
+      "f": "0.243 1",
+      "g": "0.1 0.7",
+      "h": "0.330 0.257",
+      "i": "0.535 0.303",
+      "j": "0.626 0.373",
+      "k": "0.660 0.561",
+      "l": "0.657 0.955",
+      "m": "0.415 0.720",
+      "n": "0.405 0.656",
+      "o": "0.358 0.606",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Buckler Sound": {
+        "points": "h i j k n o",
+        "x": 0.51,
+        "y": 0.52
+      },
+      "Fading Lights": {
+        "points": "d x e l k",
+        "x": 0.73,
+        "y": 0.69
+      },
+      "The Cord": {
+        "points": "n k l m",
+        "x": 0.56,
+        "y": 0.69
+      },
+      "The Dais": {
+        "points": "a z b i h",
+        "x": 0.59,
+        "y": 0.1
+      },
+      "The Heir's Knife": {
+        "points": "f g o n m",
+        "x": 0.28,
+        "y": 0.77
+      },
+      "The Long Fast": {
+        "points": "e f m l",
+        "x": 0.42,
+        "y": 0.89
+      },
+      "The Reach": {
+        "points": "b c j i",
+        "x": 0.7,
+        "y": 0.2
+      },
+      "Trammel Pool": {
+        "points": "c v d k j",
+        "x": 0.78,
+        "y": 0.46
+      },
+      "World's End": {
+        "points": "g o h a u",
+        "x": 0.21,
+        "y": 0.55
+      }
+    },
+    "labels": [
+      {
+        "x": 0.3,
+        "y": 0.12,
+        "text": "Daihbi Point"
+      },
+      {
+        "x": 0.37,
+        "y": 0.73,
+        "text": "Longing"
+      },
+      {
+        "x": 0.53,
+        "y": 0.25,
+        "text": "The Loneliest Shore"
+      },
+      {
+        "x": 0.39,
+        "y": 0.48,
+        "text": "The Pram"
+      },
+      {
+        "x": 0.86,
+        "y": 0.54,
+        "text": "The Roiling Comets"
+      },
+      {
+        "x": 0.3,
+        "y": 0.35,
+        "text": "The Whorl"
+      }
+    ]
+  },
+  "FarranacCoastHex": {
+    "id": 13,
+    "hex": "FarranacCoastHex",
+    "name": "FarranacCoast",
+    "title": "Farranac Coast",
+    "col": 1,
+    "row": 6,
+    "points": {
+      "a": "0.524 0.650",
+      "b": "0.600 0",
+      "c": "0.85 0.2",
+      "d": "0.92 0.34",
+      "e": "0.9 0.72",
+      "f": "0.606 1",
+      "g": "0.13 0.77",
+      "h": "0.035 0.57",
+      "i": "0.362 0.278",
+      "j": "0.373 0",
+      "k": "0.549 0.302",
+      "l": "0.608 0.264",
+      "m": "0.683 0.314",
+      "n": "0.719 0.472",
+      "o": "0.71 0.506",
+      "p": "0.731 0.592",
+      "q": "0.75 0.619",
+      "r": "0.534 0.468",
+      "s": "0.470 0.510",
+      "t": "0.255 0.490",
+      "u": "0.507 0.745",
+      "v": "0.588 0.884",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Huskhollow": {
+        "points": "a p o r s",
+        "x": 0.59,
+        "y": 0.56
+      },
+      "Iuxta Homestead": {
+        "points": "b ne c m l",
+        "x": 0.71,
+        "y": 0.2
+      },
+      "Macha's Keening": {
+        "points": "e se f v q",
+        "x": 0.7,
+        "y": 0.8
+      },
+      "Mara": {
+        "points": "d ee e q p o n",
+        "x": 0.85,
+        "y": 0.48
+      },
+      "Pleading Wharf": {
+        "points": "v q p a u",
+        "x": 0.63,
+        "y": 0.72
+      },
+      "Scarp of Ambrose": {
+        "points": "i k r s t",
+        "x": 0.48,
+        "y": 0.38
+      },
+      "Scythe": {
+        "points": "c d n m",
+        "x": 0.79,
+        "y": 0.35
+      },
+      "Terra": {
+        "points": "r o n m l k",
+        "x": 0.61,
+        "y": 0.41
+      },
+      "The Bone Haft": {
+        "points": "j b l k i",
+        "x": 0.5,
+        "y": 0.2
+      },
+      "The Jade Cove": {
+        "points": "g u a s t h",
+        "x": 0.43,
+        "y": 0.65
+      },
+      "The Spearhead": {
+        "points": "h t i j nw ww",
+        "x": 0.25,
+        "y": 0.2
+      },
+      "Victa": {
+        "points": "f sw g u v",
+        "x": 0.44,
+        "y": 0.87
+      }
+    },
+    "labels": [
+      {
+        "x": 0.43,
+        "y": 0.58,
+        "text": "Apollo's Landing"
+      },
+      {
+        "x": 0.62,
+        "y": 0.46,
+        "text": "Carrion Fields"
+      },
+      {
+        "x": 0.55,
+        "y": 0.87,
+        "text": "Cora Lushlands"
+      },
+      {
+        "x": 0.47,
+        "y": 0.78,
+        "text": "Cormac Beach"
+      },
+      {
+        "x": 0.02,
+        "y": 0.58,
+        "text": "Gulf of the Daughters"
+      },
+      {
+        "x": 0.27,
+        "y": 0.43,
+        "text": "Hermes Inlet"
+      },
+      {
+        "x": 0.63,
+        "y": 0.86,
+        "text": "Kardia"
+      },
+      {
+        "x": 0.83,
+        "y": 0.85,
+        "text": "Liberation Street"
+      },
+      {
+        "x": 0.6,
+        "y": 0.78,
+        "text": "McCarthy Fields"
+      },
+      {
+        "x": 0.59,
+        "y": 0.28,
+        "text": "Mooring Dens"
+      },
+      {
+        "x": 0.47,
+        "y": 0.44,
+        "text": "Sickle Hill"
+      },
+      {
+        "x": 0.59,
+        "y": 0.35,
+        "text": "Skeleton Road"
+      },
+      {
+        "x": 0.36,
+        "y": 0.42,
+        "text": "Sunder Beach"
+      },
+      {
+        "x": 0.35,
+        "y": 0.69,
+        "text": "The Bay of Artemis"
+      },
+      {
+        "x": 0.67,
+        "y": 0.92,
+        "text": "The Heart Road"
+      },
+      {
+        "x": 0.34,
+        "y": 0.26,
+        "text": "The Iron Beach"
+      },
+      {
+        "x": 0.82,
+        "y": 0.41,
+        "text": "The Mirror"
+      },
+      {
+        "x": 0.65,
+        "y": 0.52,
+        "text": "The Reaping Fields"
+      },
+      {
+        "x": 0.58,
+        "y": 0.65,
+        "text": "The River Mercy"
+      },
+      {
+        "x": 0.89,
+        "y": 0.79,
+        "text": "The Snag"
+      },
+      {
+        "x": 0.8,
+        "y": 0.65,
+        "text": "The Winged Walk"
+      },
+      {
+        "x": 0.63,
+        "y": 0.17,
+        "text": "Transient Valley"
+      }
+    ]
+  },
+  "WestgateHex": {
+    "id": 14,
+    "hex": "WestgateHex",
+    "name": "Westgate",
+    "title": "Westgate",
+    "col": 1,
+    "row": 8,
+    "points": {
+      "a": "0.204 0.097",
+      "b": "0.549 0",
+      "c": "0.862 0.229",
+      "d": "0.982 0.523",
+      "e": "0.84 0.82",
+      "f": "0.562 1",
+      "g": "0.398 1",
+      "h": "0.035 0.57",
+      "i": "0.350 0.235",
+      "j": "0.542 0.092",
+      "k": "0.593 0.279",
+      "l": "0.738 0.317",
+      "m": "0.733 0.485",
+      "n": "0.705 0.518",
+      "o": "0.706 0.601",
+      "p": "0.514 0.678",
+      "q": "0.505 0.432",
+      "r": "0.345 0.500",
+      "s": "0.373 0.506",
+      "t": "0.266 0.534",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Holdfast": {
+        "points": "r i j k q s",
+        "x": 0.46,
+        "y": 0.28
+      },
+      "Kingstone": {
+        "points": "q k l m n",
+        "x": 0.64,
+        "y": 0.41
+      },
+      "Longstone": {
+        "points": "e se f p o",
+        "x": 0.65,
+        "y": 0.72
+      },
+      "Lord's Mouth": {
+        "points": "c ee d m l",
+        "x": 0.83,
+        "y": 0.43
+      },
+      "Lost Partition": {
+        "points": "d m n o e",
+        "x": 0.81,
+        "y": 0.58
+      },
+      "Rancher's Fast": {
+        "points": "b ne c l k j",
+        "x": 0.69,
+        "y": 0.18
+      },
+      "Sanctuary": {
+        "points": "h ww a i r t",
+        "x": 0.23,
+        "y": 0.27
+      },
+      "The Gallows": {
+        "points": "a nw b j i",
+        "x": 0.36,
+        "y": 0.11
+      },
+      "Westgate Keep": {
+        "points": "s q n o p",
+        "x": 0.6,
+        "y": 0.56
+      },
+      "Wyattwick": {
+        "points": "g sw h t",
+        "x": 0.29,
+        "y": 0.82
+      },
+      "Zeus' Demise": {
+        "points": "f g t r s p",
+        "x": 0.4,
+        "y": 0.77
+      }
+    },
+    "labels": [
+      {
+        "x": 0.65,
+        "y": 1.04,
+        "text": "Ash Step"
+      },
+      {
+        "x": 0.38,
+        "y": 0.88,
+        "text": "Candle Hills"
+      },
+      {
+        "x": 0.43,
+        "y": 0.18,
+        "text": "Cattle March"
+      },
+      {
+        "x": 0.67,
+        "y": 0.91,
+        "text": "Ceo Highlands"
+      },
+      {
+        "x": 0.42,
+        "y": 1.04,
+        "text": "Cinder Road"
+      },
+      {
+        "x": 0.75,
+        "y": 0.52,
+        "text": "Coasthill"
+      },
+      {
+        "x": 0.51,
+        "y": 0.99,
+        "text": "Coastway"
+      },
+      {
+        "x": 0.82,
+        "y": 0.3,
+        "text": "Cobber's Lane"
+      },
+      {
+        "x": 0.82,
+        "y": 0.3,
+        "text": "Cobber's Lane"
+      },
+      {
+        "x": 0.56,
+        "y": 1.06,
+        "text": "Ember Hills"
+      },
+      {
+        "x": 0.26,
+        "y": 0.14,
+        "text": "Fand's Chain"
+      },
+      {
+        "x": 0.51,
+        "y": 0.15,
+        "text": "Fields of Badb"
+      },
+      {
+        "x": 0.51,
+        "y": 0.15,
+        "text": "Fields of Badb"
+      },
+      {
+        "x": 0.69,
+        "y": 0.22,
+        "text": "Flidais' Pasture"
+      },
+      {
+        "x": 0.33,
+        "y": 0.5,
+        "text": "Handsome Hideaway"
+      },
+      {
+        "x": 0.64,
+        "y": 0.63,
+        "text": "Hillcrest"
+      },
+      {
+        "x": 0.59,
+        "y": 0.11,
+        "text": "Inkwell Lane"
+      },
+      {
+        "x": 0.59,
+        "y": 0.18,
+        "text": "Kardia Road"
+      },
+      {
+        "x": 0.79,
+        "y": 0.16,
+        "text": "Killian Quarter"
+      },
+      {
+        "x": 0.47,
+        "y": 0.52,
+        "text": "Reaver's Cove"
+      },
+      {
+        "x": 0.63,
+        "y": 0.82,
+        "text": "Sanctified Path"
+      },
+      {
+        "x": 0.58,
+        "y": 0.9,
+        "text": "Síochána Valley"
+      },
+      {
+        "x": 0.55,
+        "y": 0.79,
+        "text": "Taswell Point"
+      },
+      {
+        "x": 0.11,
+        "y": 0.66,
+        "text": "The Aging Ocean"
+      },
+      {
+        "x": 0.77,
+        "y": 0.64,
+        "text": "The Bulwark"
+      },
+      {
+        "x": 0.48,
+        "y": 0.9,
+        "text": "The Divide"
+      },
+      {
+        "x": 0.79,
+        "y": 0.74,
+        "text": "The Hem"
+      },
+      {
+        "x": 0.73,
+        "y": 0.41,
+        "text": "The King's Road"
+      },
+      {
+        "x": 0.73,
+        "y": 0.41,
+        "text": "The King's Road"
+      },
+      {
+        "x": 0.58,
+        "y": 0.29,
+        "text": "The Knight's Edge"
+      },
+      {
+        "x": 0.2,
+        "y": 0.88,
+        "text": "Triton's Curse"
+      },
+      {
+        "x": 0.87,
+        "y": 0.53,
+        "text": "Warden Walk"
+      },
+      {
+        "x": 0.72,
+        "y": 0.34,
+        "text": "Western Heartlands"
+      },
+      {
+        "x": 0.69,
+        "y": 0.26,
+        "text": "Wire Road"
+      }
+    ]
+  },
+  "AshFieldsHex": {
+    "id": 41,
+    "hex": "AshFieldsHex",
+    "name": "AshFields",
+    "title": "Ash Fields",
+    "col": 1,
+    "row": 10,
+    "points": {
+      "a": "0.302 0",
+      "b": "0.580 0",
+      "c": "0.87 0.246",
+      "d": "0.94 0.62",
+      "e": "0.373 1",
+      "f": "0.236 1",
+      "g": "0.09 0.324",
+      "h": "0.437 0.341",
+      "i": "0.562 0.325",
+      "j": "0.585 0.292",
+      "k": "0.669 0.562",
+      "l": "",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Ashtown": {
+        "points": "e f h i k",
+        "x": 0.51,
+        "y": 0.55
+      },
+      "Camp Omega": {
+        "points": "b ne c j",
+        "x": 0.71,
+        "y": 0.13
+      },
+      "Cometa": {
+        "points": "g h a nw",
+        "x": 0.28,
+        "y": 0.22
+      },
+      "Electi": {
+        "points": "a b j i h",
+        "x": 0.46,
+        "y": 0.13
+      },
+      "Sootflow": {
+        "points": "d k e se",
+        "x": 0.72,
+        "y": 0.72
+      },
+      "The Ashfort": {
+        "points": "c ee d k i j",
+        "x": 0.76,
+        "y": 0.42
+      },
+      "The Calamity": {
+        "points": "f h g ww",
+        "x": 0.27,
+        "y": 0.45
+      }
+    },
+    "labels": [
+      {
+        "x": 0.41,
+        "y": 0.92,
+        "text": "Gunslinger's Pass"
+      },
+      {
+        "x": 0.6,
+        "y": 0.22,
+        "text": "Mount Blackmoth"
+      },
+      {
+        "x": 0.42,
+        "y": 0.81,
+        "text": "Mount Brimstone"
+      },
+      {
+        "x": 0.76,
+        "y": 0.31,
+        "text": "Omega Valley"
+      },
+      {
+        "x": 0.26,
+        "y": 0.6,
+        "text": "Tar Creek"
+      },
+      {
+        "x": 0.52,
+        "y": 0.35,
+        "text": "The Red River"
+      },
+      {
+        "x": 0.38,
+        "y": 0.42,
+        "text": "The Stillness"
+      },
+      {
+        "x": 0.79,
+        "y": 0.6,
+        "text": "Twin Flames"
+      },
+      {
+        "x": 0.46,
+        "y": 0.66,
+        "text": "Wasteful Calm"
+      }
+    ]
+  },
+  "SpeakingWoodsHex": {
+    "id": 33,
+    "hex": "SpeakingWoodsHex",
+    "name": "SpeakingWoods",
+    "title": "Speaking Woods",
+    "col": 2,
+    "row": 1,
+    "points": {
+      "a": "0.145 0.21",
+      "b": "0.563 0",
+      "c": "0.89 0.28",
+      "d": "0.91 0.685",
+      "e": "0.529 1",
+      "f": "0.110 0.72",
+      "g": "0.421 0.554",
+      "h": "0.453 0.409",
+      "i": "0.479 0.395",
+      "j": "0.722 0.478",
+      "k": "0.763 0.306",
+      "l": "0.580 0.170",
+      "m": "0.736 0.580",
+      "n": "0.568 0.737",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Fort Blather": {
+        "points": "d m n e x",
+        "x": 0.74,
+        "y": 0.8
+      },
+      "Hush": {
+        "points": "a z b l i h",
+        "x": 0.46,
+        "y": 0.22
+      },
+      "Inari Base": {
+        "points": "b w c k l",
+        "x": 0.74,
+        "y": 0.16
+      },
+      "Sotto Bank": {
+        "points": "i j m n g h",
+        "x": 0.56,
+        "y": 0.54
+      },
+      "Stem": {
+        "points": "e y f g n",
+        "x": 0.39,
+        "y": 0.71
+      },
+      "The Filament": {
+        "points": "f g h a u",
+        "x": 0.31,
+        "y": 0.48
+      },
+      "Tine": {
+        "points": "l k j i",
+        "x": 0.62,
+        "y": 0.33
+      },
+      "Wound": {
+        "points": "c k j m d v",
+        "x": 0.88,
+        "y": 0.45
+      }
+    },
+    "labels": [
+      {
+        "x": 0.83,
+        "y": 0.3,
+        "text": "Calmland"
+      },
+      {
+        "x": 0.49,
+        "y": 0.44,
+        "text": "Cursed Court"
+      },
+      {
+        "x": 0.18,
+        "y": 0.56,
+        "text": "Mount Rell"
+      },
+      {
+        "x": 0.3,
+        "y": 0.29,
+        "text": "Mute"
+      },
+      {
+        "x": 0.71,
+        "y": 0.68,
+        "text": "Reaching River"
+      },
+      {
+        "x": 0.32,
+        "y": 0.67,
+        "text": "Rell Foothills"
+      }
+    ]
+  },
+  "MooringCountyHex": {
+    "id": 7,
+    "hex": "MooringCountyHex",
+    "name": "MooringCounty",
+    "title": "Mooring County",
+    "col": 2,
+    "row": 3,
+    "points": {
+      "a": "0.249 0",
+      "b": "0.523 0",
+      "c": "0.78 0.060",
+      "d": "0.95 0.395",
+      "e": "0.93 0.65",
+      "f": "0.682 1",
+      "g": "0.523 1",
+      "h": "0.2 0.9",
+      "i": "0.04 0.59",
+      "j": "0.065 0.376",
+      "k": "0.384 0.339",
+      "l": "0.577 0.218",
+      "m": "0.569 0.316",
+      "n": "0.648 0.404",
+      "o": "0.563 0.617",
+      "p": "0.690 0.715",
+      "q": "0.453 0.803",
+      "r": "0.340 0.765",
+      "s": "0.308 0.589",
+      "t": "0.340 0.557",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Borderlane": {
+        "points": "b w c l",
+        "x": 0.64,
+        "y": 0.07
+      },
+      "Gravekeeper's Holdfast": {
+        "points": "s t o q r",
+        "x": 0.42,
+        "y": 0.69
+      },
+      "Headstone": {
+        "points": "k m n o t",
+        "x": 0.47,
+        "y": 0.49
+      },
+      "Luch's Workshop": {
+        "points": "c l m n d",
+        "x": 0.72,
+        "y": 0.2
+      },
+      "MacConmara Barrows": {
+        "points": "f g q o p",
+        "x": 0.58,
+        "y": 0.81
+      },
+      "Morrighan's Grave": {
+        "points": "d n o p e v",
+        "x": 0.73,
+        "y": 0.61
+      },
+      "Ogmaran": {
+        "points": "a b l m k",
+        "x": 0.43,
+        "y": 0.17
+      },
+      "Reaching River": {
+        "points": "j k a",
+        "x": 0.23,
+        "y": 0.27
+      },
+      "The Cut": {
+        "points": "h r s i",
+        "x": 0.25,
+        "y": 0.74
+      },
+      "The Spade": {
+        "points": "i s t k j u",
+        "x": 0.24,
+        "y": 0.44
+      },
+      "The Wind Hills": {
+        "points": "g y h r q",
+        "x": 0.38,
+        "y": 0.89
+      },
+      "Wiccwalk": {
+        "points": "e p f x",
+        "x": 0.77,
+        "y": 0.79
+      }
+    },
+    "labels": [
+      {
+        "x": 0.89,
+        "y": 0.39,
+        "text": "Lyon's Wood"
+      },
+      {
+        "x": 0.42,
+        "y": 0.34,
+        "text": "Moon's Walk"
+      },
+      {
+        "x": 0.66,
+        "y": 0.24,
+        "text": "Riverhill"
+      },
+      {
+        "x": 0.86,
+        "y": 0.56,
+        "text": "Scáth Copse"
+      },
+      {
+        "x": 0.37,
+        "y": 0.54,
+        "text": "The Graveyard"
+      },
+      {
+        "x": 0.53,
+        "y": 0.64,
+        "text": "The Mound"
+      },
+      {
+        "x": 0.64,
+        "y": 0.45,
+        "text": "Wiccwood"
+      }
+    ]
+  },
+  "LinnMercyHex": {
+    "id": 10,
+    "hex": "LinnMercyHex",
+    "name": "LinnMercy",
+    "title": "Linn Mercy",
+    "col": 2,
+    "row": 5,
+    "points": {
+      "a": "0.439 0",
+      "b": "0.787 0",
+      "c": "0.91 0.3",
+      "d": "0.91 0.68",
+      "e": "0.641 1",
+      "f": "0.572 1",
+      "g": "0.179 0.855",
+      "h": "0.089 0.324",
+      "i": "0.487 0.266",
+      "j": "0.574 0.324",
+      "k": "0.639 0.529",
+      "l": "0.694 0.583",
+      "m": "0.508 0.597",
+      "n": "0.508 0.825",
+      "o": "0.280 0.777",
+      "p": "0.314 0.687",
+      "q": "0.286 0.401",
+      "r": "0.224 0.386",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Fort Duncan": {
+        "points": "d x e l",
+        "x": 0.74,
+        "y": 0.77
+      },
+      "Hardline": {
+        "points": "r q m p",
+        "x": 0.36,
+        "y": 0.59
+      },
+      "Lathair": {
+        "points": "b c k j",
+        "x": 0.73,
+        "y": 0.31
+      },
+      "Outwich Ranch": {
+        "points": "c v d l k",
+        "x": 0.84,
+        "y": 0.49
+      },
+      "Rotdust": {
+        "points": "a w b j i",
+        "x": 0.59,
+        "y": 0.15
+      },
+      "The Crimson Gardens": {
+        "points": "g o p r h u",
+        "x": 0.23,
+        "y": 0.63
+      },
+      "The First Coin": {
+        "points": "p m n o",
+        "x": 0.41,
+        "y": 0.72
+      },
+      "The Last Grove": {
+        "points": "f y g o n",
+        "x": 0.38,
+        "y": 0.89
+      },
+      "The Long Whine": {
+        "points": "h r q i a z",
+        "x": 0.36,
+        "y": 0.21
+      },
+      "The Prairie Bazaar": {
+        "points": "e f n m k l",
+        "x": 0.61,
+        "y": 0.74
+      },
+      "Ulster Falls": {
+        "points": "q i j k m",
+        "x": 0.46,
+        "y": 0.45
+      }
+    },
+    "labels": [
+      {
+        "x": 0.47,
+        "y": 0.17,
+        "text": "Blackroad"
+      },
+      {
+        "x": 0.1,
+        "y": 0.43,
+        "text": "Gallant Gough Boulevard"
+      },
+      {
+        "x": 0.84,
+        "y": 0.68,
+        "text": "Merciful Strait"
+      },
+      {
+        "x": 0.57,
+        "y": 0.3,
+        "text": "Mudhole"
+      },
+      {
+        "x": 0.59,
+        "y": 0.41,
+        "text": "Nathair"
+      },
+      {
+        "x": 0.73,
+        "y": 0.23,
+        "text": "Solas Burn"
+      },
+      {
+        "x": 0.19,
+        "y": 0.22,
+        "text": "The Drone"
+      },
+      {
+        "x": 0.41,
+        "y": 0.29,
+        "text": "The Great Scale"
+      },
+      {
+        "x": 0.64,
+        "y": 0.62,
+        "text": "The River Mercy"
+      }
+    ]
+  },
+  "LochMorHex": {
+    "id": 9,
+    "hex": "LochMorHex",
+    "name": "LochMor",
+    "title": "Loch Mor",
+    "col": 2,
+    "row": 7,
+    "points": {
+      "a": "0.308 0",
+      "b": "0.562 0",
+      "c": "0.865 0.240",
+      "d": "0.85 0.8",
+      "e": "0.236 1",
+      "f": "0.09 0.31",
+      "g": "0.335 0.389",
+      "h": "0.393 0.289",
+      "i": "0.533 0.265",
+      "j": "0.661 0.339",
+      "k": "0.615 0.567",
+      "l": "0.385 0.646",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Feirmor": {
+        "points": "g h i j k l",
+        "x": 0.5,
+        "y": 0.43
+      },
+      "Market Road": {
+        "points": "e l g f u y",
+        "x": 0.2,
+        "y": 0.52
+      },
+      "Mercy's Wish": {
+        "points": "a b i h",
+        "x": 0.46,
+        "y": 0.13
+      },
+      "Moon's Copse": {
+        "points": "c j k d v",
+        "x": 0.77,
+        "y": 0.51
+      },
+      "The Roilfort": {
+        "points": "d k l e x",
+        "x": 0.58,
+        "y": 0.76
+      },
+      "Tomb of the First": {
+        "points": "f g h a z",
+        "x": 0.27,
+        "y": 0.21
+      },
+      "Westmarch": {
+        "points": "b i j c w",
+        "x": 0.63,
+        "y": 0.16
+      }
+    },
+    "labels": [
+      {
+        "x": 0.21,
+        "y": 0.81,
+        "text": "Bastard's Blade"
+      },
+      {
+        "x": 0.65,
+        "y": 0.31,
+        "text": "Chattering Prairie"
+      },
+      {
+        "x": 0.72,
+        "y": 0.91,
+        "text": "Escape"
+      },
+      {
+        "x": 0.51,
+        "y": 0.53,
+        "text": "Fallen Fields"
+      },
+      {
+        "x": 0.14,
+        "y": 0.68,
+        "text": "Lake Severspring"
+      },
+      {
+        "x": 0.46,
+        "y": 0.27,
+        "text": "Loch Mor"
+      },
+      {
+        "x": 0.85,
+        "y": 0.31,
+        "text": "Missing Bones"
+      },
+      {
+        "x": 0.2,
+        "y": 0.66,
+        "text": "Ousterdown"
+      },
+      {
+        "x": 0.54,
+        "y": 0.66,
+        "text": "Pockfields"
+      },
+      {
+        "x": 0.49,
+        "y": 0.78,
+        "text": "Rip"
+      },
+      {
+        "x": 0.68,
+        "y": 0.78,
+        "text": "Tear"
+      },
+      {
+        "x": 0.52,
+        "y": 0.93,
+        "text": "The Founding Fields"
+      },
+      {
+        "x": 0.14,
+        "y": 0.5,
+        "text": "The Glean"
+      },
+      {
+        "x": 0.3,
+        "y": 0.03,
+        "text": "The Reaping Road"
+      },
+      {
+        "x": 0.34,
+        "y": 0.76,
+        "text": "Widow's Wail"
+      }
+    ]
+  },
+  "HeartlandsHex": {
+    "id": 8,
+    "hex": "HeartlandsHex",
+    "name": "Heartlands",
+    "title": "Heartlands",
+    "col": 2,
+    "row": 9,
+    "points": {
+      "a": "0.572 0",
+      "b": "0.164 0.171",
+      "c": "0.607 0",
+      "d": "0.89 0.27",
+      "e": "0.92 0.34",
+      "f": "0.876 0.746",
+      "g": "0.18 1",
+      "h": "0.14 0.2",
+      "i": "",
+      "j": "0.450 0.197",
+      "k": "0.464 0.308",
+      "l": "0.312 0.354",
+      "m": "0.362 0.754",
+      "n": "0.488 0.649",
+      "o": "0.723 0.645",
+      "p": "0.74 0.47",
+      "q": "0.661 0.311",
+      "r": "0.648 0.336",
+      "s": "0.521 0.401",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Barronswall": {
+        "points": "l k s n m",
+        "x": 0.39,
+        "y": 0.41
+      },
+      "Barrony Ranch": {
+        "points": "b j a z",
+        "x": 0.37,
+        "y": 0.11
+      },
+      "Deeplaw Post": {
+        "points": "g m l h u",
+        "x": 0.24,
+        "y": 0.43
+      },
+      "Fort Providence": {
+        "points": "d q r p e",
+        "x": 0.76,
+        "y": 0.38
+      },
+      "Greenfield Orchard": {
+        "points": "c q d w",
+        "x": 0.73,
+        "y": 0.2
+      },
+      "Oleander Homestead": {
+        "points": "e p o f v",
+        "x": 0.83,
+        "y": 0.49
+      },
+      "Proexí": {
+        "points": "f o n m g x",
+        "x": 0.65,
+        "y": 0.83
+      },
+      "The Blemish": {
+        "points": "r p o n s",
+        "x": 0.65,
+        "y": 0.47
+      },
+      "The Breach": {
+        "points": "b h l k j",
+        "x": 0.36,
+        "y": 0.27
+      },
+      "The Plough": {
+        "points": "a c q r s k j",
+        "x": 0.55,
+        "y": 0.25
+      }
+    },
+    "labels": [
+      {
+        "x": 0.56,
+        "y": 0.08,
+        "text": "18th Sideroad"
+      },
+      {
+        "x": 0.3,
+        "y": 0.53,
+        "text": "Barronshire "
+      },
+      {
+        "x": 0.49,
+        "y": 0.2,
+        "text": "Barrony Road"
+      },
+      {
+        "x": 0.08,
+        "y": 0.58,
+        "text": "Cageroad"
+      },
+      {
+        "x": 0.28,
+        "y": 0.2,
+        "text": "Crater Basin"
+      },
+      {
+        "x": 0.51,
+        "y": 0.85,
+        "text": "Erimos Ranch"
+      },
+      {
+        "x": 0.47,
+        "y": 0.55,
+        "text": "Harvester's Range"
+      },
+      {
+        "x": 0.41,
+        "y": 0.87,
+        "text": "Janus Field"
+      },
+      {
+        "x": 0.23,
+        "y": 0.88,
+        "text": "Kos Meadows"
+      },
+      {
+        "x": 0.55,
+        "y": 0.44,
+        "text": "Loftmire"
+      },
+      {
+        "x": 0.46,
+        "y": 0.32,
+        "text": "Lower Barrony Field"
+      },
+      {
+        "x": 0.68,
+        "y": 0.64,
+        "text": "Oleander Fields"
+      },
+      {
+        "x": 0.44,
+        "y": 0.71,
+        "text": "Pandora Compound"
+      },
+      {
+        "x": 0.61,
+        "y": 0.35,
+        "text": "Providence Field"
+      },
+      {
+        "x": 0.2,
+        "y": 0.69,
+        "text": "The Fuming Pen"
+      },
+      {
+        "x": 0.7,
+        "y": 0.25,
+        "text": "The Orchard Wall"
+      },
+      {
+        "x": 0.16,
+        "y": 0.34,
+        "text": "The Rollcage"
+      },
+      {
+        "x": 0.79,
+        "y": 0.07,
+        "text": "The Salt Crossing"
+      },
+      {
+        "x": 0.47,
+        "y": 0.09,
+        "text": "Upper Barrony Field"
+      },
+      {
+        "x": 0.33,
+        "y": 0.11,
+        "text": "Upper Heartlands"
+      }
+    ]
+  },
+  "RedRiverHex": {
+    "id": 31,
+    "hex": "RedRiverHex",
+    "name": "RedRiver",
+    "title": "Red River",
+    "col": 2,
+    "row": 11,
+    "points": {
+      "a": "0.311 0",
+      "b": "0.592 0",
+      "c": "0.87 0.24",
+      "d": "0.95 0.39",
+      "e": "0.678 1",
+      "f": "0.113 0.74",
+      "g": "0.025 0.58",
+      "h": "0.414 0.308",
+      "i": "0.624 0.256",
+      "j": "0.653 0.502",
+      "k": "0.603 0.574",
+      "l": "0.487 0.502",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Camp Upsilon": {
+        "points": "g h a z u",
+        "x": 0.27,
+        "y": 0.27
+      },
+      "Cannonsmoke": {
+        "points": "e y f l k",
+        "x": 0.44,
+        "y": 0.65
+      },
+      "Climb": {
+        "points": "b w c i",
+        "x": 0.71,
+        "y": 0.14
+      },
+      "Fort Matchwood": {
+        "points": "h i j k l",
+        "x": 0.55,
+        "y": 0.39
+      },
+      "Judicium": {
+        "points": "c d j i",
+        "x": 0.72,
+        "y": 0.37
+      },
+      "Minos": {
+        "points": "f g h l",
+        "x": 0.37,
+        "y": 0.47
+      },
+      "Penance": {
+        "points": "a b i h",
+        "x": 0.5,
+        "y": 0.17
+      },
+      "Victoria Hill": {
+        "points": "d v x e k j",
+        "x": 0.77,
+        "y": 0.56
+      }
+    },
+    "labels": [
+      {
+        "x": 0.18,
+        "y": 0.37,
+        "text": "Fragment Knolls"
+      },
+      {
+        "x": 0.61,
+        "y": 0.24,
+        "text": "Gunpowder Lane"
+      },
+      {
+        "x": 0.29,
+        "y": 0.75,
+        "text": "Perish"
+      },
+      {
+        "x": 0.62,
+        "y": 0.84,
+        "text": "Red Crossing"
+      },
+      {
+        "x": 0.52,
+        "y": 0.71,
+        "text": "The Red River"
+      },
+      {
+        "x": 0.71,
+        "y": 0.46,
+        "text": "Twelve Drops"
+      }
+    ]
+  },
+  "BasinSionnachHex": {
+    "id": 34,
+    "hex": "BasinSionnachHex",
+    "name": "BasinSionnach",
+    "title": "Basin Sionnach",
+    "col": 3,
+    "row": 0,
+    "points": {
+      "a": "0.342 0",
+      "b": "0.85 0.1",
+      "c": "0.94 0.7",
+      "d": "0.662 1",
+      "e": "0.094 0.686",
+      "f": "0.258 0.607",
+      "g": "0.398 0.255",
+      "h": "0.717 0.423",
+      "i": "0.569 0.492",
+      "j": "0.531 0.687",
+      "k": "",
+      "l": "",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Basinhome": {
+        "points": "d j f e y",
+        "x": 0.35,
+        "y": 0.79
+      },
+      "Cuttail Station": {
+        "points": "a w b h i g",
+        "x": 0.62,
+        "y": 0.32
+      },
+      "Lamplight": {
+        "points": "c h i j d x",
+        "x": 0.71,
+        "y": 0.58
+      },
+      "Sess": {
+        "points": "e f g a z u",
+        "x": 0.22,
+        "y": 0.41
+      },
+      "Stoic": {
+        "points": "b v c h",
+        "x": 0.86,
+        "y": 0.43
+      },
+      "The Den": {
+        "points": "g i j f",
+        "x": 0.41,
+        "y": 0.51
+      }
+    },
+    "labels": [
+      {
+        "x": 0.37,
+        "y": 0.37,
+        "text": "Basin Sionnach"
+      },
+      {
+        "x": 0.69,
+        "y": 0.22,
+        "text": "Cunning Cross"
+      },
+      {
+        "x": 0.24,
+        "y": 0.66,
+        "text": "Radiant Shore"
+      },
+      {
+        "x": 0.4,
+        "y": 0.19,
+        "text": "The Foxfields"
+      },
+      {
+        "x": 0.73,
+        "y": 0.73,
+        "text": "Torchwood"
+      }
+    ]
+  },
+  "ReachingTrailHex": {
+    "id": 11,
+    "hex": "ReachingTrailHex",
+    "name": "ReachingTrail",
+    "title": "Reaching Trail",
+    "col": 3,
+    "row": 2,
+    "points": {
+      "a": "0.568 0",
+      "b": "0.641 0",
+      "c": "0.898 0.298",
+      "d": "0.875 0.749",
+      "e": "0.594 1",
+      "f": "0.213 0.927",
+      "g": "0.095 0.695",
+      "h": "",
+      "i": "",
+      "j": "0.152 0.199",
+      "k": "0.298 0.322",
+      "l": "0.491 0.5",
+      "m": "0.548 0.475",
+      "n": "0.594 0.513",
+      "o": "0.769 0.463",
+      "p": "0.824 0.72",
+      "q": "0.684 0.685",
+      "r": "0.557 0.837",
+      "s": "0.486 0.781",
+      "t": "0.414 0.601",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Brodytown": {
+        "x": 0.44,
+        "y": 0.32,
+        "points": "k l m b a"
+      },
+      "Dwyerstown": {
+        "x": 0.15,
+        "y": 0.36,
+        "points": "g k j u"
+      },
+      "Elksford": {
+        "x": 0.33,
+        "y": 0.5,
+        "points": "g t l k"
+      },
+      "Fort Mac Conaill": {
+        "x": 0.7,
+        "y": 0.85,
+        "points": "x d p q r e"
+      },
+      "Harpy": {
+        "x": 0.44,
+        "y": 0.92,
+        "points": "e r s f y"
+      },
+      "Ice Ranch": {
+        "x": 0.7,
+        "y": 0.39,
+        "points": "b w c o n m"
+      },
+      "Limestone Holdfast": {
+        "x": 0.29,
+        "y": 0.16,
+        "points": "j k a z"
+      },
+      "Mousetrap": {
+        "x": 0.84,
+        "y": 0.53,
+        "points": "c v d p o"
+      },
+      "Nightchurch": {
+        "x": 0.38,
+        "y": 0.74,
+        "points": "s t g f"
+      },
+      "Reprieve": {
+        "x": 0.55,
+        "y": 0.68,
+        "points": "s r q n m l t"
+      },
+      "The Ark": {
+        "x": 0.74,
+        "y": 0.53,
+        "points": "n o p q"
+      }
+    },
+    "labels": [
+      {
+        "x": 0.75,
+        "y": 0.7,
+        "text": "Camp Eos"
+      },
+      {
+        "x": 0.45,
+        "y": 0.53,
+        "text": "Caragtais"
+      },
+      {
+        "x": 0.27,
+        "y": 0.57,
+        "text": "Duffy's Farm"
+      },
+      {
+        "x": 0.69,
+        "y": 0.15,
+        "text": "Dugan's Approach"
+      },
+      {
+        "x": 0.21,
+        "y": 0.27,
+        "text": "Dwyersfield"
+      },
+      {
+        "x": 0.44,
+        "y": 0.8,
+        "text": "Featherfield"
+      },
+      {
+        "x": 0.64,
+        "y": 0.56,
+        "text": "Fisherman's Floe"
+      },
+      {
+        "x": 0.37,
+        "y": 0.65,
+        "text": "Hookhall"
+      },
+      {
+        "x": 0.27,
+        "y": 0.67,
+        "text": "Humidus"
+      },
+      {
+        "x": 0.62,
+        "y": 0.99,
+        "text": "Mac Conaill's Pass"
+      },
+      {
+        "x": 0.88,
+        "y": 0.38,
+        "text": "Pitfall"
+      },
+      {
+        "x": 0.18,
+        "y": 0.59,
+        "text": "Puncta"
+      },
+      {
+        "x": 0.34,
+        "y": 0.86,
+        "text": "Scorpion"
+      },
+      {
+        "x": 0.71,
+        "y": 0.56,
+        "text": "The Bait"
+      },
+      {
+        "x": 0.6,
+        "y": 0.24,
+        "text": "The Cairns"
+      },
+      {
+        "x": 0.32,
+        "y": 0.41,
+        "text": "The Chicken Coop"
+      },
+      {
+        "x": 0.43,
+        "y": 0.04,
+        "text": "The Deckard"
+      },
+      {
+        "x": 0.45,
+        "y": 0.66,
+        "text": "The Knot"
+      },
+      {
+        "x": 0.55,
+        "y": 0.55,
+        "text": "The Reaching Heights"
+      },
+      {
+        "x": 0.9,
+        "y": 0.74,
+        "text": "The Rime Ledge"
+      },
+      {
+        "x": 0.24,
+        "y": 0.47,
+        "text": "The Rousing Fields"
+      },
+      {
+        "x": 0.29,
+        "y": 0.54,
+        "text": "The Scar"
+      },
+      {
+        "x": 0.32,
+        "y": 1.06,
+        "text": "The Squeeze"
+      },
+      {
+        "x": 0.12,
+        "y": 0.74,
+        "text": "Thýlak"
+      },
+      {
+        "x": 0.23,
+        "y": 0.08,
+        "text": "Windy Way"
+      }
+    ]
+  },
+  "CallahansPassageHex": {
+    "id": 4,
+    "hex": "CallahansPassageHex",
+    "name": "CallahansPassage",
+    "title": "Callahans Passage",
+    "col": 3,
+    "row": 4,
+    "points": {
+      "a": "0.250 0",
+      "b": "0.703 0",
+      "c": "0.924 0.34",
+      "d": "0.955 0.598",
+      "e": "0.663 1",
+      "f": "0.297 1",
+      "g": "0.06 0.626",
+      "h": "0.364 0.312",
+      "i": "0.62 0.264",
+      "j": "0.669 0.353",
+      "k": "0.64 0.546",
+      "l": "0.626 0.551",
+      "m": "0.61 0.796",
+      "n": "0.432 0.686",
+      "o": "0.414 0.62",
+      "p": "0.458 0.512",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "0 0.5",
+      "w": "0 1",
+      "x": "1 1",
+      "y": "1 0.5",
+      "z": "1 0"
+    },
+    "areas": {
+      "Cragstown": {
+        "x": 0.52,
+        "y": 0.14,
+        "points": "a b i h "
+      },
+      "White Chapel": {
+        "x": 0.76,
+        "y": 0.27,
+        "points": "b z c j i"
+      },
+      "The Procession": {
+        "x": 0.75,
+        "y": 0.44,
+        "points": "j c y d k"
+      },
+      "The Latch": {
+        "x": 0.73,
+        "y": 0.68,
+        "points": "d k l m e x"
+      },
+      "Lochan Berth": {
+        "x": 0.56,
+        "y": 0.42,
+        "points": "h i j k l p"
+      },
+      "Overlook Hill": {
+        "x": 0.53,
+        "y": 0.65,
+        "points": "l p o n m"
+      },
+      "The Crumbling Passage": {
+        "x": 0.46,
+        "y": 0.79,
+        "points": "e f n m"
+      },
+      "Crumbling Post": {
+        "x": 0.35,
+        "y": 0.72,
+        "points": "f w g o n"
+      },
+      "Scath Passing": {
+        "x": 0,
+        "y": 0,
+        "points": "g o p h"
+      },
+      "Solas Gorge": {
+        "x": 0.19,
+        "y": 0.33,
+        "points": "g h a v"
+      },
+      "Scáth Passing": {
+        "points": "",
+        "x": 0.35,
+        "y": 0.53
+      }
+    },
+    "labels": [
+      {
+        "x": 0.31,
+        "y": 0.26,
+        "text": "Callahan's Eye"
+      },
+      {
+        "x": 0.87,
+        "y": 0.52,
+        "text": "Chapel Access"
+      },
+      {
+        "x": 0.57,
+        "y": 0.2,
+        "text": "Cragsfield"
+      },
+      {
+        "x": 0.45,
+        "y": 0.35,
+        "text": "Cragsroad"
+      },
+      {
+        "x": 0.4,
+        "y": 0.16,
+        "text": "Lingering Lashes"
+      },
+      {
+        "x": 0.55,
+        "y": 0.51,
+        "text": "Lochan"
+      },
+      {
+        "x": 0.24,
+        "y": 0.87,
+        "text": "Lost Tops"
+      },
+      {
+        "x": 0.62,
+        "y": 0.67,
+        "text": "Sioc Approach"
+      },
+      {
+        "x": 0.23,
+        "y": 0.42,
+        "text": "Solas Gateway"
+      },
+      {
+        "x": 0.09,
+        "y": 0.53,
+        "text": "Soured Fields"
+      },
+      {
+        "x": 0.72,
+        "y": 0.94,
+        "text": "The Key"
+      },
+      {
+        "x": 0.39,
+        "y": 0.07,
+        "text": "The Lance"
+      },
+      {
+        "x": 0.2,
+        "y": 0.7,
+        "text": "The Rust Road"
+      },
+      {
+        "x": 0.78,
+        "y": 0.79,
+        "text": "The Stern"
+      },
+      {
+        "x": 0.68,
+        "y": 0.17,
+        "text": "Twisted Mumble"
+      },
+      {
+        "x": 0.5,
+        "y": 1.04,
+        "text": "Whispering Gulch"
+      },
+      {
+        "x": 0.52,
+        "y": 0.24,
+        "text": "Winding Crag"
+      }
+    ]
+  },
+  "DeadLandsHex": {
+    "id": 3,
+    "hex": "DeadLandsHex",
+    "name": "DeadLands",
+    "title": "Dead Lands",
+    "col": 3,
+    "row": 6,
+    "points": {
+      "a": "0.1 0",
+      "b": "0 0.318",
+      "c": "0.29 0.4",
+      "d": "0.375 0.36",
+      "e": "0.411 0",
+      "f": "0.475 0.39",
+      "g": "0.625 0.31",
+      "h": "0.666 0.328",
+      "i": "1 0.098",
+      "j": "0.9 0",
+      "k": "0.345 0.631",
+      "l": "0.481 0.54",
+      "m": "0.607 0.639",
+      "n": "0.687 0.556",
+      "o": "0.98 0.717",
+      "p": "0.579 0.738",
+      "q": "0.661 1",
+      "r": "1 1",
+      "s": "0.391 0.731",
+      "t": "0.266 1",
+      "u": "0 1",
+      "v": "0 0.69"
+    },
+    "areas": {
+      "The Spine": {
+        "x": 0.31,
+        "y": 0.24,
+        "points": "a b c d e"
+      },
+      "Iron's End": {
+        "x": 0.46,
+        "y": 0.26,
+        "points": "e d f g"
+      },
+      "Callahan's Gate": {
+        "x": 0.63,
+        "y": 0.11,
+        "points": "e g h i j"
+      },
+      "Abandoned Ward": {
+        "title": "Abandoned Ward",
+        "x": 0.41,
+        "y": 0.5,
+        "points": "c d f l k"
+      },
+      "Callahan's Boot": {
+        "x": 0.55,
+        "y": 0.49,
+        "points": "l f g h n m"
+      },
+      "The Salt March": {
+        "x": 0.82,
+        "y": 0.48,
+        "points": "n h i o"
+      },
+      "Brine Glen": {
+        "x": 0.73,
+        "y": 0.72,
+        "points": "m n o r q p"
+      },
+      "The Pits": {
+        "x": 0.47,
+        "y": 0.63,
+        "points": "s k l m p"
+      },
+      "The Salt Farms": {
+        "x": 0.46,
+        "y": 0.84,
+        "points": "s p q t"
+      },
+      "Sun's Hollow": {
+        "title": "Sun's Hollow",
+        "x": 0.27,
+        "y": 0.72,
+        "points": "k s t u v"
+      },
+      "Liberation Point": {
+        "x": 0.24,
+        "y": 0.55,
+        "points": "b c k v"
+      }
+    },
+    "labels": [
+      {
+        "x": 0.82,
+        "y": 0.7,
+        "text": "Biting Tarn"
+      },
+      {
+        "x": 0.82,
+        "y": 0.39,
+        "text": "Border Concourse"
+      },
+      {
+        "x": 0.57,
+        "y": 0.32,
+        "text": "Border Thicket"
+      },
+      {
+        "x": 0.66,
+        "y": 0.31,
+        "text": "Callahan's Belt"
+      },
+      {
+        "x": 0.29,
+        "y": 0.42,
+        "text": "Carpal Trail"
+      },
+      {
+        "x": 0.32,
+        "y": 0.58,
+        "text": "Cemetary Junction"
+      },
+      {
+        "x": 0.38,
+        "y": 0.66,
+        "text": "Cemetary Lane"
+      },
+      {
+        "x": 0.11,
+        "y": 0.4,
+        "text": "Coracoid Footpath"
+      },
+      {
+        "x": 0.42,
+        "y": 0.1,
+        "text": "Crumbling Passage"
+      },
+      {
+        "x": 0.53,
+        "y": 0.58,
+        "text": "Hope's Causeway"
+      },
+      {
+        "x": 0.29,
+        "y": 0.66,
+        "text": "Jaspar Range"
+      },
+      {
+        "x": 0.2,
+        "y": 0.34,
+        "text": "Mandible Crossroads"
+      },
+      {
+        "x": 0.35,
+        "y": 0.31,
+        "text": "Marrow Copse"
+      },
+      {
+        "x": 0.13,
+        "y": 0.54,
+        "text": "Mercy Meadow"
+      },
+      {
+        "x": 0.62,
+        "y": 0.83,
+        "text": "Mercy's End"
+      },
+      {
+        "x": 0.16,
+        "y": 0.64,
+        "text": "Overgrown Pasture"
+      },
+      {
+        "x": 0.27,
+        "y": 0.89,
+        "text": "Path to the Sun"
+      },
+      {
+        "x": 0.49,
+        "y": 0.39,
+        "text": "Pommel Annex"
+      },
+      {
+        "x": 0.39,
+        "y": 0.56,
+        "text": "Sunhaven Gateway"
+      },
+      {
+        "x": 0.2,
+        "y": 0.42,
+        "text": "Tarsal Pathway"
+      },
+      {
+        "x": 0.75,
+        "y": 0.13,
+        "text": "The Abbey Drag"
+      },
+      {
+        "x": 0.57,
+        "y": 0.38,
+        "text": "The Blade"
+      },
+      {
+        "x": 0.59,
+        "y": 0.27,
+        "text": "The Boneyard"
+      },
+      {
+        "x": 0.42,
+        "y": 0.45,
+        "text": "The Crossing"
+      },
+      {
+        "x": 0.36,
+        "y": 0.88,
+        "text": "The Great March"
+      },
+      {
+        "x": 0.48,
+        "y": 0.32,
+        "text": "The Iron Passage"
+      },
+      {
+        "x": 0.53,
+        "y": 0.13,
+        "text": "The Iron Road"
+      },
+      {
+        "x": 0.43,
+        "y": 0.4,
+        "text": "The Plaza"
+      },
+      {
+        "x": 0.4,
+        "y": 0.74,
+        "text": "The Salt Trail"
+      },
+      {
+        "x": 0.46,
+        "y": 0.91,
+        "text": "The Shorn Fields"
+      },
+      {
+        "x": 0.67,
+        "y": 0.53,
+        "text": "The Steppes"
+      }
+    ]
+  },
+  "UmbralWildwoodHex": {
+    "id": 6,
+    "hex": "UmbralWildwoodHex",
+    "name": "UmbralWildwood",
+    "title": "Umbral Wildwood",
+    "col": 3,
+    "row": 8,
+    "points": {
+      "a": "0.356 0",
+      "b": "0.607 0",
+      "c": "0.846 0.198",
+      "d": "0.964 0.433",
+      "e": "0.858 0.882",
+      "f": "0.516 1",
+      "g": "0.153 0.806",
+      "h": "0.094 0.312",
+      "i": "0.224 0.396",
+      "j": "0.42 0.332",
+      "k": "0.447 0.351",
+      "l": "0.587 0.223",
+      "m": "0.727 0.304",
+      "n": "0.703 0.47",
+      "o": "0.731 0.488",
+      "p": "0.519 0.499",
+      "q": "0.5 0.597",
+      "r": "0.458 0.643",
+      "s": "0.273 0.69",
+      "t": "0.846 0",
+      "u": "1 0.433",
+      "v": "1 1",
+      "w": "0 1",
+      "x": "0 0.5",
+      "y": "0 0",
+      "z": ""
+    },
+    "areas": {
+      "Vagrant Bastion": {
+        "x": 0.51,
+        "y": 0.16,
+        "points": "a b l k j"
+      },
+      "Stray": {
+        "x": 0.68,
+        "y": 0.18,
+        "points": "b t c m l"
+      },
+      "Amethyst": {
+        "x": 0.82,
+        "y": 0.39,
+        "points": "c m n o d"
+      },
+      "Clotho's Refuge": {
+        "x": 0.61,
+        "y": 0.32,
+        "points": "k l m n p"
+      },
+      "Atropos' Fate": {
+        "x": 0.57,
+        "y": 0.78,
+        "points": "f r q e v"
+      },
+      "Sentry": {
+        "x": 0.4,
+        "y": 0.82,
+        "points": "g s r f w"
+      },
+      "The Foundry": {
+        "x": 0.28,
+        "y": 0.23,
+        "points": "a j i h y"
+      },
+      "Thunderfoot": {
+        "x": 0.35,
+        "y": 0.52,
+        "points": "i j k p q r s"
+      },
+      "GoldenRoot Ranch": {
+        "points": "g s i h x",
+        "x": 0.16,
+        "y": 0.55
+      },
+      "Hermit's Rest": {
+        "points": "n o e q p",
+        "x": 0.67,
+        "y": 0.62
+      },
+      "Lachesis' Tally ": {
+        "points": "d u v e o",
+        "x": 0.84,
+        "y": 0.55
+      }
+    },
+    "labels": [
+      {
+        "x": 0.36,
+        "y": 0.39,
+        "text": "Adze Crossroads"
+      },
+      {
+        "x": 0.78,
+        "y": 0.86,
+        "text": "Dredgefield"
+      },
+      {
+        "x": 0.15,
+        "y": 0.71,
+        "text": "Golden Concourse"
+      },
+      {
+        "x": 0.71,
+        "y": 0.37,
+        "text": "Leatherback Pathway"
+      },
+      {
+        "x": 0.17,
+        "y": 0.32,
+        "text": "Steely Fields"
+      },
+      {
+        "x": 0.73,
+        "y": 0.49,
+        "text": "Terrapin Woods"
+      },
+      {
+        "x": 0.79,
+        "y": 0.66,
+        "text": "The Dredgewood"
+      },
+      {
+        "x": 0.61,
+        "y": 0.72,
+        "text": "The Frontier"
+      },
+      {
+        "x": 0.42,
+        "y": 0.53,
+        "text": "The Gap"
+      },
+      {
+        "x": 0.51,
+        "y": 0.24,
+        "text": "The Strands"
+      },
+      {
+        "x": 0.26,
+        "y": 0.66,
+        "text": "Thunder Row"
+      },
+      {
+        "x": 0.55,
+        "y": 0.94,
+        "text": "Wasting Holt"
+      },
+      {
+        "x": 0.55,
+        "y": 0.45,
+        "text": "Weaver's Trail"
+      }
+    ]
+  },
+  "GreatMarchHex": {
+    "id": 17,
+    "hex": "GreatMarchHex",
+    "name": "GreatMarch",
+    "title": "Great March",
+    "col": 3,
+    "row": 10,
+    "points": {
+      "a": "0.482 -0.01",
+      "b": "0.75 0.275",
+      "c": "0.668 0.368",
+      "d": "0.49 0.289",
+      "e": "0.464 0.221",
+      "f": "0.229 0.329",
+      "g": "0.409 0.535",
+      "h": "0.437 0.515",
+      "i": "0.367 0.663",
+      "j": "0.653 0.536",
+      "k": "0.784 0.932",
+      "l": "0.813 0.874",
+      "m": "0.142 0.786",
+      "n": "0.104 0.292",
+      "o": "0.87 0.244",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0.784 1",
+      "v": "0.142 1",
+      "w": "0 0.5",
+      "x": "0 0",
+      "y": "1 0.5",
+      "z": "1 0"
+    },
+    "areas": {
+      "Lionsfort": {
+        "x": 0.7,
+        "y": 0.12,
+        "points": "a b o z"
+      },
+      "Dendro Field": {
+        "x": 0,
+        "y": 0,
+        "points": "o b c j l y"
+      },
+      "Myrmidon's Stay": {
+        "x": 0.61,
+        "y": 0.23,
+        "points": "a b c d e"
+      },
+      "Violethome": {
+        "x": 0.31,
+        "y": 0.19,
+        "points": "a e f n x"
+      },
+      "Camp Senti": {
+        "x": 0.38,
+        "y": 0.36,
+        "points": "d e f g h"
+      },
+      "Remnant Villa": {
+        "x": 0.55,
+        "y": 0.44,
+        "points": "c d h j"
+      },
+      "Leto": {
+        "x": 0.25,
+        "y": 0.5,
+        "points": "g f n w m i"
+      },
+      "Sitaria": {
+        "x": 0.54,
+        "y": 0.62,
+        "points": "j h g i k l"
+      },
+      "The Swan": {
+        "x": 0.41,
+        "y": 0.87,
+        "points": "m i k u v"
+      },
+      "Dendró Field": {
+        "points": "",
+        "x": 0.77,
+        "y": 0.46
+      }
+    },
+    "labels": [
+      {
+        "x": 0.1,
+        "y": 0.64,
+        "text": "Dalton Meadow"
+      },
+      {
+        "x": 0.78,
+        "y": 0.87,
+        "text": "Eristown"
+      },
+      {
+        "x": 0.45,
+        "y": 0.09,
+        "text": "Fateless Grove"
+      },
+      {
+        "x": 0.61,
+        "y": 0.75,
+        "text": "Fengari"
+      },
+      {
+        "x": 0.79,
+        "y": 0.35,
+        "text": "Halting Valley"
+      },
+      {
+        "x": 0.42,
+        "y": 0.94,
+        "text": "Jack Field"
+      },
+      {
+        "x": 0.25,
+        "y": 0.64,
+        "text": "Jackboot Creek"
+      },
+      {
+        "x": 0.78,
+        "y": 0.78,
+        "text": "Legacy Pasture"
+      },
+      {
+        "x": 0.77,
+        "y": 0.7,
+        "text": "Milowood"
+      },
+      {
+        "x": 0.7,
+        "y": 0.71,
+        "text": "Mors Range"
+      },
+      {
+        "x": 0.52,
+        "y": 0.52,
+        "text": "Remnant Acreage"
+      },
+      {
+        "x": 0.34,
+        "y": 0.64,
+        "text": "Schala Estate"
+      },
+      {
+        "x": 0.2,
+        "y": 0.18,
+        "text": "Scrabbling Motte"
+      },
+      {
+        "x": 0.28,
+        "y": 0.84,
+        "text": "Serpent Charm"
+      },
+      {
+        "x": 0.49,
+        "y": 0.73,
+        "text": "The Black Wing"
+      },
+      {
+        "x": 0.65,
+        "y": 0.73,
+        "text": "The Great March"
+      },
+      {
+        "x": 0.29,
+        "y": 0.03,
+        "text": "The Midmarch"
+      },
+      {
+        "x": 0.31,
+        "y": 0.38,
+        "text": "The River Senti"
+      },
+      {
+        "x": 0.38,
+        "y": 0.44,
+        "text": "The Spice Road"
+      },
+      {
+        "x": 0.55,
+        "y": 0.84,
+        "text": "The White Wing"
+      },
+      {
+        "x": 0.13,
+        "y": 0.33,
+        "text": "Violet Fields"
+      },
+      {
+        "x": 0.43,
+        "y": 0.61,
+        "text": "Zealous Approach"
+      }
+    ]
+  },
+  "KalokaiHex": {
+    "id": 40,
+    "hex": "KalokaiHex",
+    "name": "Kalokai",
+    "title": "Kalokai",
+    "col": 3,
+    "row": 12,
+    "points": {
+      "a": "0.248 0",
+      "b": "0.82 0.138",
+      "c": "0.94 0.372",
+      "d": "0.83 0.86",
+      "e": "0.275 1",
+      "f": "0.155 0.82",
+      "g": "0.358 0.570",
+      "h": "0.335 0.12",
+      "i": "0.43 0.166",
+      "j": "0.65 0.4",
+      "k": "0.544 0.595",
+      "l": "0.602 0.729",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Baccae Ridge": {
+        "points": "e y f g k l",
+        "x": 0.45,
+        "y": 0.72
+      },
+      "Camp Tau": {
+        "points": "c v d l k j",
+        "x": 0.69,
+        "y": 0.59
+      },
+      "Hallow": {
+        "points": "h i j k g",
+        "x": 0.48,
+        "y": 0.45
+      },
+      "Lost Greensward": {
+        "points": "d l e x",
+        "x": 0.56,
+        "y": 0.9
+      },
+      "Night's Regret": {
+        "points": "f u a h g",
+        "x": 0.21,
+        "y": 0.47
+      },
+      "Sourtooth": {
+        "points": "a w b i h",
+        "x": 0.64,
+        "y": 0.1
+      },
+      "Sweethearth": {
+        "points": "b c j i",
+        "x": 0.66,
+        "y": 0.21
+      }
+    },
+    "labels": [
+      {
+        "x": 0.21,
+        "y": 0.58,
+        "text": "Bleary"
+      },
+      {
+        "x": 0.7,
+        "y": 0.78,
+        "text": "Clarity Meadow"
+      },
+      {
+        "x": 0.32,
+        "y": 0.3,
+        "text": "Ichorus Amphitheatre"
+      },
+      {
+        "x": 0.4,
+        "y": 0.52,
+        "text": "South March"
+      },
+      {
+        "x": 0.37,
+        "y": 0.14,
+        "text": "The Stumble"
+      },
+      {
+        "x": 0.82,
+        "y": 0.41,
+        "text": "The Vineroad"
+      },
+      {
+        "x": 0.32,
+        "y": 0.82,
+        "text": "Vinum Rillet"
+      }
+    ]
+  },
+  "HowlCountyHex": {
+    "id": 35,
+    "hex": "HowlCountyHex",
+    "name": "HowlCounty",
+    "title": "Howl County",
+    "col": 4,
+    "row": 1,
+    "points": {
+      "a": "0.2 0.08",
+      "b": "0.497 0",
+      "c": "0.82 0.11",
+      "d": "0.92 0.66",
+      "e": "0.8 0.9",
+      "f": "0.493 1",
+      "g": "0.12 0.75",
+      "h": "0.197 0.693",
+      "i": "0.309 0.504",
+      "j": "0.558 0.529",
+      "k": "0.751 0.47",
+      "l": "0.548 0.645",
+      "m": "0.461 0.772",
+      "n": "0.809 0.",
+      "o": "0.8 1",
+      "p": "0.123 1",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Fort Red": {
+        "points": "k c v d",
+        "x": 0.86,
+        "y": 0.41
+      },
+      "Fort Rider": {
+        "points": "f m h g p",
+        "x": 0.35,
+        "y": 0.86
+      },
+      "Great Warden Dam": {
+        "points": "b n c k j",
+        "x": 0.66,
+        "y": 0.36
+      },
+      "Hungry Wolf": {
+        "points": "g h i a u",
+        "x": 0.18,
+        "y": 0.46
+      },
+      "Little Lamb": {
+        "points": "e l m f o",
+        "x": 0.59,
+        "y": 0.81
+      },
+      "Sickleshire": {
+        "points": "d k j l e",
+        "x": 0.7,
+        "y": 0.66
+      },
+      "Slipgate Outpost": {
+        "points": "a z b j i",
+        "x": 0.4,
+        "y": 0.39
+      },
+      "Teller Farm": {
+        "points": "i j l m h",
+        "x": 0.4,
+        "y": 0.65
+      }
+    },
+    "labels": [
+      {
+        "x": 0.5,
+        "y": 0.55,
+        "text": "Austriaca Reservoir"
+      },
+      {
+        "x": 0.51,
+        "y": 0.41,
+        "text": "Checkpoint Titim"
+      },
+      {
+        "x": 0.39,
+        "y": 0.13,
+        "text": "Snakewall"
+      },
+      {
+        "x": 0.22,
+        "y": 0.68,
+        "text": "The Hunting Grounds"
+      },
+      {
+        "x": 0.77,
+        "y": 0.81,
+        "text": "Viperwalk"
+      }
+    ]
+  },
+  "ViperPitHex": {
+    "id": 25,
+    "hex": "ViperPitHex",
+    "name": "ViperPit",
+    "title": "Viper Pit",
+    "col": 4,
+    "row": 3,
+    "points": {
+      "a": "0.759 0.022",
+      "b": "0.856 0.789",
+      "c": "0.583 1",
+      "d": "0.293 1",
+      "e": "0.08 0.66",
+      "f": "0.137 0.226",
+      "g": "0.414 0.484",
+      "h": "0.372 0.466",
+      "i": "0.239 0.68",
+      "j": "0.332 0.72",
+      "k": "0.464 0.684",
+      "l": "0.478 0.698",
+      "m": "0.678 0.538",
+      "n": "0.658 0.334",
+      "o": "0.759 0",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Blackthroat": {
+        "x": 0.38,
+        "y": 0.83,
+        "points": "c d j k l"
+      },
+      "Earl Crowley": {
+        "x": 0.82,
+        "y": 0.51,
+        "points": "a n m b v"
+      },
+      "Fleck Crossing": {
+        "x": 0.53,
+        "y": 0.54,
+        "points": "g n m l k"
+      },
+      "Fort Viper": {
+        "x": 0.34,
+        "y": 0.6,
+        "points": "i j k g h"
+      },
+      "Kirknell": {
+        "x": 0.28,
+        "y": 0.55,
+        "points": "e i h f u"
+      },
+      "Moltworth": {
+        "x": 0.62,
+        "y": 0.71,
+        "points": "b x c l m"
+      },
+      "Serenity's Blight": {
+        "x": 0.44,
+        "y": 0.35,
+        "points": "a n g h f z o"
+      },
+      "The Friars": {
+        "x": 0.27,
+        "y": 0.82,
+        "points": "d j i e y"
+      }
+    },
+    "labels": [
+      {
+        "x": 0.26,
+        "y": 0.67,
+        "text": "Afric's Approach"
+      },
+      {
+        "x": 0.49,
+        "y": 0.85,
+        "text": "Austriaca River"
+      },
+      {
+        "x": 0.54,
+        "y": 0.21,
+        "text": "Deadsteps"
+      },
+      {
+        "x": 0.15,
+        "y": 0.41,
+        "text": "Earl's Welcome"
+      },
+      {
+        "x": 0.46,
+        "y": 0.03,
+        "text": "Hardcaps"
+      },
+      {
+        "x": 0.21,
+        "y": 0.1,
+        "text": "Lake Mioira"
+      },
+      {
+        "x": 0.68,
+        "y": 0.94,
+        "text": "Path of the Charmed"
+      },
+      {
+        "x": 0.4,
+        "y": 0.21,
+        "text": "Snakehead Lake"
+      },
+      {
+        "x": 0.28,
+        "y": 0.46,
+        "text": "The Bloody Bowery"
+      },
+      {
+        "x": 0.2,
+        "y": 0.63,
+        "text": "The Lady's Lake"
+      },
+      {
+        "x": 0.78,
+        "y": 0.7,
+        "text": "The Rockaway"
+      },
+      {
+        "x": 0.58,
+        "y": 0.43,
+        "text": "The Slithering Scales"
+      },
+      {
+        "x": 0.69,
+        "y": 0.15,
+        "text": "The Tongue"
+      },
+      {
+        "x": 0.37,
+        "y": 0.4,
+        "text": "Twin Fangs"
+      }
+    ]
+  },
+  "MarbanHollow": {
+    "id": 5,
+    "hex": "MarbanHollow",
+    "name": "MarbanHollow",
+    "title": "Marban Hollow",
+    "col": 4,
+    "row": 5,
+    "points": {
+      "a": "0.415 0",
+      "b": "0.87 0.243",
+      "c": "0.86 0.78",
+      "d": "0.409 1",
+      "e": "0.044 0.589",
+      "f": "0.307 0.489",
+      "g": "0.445 0.273",
+      "h": "0.469 0.207",
+      "i": "0.754 0.289",
+      "j": "0.667 0.613",
+      "k": "0.682 0.666",
+      "l": "0.533 0.722",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Checkpoint Bua": {
+        "points": "g h i j",
+        "x": 0.64,
+        "y": 0.43
+      },
+      "Lockheed": {
+        "points": "c k l d x",
+        "x": 0.64,
+        "y": 0.9
+      },
+      "Maiden's Veil": {
+        "points": "f g j k l",
+        "x": 0.52,
+        "y": 0.52
+      },
+      "Mox": {
+        "points": "a w b i h",
+        "x": 0.71,
+        "y": 0.12
+      },
+      "Oster Wall": {
+        "points": "b i j k c v",
+        "x": 0.8,
+        "y": 0.47
+      },
+      "Sanctum": {
+        "points": "e f g h a z u",
+        "x": 0.23,
+        "y": 0.27
+      },
+      "The Spitrocks": {
+        "points": "d l f e y",
+        "x": 0.35,
+        "y": 0.73
+      }
+    },
+    "labels": [
+      {
+        "x": 0.27,
+        "y": 0.59,
+        "text": "Bleating Plateau"
+      },
+      {
+        "x": 0.38,
+        "y": 0.42,
+        "text": "Bubble Basin"
+      },
+      {
+        "x": 0.6,
+        "y": 0.66,
+        "text": "Deepfleet Valley"
+      },
+      {
+        "x": 0.56,
+        "y": 0.12,
+        "text": "Gaping Maw"
+      },
+      {
+        "x": 0.55,
+        "y": 0.84,
+        "text": "Lockheed Breakers"
+      },
+      {
+        "x": 0.61,
+        "y": 0.41,
+        "text": "Lughbone Dam"
+      },
+      {
+        "x": 0.3,
+        "y": 0.92,
+        "text": "Mount Mac Tire"
+      },
+      {
+        "x": 0.4,
+        "y": 0.1,
+        "text": "Pilgrimage"
+      },
+      {
+        "x": 0.72,
+        "y": 0.29,
+        "text": "Slender Cove"
+      },
+      {
+        "x": 0.74,
+        "y": 0.67,
+        "text": "The Claim"
+      },
+      {
+        "x": 0.51,
+        "y": 0.28,
+        "text": "The Clutch"
+      },
+      {
+        "x": 0.63,
+        "y": 0.51,
+        "text": "The Curse"
+      }
+    ]
+  },
+  "DrownedValeHex": {
+    "id": 23,
+    "hex": "DrownedValeHex",
+    "name": "DrownedVale",
+    "title": "Drowned Vale",
+    "col": 4,
+    "row": 7,
+    "points": {
+      "a": "0.486 0",
+      "b": "0.84 0.186",
+      "c": "0.9 0.294",
+      "d": "0.87 0.8",
+      "e": "0.561 1",
+      "f": "0.277 1",
+      "g": "0.134 0.767",
+      "h": "0.096 0.3",
+      "i": "0.533 0.286",
+      "j": "0.51 0.357",
+      "k": "0.485 0.373",
+      "l": "0.22 0.05",
+      "m": "0.296 0.423",
+      "n": "",
+      "o": "0.313 0.602",
+      "p": "0.468 0.63",
+      "q": "0.49 0.648",
+      "r": "0.573 0.7",
+      "s": "0.68 0.64",
+      "t": "0.688 0.473",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Bootnap": {
+        "points": "c t s d v",
+        "x": 0.81,
+        "y": 0.56
+      },
+      "Coaldrifter Stead": {
+        "points": "d s r e x",
+        "x": 0.66,
+        "y": 0.82
+      },
+      "Eastmarch": {
+        "points": "g o m h u",
+        "x": 0.23,
+        "y": 0.53
+      },
+      "Loggerhead": {
+        "points": "a i j k l z",
+        "x": 0.41,
+        "y": 0.21
+      },
+      "Singing Serpents": {
+        "points": "b c t j i",
+        "x": 0.66,
+        "y": 0.31
+      },
+      "Splinter Pens": {
+        "points": "r q f e",
+        "x": 0.47,
+        "y": 0.8
+      },
+      "The Baths": {
+        "points": "k j t s r q p",
+        "x": 0.57,
+        "y": 0.53
+      },
+      "The Saltcaps": {
+        "points": "a w b i",
+        "x": 0.63,
+        "y": 0.17
+      },
+      "The Wash": {
+        "points": "m k p o",
+        "x": 0.38,
+        "y": 0.51
+      },
+      "Vessel": {
+        "points": "q p o g y f",
+        "x": 0.36,
+        "y": 0.71
+      },
+      "Wisp's Warning": {
+        "points": "h m k l",
+        "x": 0.33,
+        "y": 0.29
+      }
+    },
+    "labels": [
+      {
+        "x": 0.79,
+        "y": 0.7,
+        "text": "Esterfal"
+      },
+      {
+        "x": 0.49,
+        "y": 0.08,
+        "text": "Fleetsfall River"
+      },
+      {
+        "x": 0.48,
+        "y": 0.34,
+        "text": "Linger"
+      },
+      {
+        "x": 0.52,
+        "y": 0.67,
+        "text": "Sop Fields"
+      },
+      {
+        "x": 0.33,
+        "y": 0.43,
+        "text": "Sprite's Game"
+      },
+      {
+        "x": 0.12,
+        "y": 0.6,
+        "text": "The Other Vein"
+      },
+      {
+        "x": 0.58,
+        "y": 0.36,
+        "text": "The Turtlerocks"
+      },
+      {
+        "x": 0.31,
+        "y": 0.84,
+        "text": "The Willow Wood"
+      }
+    ]
+  },
+  "ShackledChasmHex": {
+    "id": 24,
+    "hex": "ShackledChasmHex",
+    "name": "ShackledChasm",
+    "title": "Shackled Chasm",
+    "col": 4,
+    "row": 9,
+    "points": {
+      "a": "0.505 0",
+      "b": "0.833 0.17",
+      "c": "0.92 0.68",
+      "d": "0.895 0.72",
+      "e": "0.453 1",
+      "f": "0.252 1",
+      "g": "0.017 0.470",
+      "h": "0.19 0.115",
+      "i": "0.529 0.252",
+      "j": "0.489 0.308",
+      "k": "0.369 0.353",
+      "l": "0.324 0.483",
+      "m": "0.344 0.542",
+      "n": "0.564 0.592",
+      "o": "0.596 0.526",
+      "p": "0.725 0.474",
+      "q": "0.735 0.290",
+      "r": "0.576 0.757",
+      "s": "0.19 0",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Firstmarch": {
+        "points": "b q p c v",
+        "x": 0.84,
+        "y": 0.39
+      },
+      "Gorgon Grove": {
+        "points": "g l k h",
+        "x": 0.22,
+        "y": 0.36
+      },
+      "Limewood Holdfast": {
+        "points": "m n o j k l",
+        "x": 0.47,
+        "y": 0.47
+      },
+      "Reflection": {
+        "points": "f m l g u y",
+        "x": 0.22,
+        "y": 0.6
+      },
+      "Savages": {
+        "points": "h k j i a s",
+        "x": 0.39,
+        "y": 0.18
+      },
+      "Silk Farms": {
+        "points": "e f m n r",
+        "x": 0.44,
+        "y": 0.67
+      },
+      "Simo's Run": {
+        "points": "d r e x",
+        "x": 0.71,
+        "y": 0.86
+      },
+      "The Bell Toll": {
+        "points": "j o p q i",
+        "x": 0.62,
+        "y": 0.38
+      },
+      "The Grave of Erastos": {
+        "points": "a w b q i",
+        "x": 0.65,
+        "y": 0.16
+      },
+      "The Vanguard": {
+        "points": "c p o n r d",
+        "x": 0.69,
+        "y": 0.62
+      }
+    },
+    "labels": [
+      {
+        "x": 0.43,
+        "y": 0.87,
+        "text": "A Careless Net"
+      },
+      {
+        "x": 0.66,
+        "y": 0.26,
+        "text": "A New Spring"
+      },
+      {
+        "x": 0.51,
+        "y": 0.33,
+        "text": "Autumn Pyres"
+      },
+      {
+        "x": 0.3,
+        "y": 0.17,
+        "text": "Final Step"
+      },
+      {
+        "x": 0.41,
+        "y": 0.3,
+        "text": "Hades Ladder"
+      },
+      {
+        "x": 0.35,
+        "y": 0.95,
+        "text": "Legion's Dawn"
+      },
+      {
+        "x": 0.89,
+        "y": 0.59,
+        "text": "Manky Hills"
+      },
+      {
+        "x": 0.48,
+        "y": 0.09,
+        "text": "Southreach"
+      },
+      {
+        "x": 0.54,
+        "y": 0.88,
+        "text": "The Blue"
+      },
+      {
+        "x": 0.35,
+        "y": 0.44,
+        "text": "The First Rung"
+      },
+      {
+        "x": 0.07,
+        "y": 0.57,
+        "text": "The Foolish Maidens"
+      },
+      {
+        "x": 0.19,
+        "y": 0.75,
+        "text": "The Plunging"
+      },
+      {
+        "x": 0.53,
+        "y": 0.67,
+        "text": "Widow's Web"
+      }
+    ]
+  },
+  "AcrithiaHex": {
+    "id": 30,
+    "hex": "AcrithiaHex",
+    "name": "Acrithia",
+    "title": "Acrithia",
+    "col": 4,
+    "row": 11,
+    "points": {
+      "a": "0.237 0",
+      "b": "0.588 0",
+      "c": "0.88 0.255",
+      "d": "0.95 0.61",
+      "e": "0.527 1",
+      "f": "0.053 0.61",
+      "g": "0.327 0.457",
+      "h": "0.369 0.196",
+      "i": "0.582 0.216",
+      "j": "0.619 0.306",
+      "k": "0.628 0.520",
+      "l": "0.562 0.682",
+      "m": "0.367 0.456",
+      "n": "0.601 0.342",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "0 0.5",
+      "v": "1 0.5",
+      "w": "1 0",
+      "x": "1 1",
+      "y": "0 1",
+      "z": "0 0"
+    },
+    "areas": {
+      "Camp Omicron": {
+        "points": "b i j c w",
+        "x": 0.71,
+        "y": 0.12
+      },
+      "Heir Apparent": {
+        "points": "a b i h",
+        "x": 0.46,
+        "y": 0.09
+      },
+      "Legion Ranch": {
+        "points": "c v d k n j",
+        "x": 0.75,
+        "y": 0.46
+      },
+      "Nereid Keep": {
+        "points": "d k l e x",
+        "x": 0.71,
+        "y": 0.64
+      },
+      "Patridia": {
+        "points": "e y f g m l",
+        "x": 0.39,
+        "y": 0.61
+      },
+      "Swordfort": {
+        "points": "u f g h a z",
+        "x": 0.27,
+        "y": 0.29
+      },
+      "The Brinehold": {
+        "points": "m n k l",
+        "x": 0.5,
+        "y": 0.5
+      },
+      "Thetus Ring": {
+        "points": "h i j n m g",
+        "x": 0.43,
+        "y": 0.32
+      }
+    },
+    "labels": [
+      {
+        "x": 0.63,
+        "y": 0.19,
+        "text": "Astero's Spear"
+      },
+      {
+        "x": 0.32,
+        "y": 0.71,
+        "text": "Duelling Kegs"
+      },
+      {
+        "x": 0.59,
+        "y": 0.34,
+        "text": "Fated Heel"
+      },
+      {
+        "x": 0.81,
+        "y": 0.29,
+        "text": "Final March"
+      },
+      {
+        "x": 0.5,
+        "y": 0.83,
+        "text": "Riverlands"
+      },
+      {
+        "x": 0.31,
+        "y": 0.15,
+        "text": "Weary Slumber"
+      }
+    ]
+  },
+  "ClansheadValleyHex": {
+    "id": 36,
+    "hex": "ClansheadValleyHex",
+    "name": "ClansheadValley",
+    "title": "Clanshead Valley",
+    "col": 5,
+    "row": 2,
+    "points": {
+      "a" : "0.665 0",
+      "b" : "0.98 0.55",
+      "c" : "0.84 0.82",
+      "d" : "0.381 1",
+      "e" : "0.08 0.656",
+      "f" : "0.15 0.194",
+      "g" : "0.379 0.330",
+      "h" : "0.637 0.14",
+      "i" : "0.672 0.431",
+      "j" : "0.433 0.53",
+      "k" : "0.525 0.602",
+      "l" : "0.546 0.652",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Fallen Crown": {
+        "points": "e ww f g j",
+        "x": 0.29,
+        "y": 0.44
+      },
+      "Fort Ealar": {
+        "points": "d sw e j k l",
+        "x": 0.37,
+        "y": 0.71
+      },
+      "Fort Esterwild": {
+        "points": "b c l k i",
+        "x": 0.72,
+        "y": 0.59
+      },
+      "Fort Windham": {
+        "points": "a h g f nw",
+        "x": 0.41,
+        "y": 0.14
+      },
+      "Sweetholt": {
+        "points": "a ne ee b i h",
+        "x": 0.78,
+        "y": 0.35
+      },
+      "The King": {
+        "points": "g h i k j",
+        "x": 0.56,
+        "y": 0.38
+      },
+      "The Pike": {
+        "points": "c se d l",
+        "x": 0.59,
+        "y": 0.85
+      }
+    },
+    "labels": [
+      {
+        "x": 0.39,
+        "y": 0.54,
+        "text": "Bramble Field"
+      },
+      {
+        "x": 0.26,
+        "y": 0.61,
+        "text": "Lost Orphans"
+      },
+      {
+        "x": 0.31,
+        "y": 0.23,
+        "text": "Tallowild"
+      },
+      {
+        "x": 0.54,
+        "y": 0.52,
+        "text": "The Bastard's Channel"
+      },
+      {
+        "x": 0.36,
+        "y": 0.86,
+        "text": "The Weathered Advance"
+      },
+      {
+        "x": 0.64,
+        "y": 0.17,
+        "text": "Throne of Druiminn"
+      }
+    ]
+  },
+  "WeatheredExpanseHex": {
+    "id": 22,
+    "hex": "WeatheredExpanseHex",
+    "name": "WeatheredExpanse",
+    "title": "Weathered Expanse",
+    "col": 5,
+    "row": 4,
+    "points": {
+      "a" : "",
+      "b" : "0.208 0",
+      "c" : "0.57 0",
+      "d" : "0.89 0.28",
+      "e" : "0.92 0.67",
+      "f" : "0.66 1",
+      "g" : "0.32 1",
+      "h" : "0.11 0.73",
+      "i" : "0.16 0.17",
+      "j" : "0.587 0.335",
+      "k" : "0.596 0.580",
+      "l" : "0.552 0.646",
+      "m" : "0.444 0.658",
+      "n" : "0.363 0.560",
+      "o" : "0.376 0.450",
+      "p" : "0.254 0.354",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Crow's Nest": {
+        "points": "h n o p",
+        "x": 0.27,
+        "y": 0.52
+      },
+      "Foxcatcher": {
+        "points": "f g m l",
+        "x": 0.52,
+        "y": 0.78
+      },
+      "Frostmarch": {
+        "points": "h p i ww",
+        "x": 0.15,
+        "y": 0.46
+      },
+      "Huntsfort": {
+        "points": "j k l m n o",
+        "x": 0.49,
+        "y": 0.54
+      },
+      "Necropolis": {
+        "points": "g sw h n m",
+        "x": 0.35,
+        "y": 0.69
+      },
+      "Port of Rime": {
+        "points": "c ne d j",
+        "x": 0.68,
+        "y": 0.13
+      },
+      "Shattered Advance": {
+        "points": "i p o j b",
+        "x": 0.39,
+        "y": 0.31
+      },
+      "Spirit Watch": {
+        "points": "e se f l k",
+        "x": 0.65,
+        "y": 0.73
+      },
+      "The Weathering Halls": {
+        "points": "b nw c j",
+        "x": 0.46,
+        "y": 0.18
+      },
+      "Wightwalk": {
+        "points": "d ee e k j",
+        "x": 0.69,
+        "y": 0.5
+      }
+    },
+    "labels": [
+      {
+        "x": 0.04,
+        "y": 0.87,
+        "text": "Bannerwatch"
+      },
+      {
+        "x": 0.43,
+        "y": 0.47,
+        "text": "Barrowsfield"
+      },
+      {
+        "x": 0.15,
+        "y": 0.62,
+        "text": "Dullahan's Crest"
+      },
+      {
+        "x": 0.44,
+        "y": 0.67,
+        "text": "Eapoe"
+      },
+      {
+        "x": 0.3,
+        "y": 0.62,
+        "text": "Kirkyard"
+      },
+      {
+        "x": 0.55,
+        "y": 0.15,
+        "text": "Revenant's Path"
+      },
+      {
+        "x": 0.24,
+        "y": 0.39,
+        "text": "Rime Wastes"
+      },
+      {
+        "x": 0.42,
+        "y": 0.93,
+        "text": "The Ivory Bank"
+      },
+      {
+        "x": 0.18,
+        "y": 0.73,
+        "text": "The Ivory Sea"
+      },
+      {
+        "x": 0.7,
+        "y": 0.31,
+        "text": "The Spear"
+      },
+      {
+        "x": 0.09,
+        "y": 0.36,
+        "text": "The Stand"
+      },
+      {
+        "x": 0.18,
+        "y": 0.19,
+        "text": "The Weathered Wall"
+      },
+      {
+        "x": 0.53,
+        "y": 0.43,
+        "text": "Wraith's Gate"
+      }
+    ]
+  },
+  "EndlessShoreHex": {
+    "id": 20,
+    "hex": "EndlessShoreHex",
+    "name": "EndlessShore",
+    "title": "Endless Shore",
+    "col": 5,
+    "row": 6,
+    "points": {
+      "a" : "0.46 0.00",
+      "b" : "0.76 0.02",
+      "c" : "0.92 0.34",
+      "d" : "0.9 0.78",
+      "e" : "0.71 1",
+      "f" : "0.46 1",
+      "g" : "0.06 0.63",
+      "h" : "0.11 0.28",
+      "i" : "0.45 0.25",
+      "j" : "0.62 0.33",
+      "k" : "0.62 0.57",
+      "l" : "0.74 0.60",
+      "m" : "0.58 0.61",
+      "n" : "0.45 0.64",
+      "o" : "",
+      "p" : "0.37 0.58",
+      "q" : "0.23 0.48",
+      "r" : "0.16 0.82",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Brackish Point": {
+        "points": "h i a nw",
+        "x": 0.3,
+        "y": 0.15
+      },
+      "Dannan Ridge": {
+        "points": "b c j",
+        "x": 0.75,
+        "y": 0.22
+      },
+      "Enduring Wake": {
+        "points": "r g q p",
+        "x": 0.21,
+        "y": 0.61
+      },
+      "Iron Junction": {
+        "points": "f sw r p n",
+        "x": 0.36,
+        "y": 0.8
+      },
+      "Saltbrook Channel": {
+        "points": "h i p q",
+        "x": 0.3,
+        "y": 0.38
+      },
+      "The Evil Eye": {
+        "points": "c l k j",
+        "x": 0.74,
+        "y": 0.46
+      },
+      "The Old Jack Tar": {
+        "points": "g ww h q",
+        "x": 0.12,
+        "y": 0.51
+      },
+      "The Overland": {
+        "points": "e f n m",
+        "x": 0.57,
+        "y": 0.8
+      },
+      "Tuatha Watchpost": {
+        "points": "c ee d l",
+        "x": 0.85,
+        "y": 0.55
+      },
+      "Vulpine Watch": {
+        "points": "a ne b j i",
+        "x": 0.63,
+        "y": 0.15
+      },
+      "Wellchurch": {
+        "points": "i j k m n p",
+        "x": 0.52,
+        "y": 0.46
+      },
+      "Woodbind": {
+        "points": "d se e m k l",
+        "x": 0.7,
+        "y": 0.73
+      }
+    },
+    "labels": [
+      {
+        "x": 0.83,
+        "y": 0.34,
+        "text": "Balor's Crown"
+      },
+      {
+        "x": 0.31,
+        "y": 0.55,
+        "text": "Battered Landing"
+      },
+      {
+        "x": 0.59,
+        "y": 0.37,
+        "text": "Dearg's Fang"
+      },
+      {
+        "x": 0.78,
+        "y": 0.64,
+        "text": "Kelpie's Mane"
+      },
+      {
+        "x": 0.72,
+        "y": 0.68,
+        "text": "Kelpie's Tail"
+      },
+      {
+        "x": 0.3,
+        "y": 0.45,
+        "text": "Liegehearth"
+      },
+      {
+        "x": 0.79,
+        "y": 0.77,
+        "text": "Merrow's Rest"
+      },
+      {
+        "x": 0.48,
+        "y": 0.3,
+        "text": "Sídhe Fall"
+      },
+      {
+        "x": 0.68,
+        "y": 0.26,
+        "text": "The Dannan Coast"
+      },
+      {
+        "x": 0.84,
+        "y": 0.49,
+        "text": "The Dark Road"
+      },
+      {
+        "x": 0.3,
+        "y": 0.26,
+        "text": "The North Star"
+      },
+      {
+        "x": 0.58,
+        "y": 0.54,
+        "text": "The Selkie Bluffs"
+      },
+      {
+        "x": 0.47,
+        "y": 0.64,
+        "text": "The Styx"
+      },
+      {
+        "x": 0.66,
+        "y": 0.58,
+        "text": "The Whispering Waves"
+      }
+    ]
+  },
+  "AllodsBightHex": {
+    "id": 21,
+    "hex": "AllodsBightHex",
+    "name": "AllodsBight",
+    "title": "Allods Bight",
+    "col": 5,
+    "row": 8,
+    "points": {
+      "a" : "0.26 0",
+      "b" : "0.70 0",
+      "c" : "0.85 1",
+      "d" : "",
+      "e" : "0.16 0.81",
+      "f" : "0.05 0.39",
+      "g" : "0.21 0.40",
+      "h" : "0.32 0.28",
+      "i" : "0.56 0.32",
+      "j" : "0.37 0.53",
+      "k" : "0.37 0.57",
+      "l": "",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Belaying Trace": {
+        "points": "e k j g f ww",
+        "x": 0.25,
+        "y": 0.56
+      },
+      "Homesick": {
+        "points": "g h i j",
+        "x": 0.35,
+        "y": 0.38
+      },
+      "Mercy's Wail": {
+        "points": "c k j i",
+        "x": 0.51,
+        "y": 0.57
+      },
+      "Rumhold": {
+        "points": "f g h a nw",
+        "x": 0.26,
+        "y": 0.24
+      },
+      "Scurvyshire": {
+        "points": "a b i h",
+        "x": 0.37,
+        "y": 0.21
+      },
+      "The Stone Plank": {
+        "points": "b ne ee c i",
+        "x": 0.75,
+        "y": 0.45
+      },
+      "The Turncoat": {
+        "points": "c sw e k",
+        "x": 0.39,
+        "y": 0.73
+      }
+    },
+    "labels": [
+      {
+        "x": 0.59,
+        "y": 0.84,
+        "text": "A Captain's Repose"
+      },
+      {
+        "x": 0.11,
+        "y": 0.41,
+        "text": "Allod's Children"
+      },
+      {
+        "x": 0.69,
+        "y": 0.13,
+        "text": "Blunder Bight"
+      },
+      {
+        "x": 0.7,
+        "y": 0.64,
+        "text": "Breath of Cetus"
+      },
+      {
+        "x": 0.31,
+        "y": 0.74,
+        "text": "Gangrenous Hollow"
+      },
+      {
+        "x": 0.5,
+        "y": 0.4,
+        "text": "Harpy's Perch"
+      },
+      {
+        "x": 0.23,
+        "y": 0.81,
+        "text": "The List"
+      },
+      {
+        "x": 0.19,
+        "y": 0.28,
+        "text": "The Rumroad"
+      },
+      {
+        "x": 0.54,
+        "y": 0.11,
+        "text": "Titan's End"
+      },
+      {
+        "x": 0.62,
+        "y": 0.27,
+        "text": "Witch's Last Flight"
+      }
+    ]
+  },
+  "TerminusHex": {
+    "id": 39,
+    "hex": "TerminusHex",
+    "name": "Terminus",
+    "title": "Terminus",
+    "col": 5,
+    "row": 10,
+    "points": {
+      "a" : "0.17 0.16",
+      "b" : "0.65 0.00",
+      "c" : "0.93 0.36",
+      "d" : "0.85 1",
+      "e" : "0.34 1",
+      "f" : "0.01 0.55",
+      "g" : "0.37 0.53",
+      "h" : "0.53 0.41",
+      "i" : "0.50 0.30",
+      "j" : "0.60 0.50",
+      "k": "",
+      "l": "",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Bloody Palm Fort": {
+        "points": "c ee d j",
+        "x": 0.86,
+        "y": 0.52
+      },
+      "Cerberus Wake": {
+        "points": "e sw f g",
+        "x": 0.26,
+        "y": 0.73
+      },
+      "Therizó": {
+        "points": "d e g h j",
+        "x": 0.45,
+        "y": 0.74
+      },
+      "Thunderbolt": {
+        "points": "a nw b i",
+        "x": 0.34,
+        "y": 0.09
+      },
+      "Warlord's Stead": {
+        "points": "f g h i a ww",
+        "x": 0.25,
+        "y": 0.36
+      },
+      "Winding Bolas": {
+        "points": "b ne c j h i",
+        "x": 0.78,
+        "y": 0.28
+      }
+    },
+    "labels": [
+      {
+        "x": 0.46,
+        "y": 0.93,
+        "text": "Aspisa"
+      },
+      {
+        "x": 0.53,
+        "y": 0.35,
+        "text": "Bay of the Ward"
+      },
+      {
+        "x": 0.21,
+        "y": 0.42,
+        "text": "Dogbone"
+      },
+      {
+        "x": 0.49,
+        "y": 0.43,
+        "text": "Martyr's Fang"
+      },
+      {
+        "x": 0.49,
+        "y": 0.7,
+        "text": "Rising Loom"
+      },
+      {
+        "x": 0.83,
+        "y": 0.41,
+        "text": "Sever"
+      },
+      {
+        "x": 0.29,
+        "y": 0.62,
+        "text": "The Legion's Bounty"
+      },
+      {
+        "x": 0.38,
+        "y": 0.62,
+        "text": "The Phalanx"
+      },
+      {
+        "x": 0.4,
+        "y": 0.74,
+        "text": "The Respite"
+      },
+      {
+        "x": 0.77,
+        "y": 0.74,
+        "text": "Three Siblings"
+      },
+      {
+        "x": 0.29,
+        "y": 0.26,
+        "text": "Thunder Plains"
+      }
+    ]
+  },
+  "MorgensCrossingHex": {
+    "id": 37,
+    "hex": "MorgensCrossingHex",
+    "name": "MorgensCrossing",
+    "title": "Morgens Crossing",
+    "col": 6,
+    "row": 3,
+    "points": {
+      "a" : "0.48 0",
+      "b" : "0.87 0.2",
+      "c" : "0.95 0.4",
+      "d" : "0.9 0.7",
+      "e" : "0.16 0.83",
+      "f" : "0.35 0.7",
+      "g" : "0.45 0.44",
+      "h" : "0.45 0.26",
+      "i" : "0.16 0.18",
+      "l": "",
+      "m": "",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Allsight": {
+        "points": "a ne b h",
+        "x": 0.58,
+        "y": 0.15
+      },
+      "Bastard's Block": {
+        "points": "b c g h",
+        "x": 0.61,
+        "y": 0.34
+      },
+      "Eversus": {
+        "points": "i h a nw",
+        "x": 0.36,
+        "y": 0.12
+      },
+      "Lividus": {
+        "points": "c ee d f g",
+        "x": 0.61,
+        "y": 0.54
+      },
+      "Quietus": {
+        "points": "e f g h i ww",
+        "x": 0.29,
+        "y": 0.36
+      },
+      "Warmonger Bay": {
+        "points": "d se sw e f ",
+        "x": 0.61,
+        "y": 0.85
+      }
+    },
+    "labels": [
+      {
+        "x": 0.29,
+        "y": 0.89,
+        "text": "Callum's Descent"
+      },
+      {
+        "x": 0.4,
+        "y": 0.24,
+        "text": "Crimson Thread"
+      },
+      {
+        "x": 0.48,
+        "y": 0.38,
+        "text": "Rising Calm"
+      },
+      {
+        "x": 0.35,
+        "y": 0.63,
+        "text": "The Bastard Sea"
+      },
+      {
+        "x": 0.79,
+        "y": 0.7,
+        "text": "Ultimus"
+      },
+      {
+        "x": 0.63,
+        "y": 0.42,
+        "text": "Velian Storm"
+      }
+    ]
+  },
+  "GodcroftsHex": {
+    "id": 19,
+    "hex": "GodcroftsHex",
+    "name": "Godcrofts",
+    "title": "Godcrofts",
+    "col": 6,
+    "row": 5,
+    "points": {
+      "a" : "0.35 0",
+      "b" : "0.91 0.52",
+      "c" : "0.93 0.66",
+      "d" : "0.5 1",
+      "e" : "0.15 0.84",
+      "f" : "0.11 0.76",
+      "g" : "0.06 0.34",
+      "h" : "0.44 0.42",
+      "i" : "0.37 0.51",
+      "j" : "0.35 0.58",
+      "k" : "0.48 0.78",
+      "l" : "0.48 0.86",
+      "m" : "0.50 0.93",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Anchor Beach": {
+        "points": "d sw e l m",
+        "x": 0.34,
+        "y": 0.92
+      },
+      "Blackwatch": {
+        "points": "e f j k l",
+        "x": 0.34,
+        "y": 0.8
+      },
+      "Isawa": {
+        "points": "b ee c m l k",
+        "x": 0.62,
+        "y": 0.81
+      },
+      "Promithiens": {
+        "points": "b h i j k",
+        "x": 0.54,
+        "y": 0.64
+      },
+      "Protos": {
+        "points": "f ww g i j",
+        "x": 0.17,
+        "y": 0.5
+      },
+      "Skodio": {
+        "points": "a ne ee b h",
+        "x": 0.59,
+        "y": 0.25
+      },
+      "The Axehead": {
+        "points": "g nw a h i",
+        "x": 0.24,
+        "y": 0.33
+      },
+      "The Fleece Road": {
+        "points": "c se d m",
+        "x": 0.66,
+        "y": 0.9
+      }
+    },
+    "labels": [
+      {
+        "x": 0.45,
+        "y": 0.46,
+        "text": "Argosa"
+      },
+      {
+        "x": 0.46,
+        "y": 0.84,
+        "text": "Bagh Mòr"
+      },
+      {
+        "x": 0.66,
+        "y": 0.46,
+        "text": "Barreller's Bay"
+      },
+      {
+        "x": 0.47,
+        "y": 0.3,
+        "text": "Chamil Ravine"
+      },
+      {
+        "x": 0.32,
+        "y": 0.64,
+        "text": "Den of Thieves"
+      },
+      {
+        "x": 0.41,
+        "y": 0.64,
+        "text": "Exile"
+      },
+      {
+        "x": 0.15,
+        "y": 0.65,
+        "text": "Kolas"
+      },
+      {
+        "x": 0.46,
+        "y": 0.21,
+        "text": "Lipsia"
+      },
+      {
+        "x": 0.26,
+        "y": 0.75,
+        "text": "Peripti Depths"
+      },
+      {
+        "x": 0.11,
+        "y": 0.34,
+        "text": "Perpetua Channel"
+      },
+      {
+        "x": 0.32,
+        "y": 0.47,
+        "text": "Primus Trames"
+      },
+      {
+        "x": 0.46,
+        "y": 0.43,
+        "text": "Saegio"
+      },
+      {
+        "x": 0.56,
+        "y": 0.34,
+        "text": "The Dice Road"
+      },
+      {
+        "x": 0.6,
+        "y": 0.73,
+        "text": "The Kris Ford"
+      },
+      {
+        "x": 0.6,
+        "y": 0.73,
+        "text": "The Kris Ford"
+      },
+      {
+        "x": 0.59,
+        "y": 0.94,
+        "text": "Ursa Trail"
+      },
+      {
+        "x": 0.34,
+        "y": 0.37,
+        "text": "Vicit Lagoon"
+      }
+    ]
+  },
+  "TempestIslandHex": {
+    "id": 18,
+    "hex": "TempestIslandHex",
+    "name": "TempestIsland",
+    "title": "Tempest Island",
+    "col": 6,
+    "row": 7,
+    "points": {
+      "a" : "0.44 0.00",
+      "b" : "0.80 0.10",
+      "c" : "1 0.55",
+      "d" : "0.71 1",
+      "e" : "0.3 1",
+      "f" : "0.05 0.35",
+      "g" : "0.40 0.24",
+      "h" : "0.45 0.18",
+      "i" : "0.59 0.25",
+      "j" : "0.62 0.36",
+      "k" : "0.50 0.51",
+      "l" : "0.49 0.59",
+      "m" : "0.52 0.61",
+      "n" : "0.83 0.5",
+      "o" : "0.41 0.64",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Alchimio Estate": {
+        "points": "f g h a nw",
+        "x": 0.31,
+        "y": 0.1
+      },
+      "Isle of Psyche": {
+        "points": "e sw ww f o",
+        "x": 0.26,
+        "y": 0.71
+      },
+      "Liar's Haven": {
+        "points": "c se d m n",
+        "x": 0.68,
+        "y": 0.66
+      },
+      "Lost Airchal": {
+        "points": "a ne b i h",
+        "x": 0.6,
+        "y": 0.1
+      },
+      "Reef": {
+        "points": "b ee c n j i",
+        "x": 0.71,
+        "y": 0.31
+      },
+      "Surge Gate": {
+        "points": "f g k l o",
+        "x": 0.4,
+        "y": 0.44
+      },
+      "The Gale": {
+        "points": "d e o l m",
+        "x": 0.49,
+        "y": 0.8
+      },
+      "The Iris": {
+        "points": "j n m l k",
+        "x": 0.63,
+        "y": 0.48
+      },
+      "The Rush": {
+        "points": "g h i j k",
+        "x": 0.52,
+        "y": 0.38
+      }
+    },
+    "labels": [
+      {
+        "x": 0.71,
+        "y": 0.48,
+        "text": "Cirris Valve"
+      },
+      {
+        "x": 0.27,
+        "y": 0.82,
+        "text": "Eros Lagoon"
+      },
+      {
+        "x": 0.6,
+        "y": 0.18,
+        "text": "Plana Fada"
+      },
+      {
+        "x": 0.53,
+        "y": 0.58,
+        "text": "Sclera"
+      },
+      {
+        "x": 0.51,
+        "y": 0.49,
+        "text": "Stratos Valve"
+      },
+      {
+        "x": 0.61,
+        "y": 0.58,
+        "text": "Surge Field"
+      },
+      {
+        "x": 0.61,
+        "y": 0.4,
+        "text": "The Outwood"
+      }
+    ]
+  },
+  "TheFingersHex": {
+    "id": 38,
+    "hex": "TheFingersHex",
+    "name": "TheFingers",
+    "title": "The Fingers",
+    "col": 6,
+    "row": 9,
+    "points": {
+      "a" : "0.4 0",
+      "b" : "0.59 0",
+      "c" : "0.92 0.31",
+      "d" : "0.85 0.32",
+      "e" : "0.83 0.87",
+      "f" : "0.26 1",
+      "g" : "0.10 0.7",
+      "h" : "0.12 0.25",
+      "i" : "0.39 0.38",
+      "j" : "0.45 0.4",
+      "k" : "0.62 0.23",
+      "l" : "0.56 0.6",
+      "m" : "0.64 0.63",
+      "n": "",
+      "o": "",
+      "p": "",
+      "q": "",
+      "r": "",
+      "s": "",
+      "t": "",
+      "u": "",
+      "v": "",
+      "w": "",
+      "x": "",
+      "y": "",
+      "z": "",
+      "nw": "0 0",
+      "ne": "1 0",
+      "ee": "1 0.5",
+      "se": "1 1",
+      "sw": "0 1",
+      "ww": "0 0.5"
+    },
+    "areas": {
+      "Fort Barley": {
+        "points": "j k d m l",
+        "x": 0.66,
+        "y": 0.39
+      },
+      "Headsman's Villa": {
+        "points": "g ww h i",
+        "x": 0.19,
+        "y": 0.44
+      },
+      "Plankhouse": {
+        "points": "f l j i g",
+        "x": 0.34,
+        "y": 0.62
+      },
+      "Second Man": {
+        "points": "b ne c d k",
+        "x": 0.74,
+        "y": 0.15
+      },
+      "The Old Captain": {
+        "points": "c d m e ee",
+        "x": 0.83,
+        "y": 0.57
+      },
+      "The Routed": {
+        "points": "a b k j i",
+        "x": 0.5,
+        "y": 0.18
+      },
+      "The Tusk": {
+        "points": "h i a nw",
+        "x": 0.29,
+        "y": 0.18
+      },
+      "Titancall": {
+        "points": "e se f l m",
+        "x": 0.58,
+        "y": 0.86
+      }
+    },
+    "labels": [
+      {
+        "x": 0.86,
+        "y": 0.44,
+        "text": "Captain's Dread"
+      },
+      {
+        "x": 0.43,
+        "y": 0.61,
+        "text": "Cavitatis"
+      },
+      {
+        "x": 0.24,
+        "y": 0.33,
+        "text": "Cementum"
+      },
+      {
+        "x": 0.42,
+        "y": 0.43,
+        "text": "Mount Talio"
+      },
+      {
+        "x": 0.59,
+        "y": 0.53,
+        "text": "Tears of Tethys"
+      },
+      {
+        "x": 0.71,
+        "y": 0.81,
+        "text": "The Wary Nymphae"
+      }
+    ]
+  }
+}

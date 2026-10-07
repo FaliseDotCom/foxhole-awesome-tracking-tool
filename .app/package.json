@@ -1,0 +1,32 @@
+{
+	"name": "fattfox",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build && node scripts/publish.js",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"test": "playwright test",
+		"lint": "eslint .",
+		"api": "cd .. && php -S 127.0.0.1:8090 .api/router.php"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.0",
+		"@playwright/test": "^1.63.0",
+		"@sveltejs/adapter-static": "^4.0.0",
+		"@sveltejs/kit": "^3.0.1",
+		"@sveltejs/vite-plugin-svelte": "^7.3.1",
+		"eslint": "^10.12.0",
+		"eslint-plugin-svelte": "^3.23.0",
+		"globals": "^17.0.0",
+		"svelte": "^5.57.2",
+		"vite": "^8.3.3"
+	},
+	"dependencies": {
+		"panzoom": "^9.4.4",
+		"robust-point-in-polygon": "^1.0.3"
+	},
+	"license": "PolyForm-Noncommercial-1.0.0"
+}

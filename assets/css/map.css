@@ -1,0 +1,142 @@
+svg text
+{
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.background text
+{
+  font-family: var( --font-header );
+  fill: rgba( 0, 0, 0, .3 );
+  font-size: 90px;
+}
+
+.border
+{
+  stroke: #111;
+  stroke-width: 2;
+  fill: none;
+}
+
+.static text
+{
+  font-family: var( --font-body );
+  font-size: 12px;
+  fill: var( --clr-white );
+  filter: drop-shadow( 0 0 2px black );
+}
+
+.static text.major
+{
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.summary .icon,
+.dynamic .icon
+{
+  width: var( --icon-size );
+  height: var( --icon-size );
+  transform: translate( calc( var( --icon-size ) / -2 ), calc( var( --icon-size ) / -2 ) );
+}
+
+.dynamic .icon
+{
+  transition: all var( --transition-time );
+}
+
+.summary .icon
+{
+  --icon-size: 150px;
+  filter: drop-shadow( 0 0 20px white );
+}
+
+.dynamic .flash
+{
+  /* base color should be white for flash animation */
+  --fill: rgba( 255, 255, 255, 0 );
+  fill: var( --fill );
+  stroke: none;
+  animation: flash .5s infinite;
+}
+
+.dynamic .team
+{
+  --fill: rgba( 255, 255, 255, 0 );
+  /*opacity: 0;*/
+  transition: all var( --transition-time );  
+}
+
+.area .bounds 
+{
+  fill: none;
+  stroke: none;
+  overflow: hidden;
+}
+
+.areas .area 
+{
+  /* base color should be white for flash animation */
+  --area-fill: rgba( 255, 255, 255, 0 );
+  fill: var( --area-fill );
+
+  stroke: #444;
+  stroke-width: .5px;
+  transition: all var( --transition-time );  
+}
+
+.areas .area.scorched
+{
+  --area-fill: rgba( 255, 0, 0, .3 );
+}
+
+/*.dynamic .team.colonial,*/
+.areas .area.team-C
+{
+  --area-fill: rgba( 0, 255, 0, .15 );
+}
+
+/*.dynamic .team.warden,*/
+.areas .area.team-W
+{
+  --area-fill:rgba( 0, 0, 255, .15 );
+}
+
+.areas .area.flash.animate
+{
+  animation: flash .5s infinite
+}
+
+.points .clicker
+{
+  fill: rgba(255, 174, 0, 0.001);
+  stroke: none;
+}
+
+.points .clicker:hover
+{
+  fill: rgba(255, 174, 0, 0.2 );
+}
+
+.points text
+{
+  font-weight: bold;
+  /*filter: drop-shadow( 0 0 2px white );*/
+  user-select: none;
+  pointer-events: none;
+}
+
+@keyframes flash 
+{
+  /* flash from original color */
+  0%, 40%, 60%, 100%
+  {
+    fill: var( --area-fill );
+  }
+
+  /* flash to white */
+  20%, 50%, 80%
+  {
+    fill: rgba( 255, 255, 255, .5);
+  }
+}

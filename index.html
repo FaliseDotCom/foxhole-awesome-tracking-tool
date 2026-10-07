@@ -3,30 +3,42 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, user-scalable=no" />
-    <link rel="icon" type="image/x-icon" href="/favicon.png">
-		<meta http-equiv="content-security-policy" content="">
-		<link rel="modulepreload" href="/_app/immutable/start-d9dc4bc6.js">
-		<link rel="modulepreload" href="/_app/immutable/chunks/index-2c8692a5.js">
-		<link rel="modulepreload" href="/_app/immutable/chunks/singletons-37358361.js">
-		<link rel="modulepreload" href="/_app/immutable/chunks/index-760467df.js">
-    <link rel="stylesheet" href="/css/fonts.css">
-    <link rel="stylesheet" href="/css/vars.css">
-    <link rel="stylesheet" href="/css/logo.css">
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/map.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+		<link href="/_app/immutable/entry/start.D6yf8kO2.js" rel="modulepreload">
+		<link href="/_app/immutable/entry/payload.DSmR2FwN.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BaNbYf_w.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BDCVvJz_.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CPcrPe78.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Pu4fA9tB.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DYrviY11.js" rel="modulepreload">
+		<link href="/_app/immutable/entry/app.DlpB_Ipp.js" rel="modulepreload">
+		<link href="/_app/immutable/nodes/0.DwMcANTY.js" rel="modulepreload">
+		
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <link rel="stylesheet" href="/assets/css/vars.css">
+    <link rel="stylesheet" href="/assets/css/logo.css">
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/map.css">
+    <link rel="stylesheet" href="/assets/css/scaler.css">
 	</head>
 	<body>
 		<div>
-		<script type="module" data-sveltekit-hydrate="45h">
-			import { start } from "/_app/immutable/start-d9dc4bc6.js";
+			<script>
+				{
+					__sveltekit_en2o6s = {
+						base: "",
+						version: "1791361333459"
+					};
 
-			start({
-				env: {},
-				hydrate: null,
-				paths: {"base":"","assets":""},
-				target: document.querySelector('[data-sveltekit-hydrate="45h"]').parentNode,
-				trailing_slash: "never"
-			});
-		</script></div>
+					const element = document.currentScript.parentElement;
+
+					import("/_app/immutable/entry/start.D6yf8kO2.js").then(async (kit) => {
+						kit.init(__sveltekit_en2o6s);
+						const app = await import("/_app/immutable/entry/app.DlpB_Ipp.js");
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
 	</body>
 </html>

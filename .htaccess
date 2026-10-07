@@ -1,3 +1,27 @@
+# The repository root is the web root. Source, configuration, and runtime data live in dot
+# folders (.app, .api, .docs, ...) and are never served. Keep .api/router.php in step with
+# these rules; it does the same for the PHP development server.
+
+Options -Indexes
+
 <IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin *
+  Header set Access-Control-Allow-Origin *
 </IfModule>
+
+RewriteEngine On
+
+# /api/<route> is handled by the PHP API; END stops the dot-folder rule below from
+# blocking the rewritten request
+RewriteRule ^api(?:/(.*))?$ .api/index.php?route=$1 [END,QSA]
+
+# hide every dot file and dot folder, except .well-known for certificates
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule (^|/)\. - [R=404,L]
+
+# hide repository files
+RewriteRule ^(README\.md|LICENSE)$ - [R=404,L]
+
+# single page app: anything that is not a file is served by index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
