@@ -229,18 +229,22 @@ how the other cron jobs on the server are set up:
 
 ```
 # run the script directly
-/usr/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php
+/usr/local/php84/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php
 
 # from its own folder, at low priority and without output (as the server's other PHP cron jobs)
-cd /home/<user>/domains/fatt.fali.se/public_html/.api/cron; /bin/nice -n15 /usr/bin/php -q record.php >/dev/null 2>&1
+cd /home/<user>/domains/fatt.fali.se/public_html/.api/cron; /bin/nice -n15 /usr/local/php84/bin/php -q record.php >/dev/null 2>&1
 
 # keep a log of each run instead, to see what it recorded or why it failed
-/usr/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php >> /home/<user>/fatt-cron.log 2>&1
+/usr/local/php84/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php >> /home/<user>/fatt-cron.log 2>&1
 ```
 
-The PHP binary is `/usr/bin/php` or `/usr/local/bin/php` depending on the server; `which php`
-in a test cron job (`which php > /home/<user>/which-php.txt`) shows which. The script runs only
-from the command line: opening it in a browser gives a 404.
+Use the PHP version the site runs on, not the system PHP: on this server `/usr/bin/php` is PHP
+7.2, which cannot load the dependencies (the error log then shows "Composer detected issues in
+your platform"). DirectAdmin installs each PHP version it offers as `/usr/local/phpXY/bin/php`,
+here `/usr/local/php84/bin/php`; `/usr/local/bin/php` is its default version, which may differ
+from the site's. A test cron job such as `/usr/local/php84/bin/php -v > /home/<user>/php.txt`
+shows what a binary is. The script refuses web requests: opening it in a browser gives a 404.
+Errors go to the API's daily error log, `.api/logs/error-YYYY-MM-DD.log`.
 
 When the server cannot run PHP from cron, a web request can stand in. Requesting the map data
 of a shard records that shard, just as a visitor would, so add one job per shard (`able`,

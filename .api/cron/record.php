@@ -3,12 +3,14 @@
 /**
  * Records the war log for every live shard. Run every minute by a DirectAdmin cron job:
  *
- *   /usr/local/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php
+ *   /usr/local/php84/bin/php /home/<user>/domains/fatt.fali.se/public_html/.api/cron/record.php
  *
- * Only for the command line; .htaccess already hides the whole .api folder from the web.
+ * Only for cron, never for web requests; .htaccess already hides the whole .api folder from the
+ * web. Cron may run the CGI binary instead of the CLI one (the -q in DirectAdmin's PHP cron
+ * jobs hints at that), so test for a web request rather than for PHP_SAPI === 'cli'.
  */
 
-if ( PHP_SAPI !== 'cli' )
+if ( isset( $_SERVER[ 'REQUEST_METHOD' ] ) )
 {
   http_response_code( 404 );
   exit;
