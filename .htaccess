@@ -6,6 +6,13 @@ Options -Indexes
 
 <IfModule mod_headers.c>
   Header set Access-Control-Allow-Origin *
+
+  # stylesheets and the app page keep their names between deploys, so browsers must check for
+  # a new version on every load (a cheap 304 when nothing changed); the scripts in _app/ have
+  # new names on every build and can be cached normally
+  <FilesMatch "\.(css|html)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
 </IfModule>
 
 RewriteEngine On
