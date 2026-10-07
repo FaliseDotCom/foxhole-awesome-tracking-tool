@@ -11,7 +11,7 @@ checked; every other link answered.
 - [Images/MapIcons](https://github.com/clapfoot/warapi/tree/master/Images/MapIcons) — official
   map icons as `.TGA`. Source of the icons in `assets/icons/`.
 - [Images/Maps](https://github.com/clapfoot/warapi/tree/master/Images/Maps) — official hex
-  background images for all current hexes, including the 16 that FATT does not draw yet, plus
+  background images for all current hexes, including the 16 that F.A.T.T. does not draw yet, plus
   `BGOneWorldMap.TGA`. Source for new images in `assets/maps/`.
 - Live endpoints to try in a browser:
   [war state](https://war-service-live.foxholeservices.com/api/worldconquest/war) and

@@ -1,10 +1,10 @@
-# Contributing to FATT
+# Contributing to F.A.T.T.
 
 Contributions are welcome: bug reports, fixes, new hex geometry, icon updates, and ideas.
 
 ## Licence of contributions
 
-FATT is released under the [PolyForm Noncommercial License 1.0.0](../LICENSE). By opening
+F.A.T.T. is released under the [PolyForm Noncommercial License 1.0.0](../LICENSE). By opening
 a pull request you agree that:
 
 1. your contribution is your own work, or you have the right to submit it;

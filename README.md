@@ -1,6 +1,6 @@
-# FATT — Foxhole interactive war map
+# F.A.T.T. — Foxhole interactive war map
 
-FATT is an interactive, live-updating map of the current war in [Foxhole](https://www.foxholegame.com/).
+F.A.T.T. is an interactive, live-updating map of the current war in [Foxhole](https://www.foxholegame.com/).
 It shows every hex of the world map, the regions inside each hex, and the structures on them,
 coloured by the faction that holds them, and it refreshes from the official
 [Foxhole War API](https://github.com/clapfoot/warapi) every few seconds.
@@ -10,7 +10,7 @@ Live at <https://fatt.fali.se/>. Source at
 
 ## The name
 
-FATT has no single expansion. The logo picks one of these at random on each page load:
+F.A.T.T. has no single expansion. The logo picks one of these at random on each page load:
 
 - Foxhole Artillery Targeting Tool
 - Foxhole Analytics Tracking Tool

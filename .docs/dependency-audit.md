@@ -6,7 +6,7 @@ The code was last changed in November 2022. This note records what has moved sin
 
 Checked against the live API (war 141) and the `clapfoot/warapi` README.
 
-| Change | Effect on FATT |
+| Change | Effect on F.A.T.T. |
 | --- | --- |
 | The world grew from 37 to 53 hexes. New: Clahstra, Gutter, Kings Cage, Kuura Strand, Lykos Isle, Olavis Wake, Onyx, Palantine Berm, Pari Peak, Pipers Enclave, Reavers Pass, Sableport, Stema Landing, Stlican Shelf, Tyrant Foothills, Wresta. | `world_data.json` has no grid position, regions, or labels for them, so they are not drawn. The backend still fetches their data. Map images for them are also missing from `assets/maps/`. |
 | New icon types in live data: 75 Oil Rig, 84 Mortar House, 88 Aircraft Depot, 89 Aircraft Factory, 91/92 Aircraft Runway T1/T2, and 97 (undocumented). Documented but not seen today: 70–72 rocket states, 83 Weather Station, 90 Aircraft Radar. | **Fixed:** types 70–92 are in `icons.js`, with icons generated from the official TGAs. 83 has no artwork and is not drawn; 97 is still unknown and is logged once. |
