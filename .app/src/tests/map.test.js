@@ -277,6 +277,7 @@ test( 'the war log is filled from the server and moves the map to an entry', asy
   await expect( entry ).toContainText( /took Town Base Tier \d/ );
   await expect( entry ).toContainText( 'Dead Lands' );
   await expect( page.locator( '.warlog-notice' ) ).toHaveCount( 0 );
+  await expect( page.locator( '.warlog-status' ) ).toContainText( /Live · checked \d+ s ago · last change/ );
 
   // a new event arrives with the next map update
   events = [ ...events, { ...captureEvent( 2, { ...town, t: from }, town.t ) } ];
@@ -304,6 +305,7 @@ test( 'the war log falls back to the browser and back to the server', async ( { 
 
   // server down: the notice shows, and the browser's own comparison finds the capture
   await expect( page.locator( '.warlog-notice' ) ).toBeVisible();
+  await expect( page.locator( '.warlog-status' ) ).toContainText( 'This browser', { timeout: 15000 } );
   // the capture also changes the victory town total, so look for its entry among the others
   await expect( page.locator( '.warlog-entry', { hasText: /took Town Base Tier \d/ } ) ).toHaveCount( 1, { timeout: 15000 } );
 

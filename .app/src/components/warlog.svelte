@@ -11,13 +11,14 @@
   import { settings } from '@stores/settings'
 
   const major_only = warlog.majorOnly,
-        source = warlog.source;
+        source = warlog.source,
+        checked = warlog.checked;
 
-  // a clock for "2 min ago"
+  // a clock for "2 min ago" and "checked 5 s ago"
   let now = Date.now(),
       clock = 0;
 
-  onMount( () => clock = setInterval( () => now = Date.now(), 30000 ) );
+  onMount( () => clock = setInterval( () => now = Date.now(), 5000 ) );
   onDestroy( () => clearInterval( clock ) );
 
   /**
@@ -35,6 +36,19 @@
     return `${ Math.floor( minutes / 60 ) } h ago`;
   };
 
+  /**
+   * How long ago something was checked, to the second while recent.
+   *
+   * @param {number} time Time in ms.
+   * @param {number} current Current time in ms.
+   * @returns {string} "5 s ago", or as ago() from a minute on.
+   */
+  const agoShort = ( time, current ) =>
+  {
+    const seconds = Math.max( 0, Math.round( ( current - time ) / 1000 ) );
+    return seconds < 60 ? `${ seconds } s ago` : ago( time, current );
+  };
+
   const teamClass = team => team ? `team-${ team.toLowerCase() }` : 'team-none';
 
 </script>
@@ -43,6 +57,15 @@
     <input type="checkbox" checked={ $major_only } on:change={ e => warlog.setMajorOnly( e.target.checked ) }/>
     Major only
   </label>
+
+  <!-- shows the log is working even when nothing has changed for a while -->
+  {#if $checked}
+    <p class="warlog-status" class:fallback={ $source === 'browser' }>
+      <span class="warlog-live">{ $source === 'browser' ? 'This browser' : 'Live' }</span>
+      · checked { agoShort( $checked, now ) }
+      {#if $warlog.length}· last change { ago( $warlog[ 0 ].time, now ) }{/if}
+    </p>
+  {/if}
 
   {#if $source === 'browser'}
     <p class="warlog-notice" role="status">

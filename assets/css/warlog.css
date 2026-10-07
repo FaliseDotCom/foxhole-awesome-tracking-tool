@@ -110,3 +110,53 @@
   background-color: rgba( 255, 236, 200, .95 );
   border-radius: 4px;
 }
+
+/* "Live · checked 5 s ago · last change 12 min ago" */
+
+.warlog-status
+{
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  opacity: .8;
+}
+
+.warlog-live
+{
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+/* a pulsing dot before "Live" */
+.warlog-live::before
+{
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background-color: currentColor;
+  vertical-align: middle;
+  animation: warlog-pulse 2s ease-in-out infinite;
+}
+
+.warlog-status.fallback .warlog-live
+{
+  color: #b26a00;
+}
+
+@keyframes warlog-pulse
+{
+  50%
+  {
+    opacity: .3;
+  }
+}
+
+@media ( prefers-reduced-motion: reduce )
+{
+  .warlog-live::before
+  {
+    animation: none;
+  }
+}

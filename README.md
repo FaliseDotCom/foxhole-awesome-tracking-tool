@@ -52,7 +52,8 @@ F.A.T.T. can stand for any of the following:
   point at the screen centre, zoom), so a link opens the same view. Without a link it
   restores the last view from `localStorage`.
 - Keeps a war log (the first tab at the top right, open by default on wide screens): captures, losses, upgrades, scorched towns, structures built
-  or destroyed, and victory town totals; click an entry to go there. The server records it
+  or destroyed, and victory town totals; click an entry to go there. A status line ("Live · checked
+  5 s ago · last change 12 min ago") shows the log is working during quiet spells. The server records it
   (`.api/data/warlog.sqlite`), so it is the same for everyone and has history; when the server
   log does not answer, the browser shows the changes it sees itself. Major events (victory
   towns, relics, rockets) from the whole war are loaded too, not only the latest 100. See

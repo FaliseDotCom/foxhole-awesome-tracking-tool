@@ -78,6 +78,9 @@ const server_entries = writable( [] ),
       browser_entries = writable( [] ),
       // 'loading' until the first log response, then 'server' or 'browser'
       source = writable( 'loading' ),
+      // when the War API was last checked for changes, in ms: by the server's recorder, or by
+      // this browser during the fallback
+      checked = writable( 0 ),
       unseen = writable( 0 ),
       major_only = writable( readFilter() );
 
@@ -310,6 +313,7 @@ const loadServer = async () =>
 
     const fresh = log.recordedAt && Date.now() - log.recordedAt < stale_after;
     if ( !fresh ) throw new Error( 'server log is not being recorded' );
+    checked.set( log.recordedAt );
 
     const events = Array.isArray( log.events ) ? log.events : [];
     // events are live (worth an alarm) only after the first answer, and not when catching up
@@ -363,6 +367,7 @@ const onWorld = data =>
   }
 
   snapshot = next;
+  if ( get( source ) === 'browser' ) checked.set( Date.now() );
   add( browser_entries, added, get( source ) === 'browser' );
   if ( get( source ) === 'browser' ) dramatise( added );
   loadServer();
@@ -411,6 +416,7 @@ shards.subscribe( name =>
   server_entries.set( [] );
   browser_entries.set( [] );
   source.set( 'loading' );
+  checked.set( 0 );
   unseen.set( 0 );
   loadServer();
 } );
@@ -481,6 +487,7 @@ export const warlog = {
   majorOnly: { subscribe: major_only.subscribe },
   // loading, server, or browser (the fallback)
   source: { subscribe: source.subscribe },
+  checked: { subscribe: checked.subscribe },
 
   /**
    * Show only major entries, or all; remembered in the browser.
