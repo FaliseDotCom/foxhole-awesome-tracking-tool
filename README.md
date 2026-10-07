@@ -21,8 +21,6 @@ F.A.T.T. can stand for any of the following:
 - Foxhole Awesome Tracking Thing
 - Foxhole Awesome Tracking Tool
 
-The list lives in `.app/src/components/logo.svelte`.
-
 ## What it does
 
 - Renders the whole world as one large SVG of hexagons, each with its background map image,
@@ -40,7 +38,7 @@ The list lives in `.app/src/components/logo.svelte`.
   - 0.8× and up — minor labels.
 - Only renders hexes that are on screen.
 - Supports mouse, touch, and keyboard pan and zoom (arrows / WASD / numpad to pan, `+` / `-`
-  to zoom, numpad 5 to recentre), and remembers the last view in `localStorage`.
+  to zoom, numpad 5 to recentre), and remembers the last view.
 - Lets you switch between the shards (servers) that are live, in the top-right corner.
 
 ## How it is built
@@ -57,7 +55,7 @@ Foxhole War API  https://war-service-live*.foxholeservices.com/api/
 
 ### Web root and routing
 
-The repository root is the web root, because the host cannot point it anywhere else. Source,
+The repository root is the web root. Source,
 configuration, and runtime data live in dot folders, and `.htaccess` answers 404 for every
 dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewrites
 `/api/<route>` to `.api/index.php` and sends every other unknown path to `index.html`.
