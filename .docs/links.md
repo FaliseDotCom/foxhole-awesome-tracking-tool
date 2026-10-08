@@ -20,6 +20,9 @@ checked; every other link answered.
 
 ## Foxhole community
 
+Other war maps, statistics sites and tools, and how they compare with F.A.T.T., are in
+[other-foxhole-sites.md](other-foxhole-sites.md).
+
 - [Foxhole](https://www.foxholegame.com/) — official site, with patch notes and the
   [FAQ](https://www.foxholegame.com/faq).
 - [Foxhole Wiki](https://foxhole.wiki.gg/) — structures, map locations, and update history; useful
