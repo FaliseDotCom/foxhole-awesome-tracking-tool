@@ -2,11 +2,15 @@
 
   /**
    * Viewer settings, remembered in the browser: icon brightness, hex shading, how the map looks
-   * (team colours, region colour strength, icon size, hex names) and rocket sounds
+   * (team colours, region colour strength, icon size, hex names), rocket sounds, and whether
+   * visits are counted
    */
 
   import { config } from '@stores/config'
   import { settings } from '@stores/settings'
+  import { analytics } from '@stores/analytics'
+
+  const choice = analytics.choice;
 
   // a style group shows only when there is something to choose
   const groups = [
@@ -87,9 +91,23 @@
 
 <fieldset class="settings-group">
   <legend>Privacy</legend>
+  <label>
+    <input
+      type="checkbox"
+      checked={ $choice.enabled && !$choice.blocked }
+      disabled={ $choice.blocked }
+      on:change={ e => analytics.setEnabled( e.target.checked ) }
+    />
+    Count my visits
+  </label>
   <p class="legend-note">
-    F.A.T.T. counts visits, opened tabs, searches that found something, and changed settings on
-    its own statistics server, without cookies and without storing your IP address. When your
-    browser sends Do Not Track or Global Privacy Control, nothing is counted.
+    {#if $choice.blocked}
+      Your browser asks websites not to track you (Do Not Track or Global Privacy Control), so
+      nothing is counted.
+    {:else}
+      F.A.T.T. counts visits, opened tabs, searches that found something, and changed settings on
+      its own statistics server, without cookies and without storing your IP address. When your
+      browser sends Do Not Track or Global Privacy Control, nothing is counted either.
+    {/if}
   </p>
 </fieldset>

@@ -1,12 +1,20 @@
+import { writable, get } from 'svelte/store';
 import { config } from './config';
 
 /**
  * Visitor statistics with Matomo: one page view per visit, a ping every minute while the page
  * is visible (for "active now"), and events for tabs, search, history and settings. Without
  * cookies, only when the server has Matomo settings (/api/analytics, from its .env), and never
- * when the browser asks not to be tracked (Do Not Track or Global Privacy Control): then not
- * even the settings are fetched. See the README, "Visitor statistics".
+ * when the browser asks not to be tracked (Do Not Track or Global Privacy Control) or the
+ * viewer turned it off in the Settings tab: then not even the settings are fetched. See the
+ * README, "Visitor statistics".
  */
+
+/**
+ * localStorage key of the viewer's choice; "off" when they turned counting off.
+ * @type {string}
+ */
+const choice_key = 'fatt-tracking';
 
 /**
  * Time between pings while the page is visible, in ms.
@@ -61,6 +69,62 @@ const optedOut = () =>
 };
 
 /**
+ * Read whether the viewer turned counting off.
+ *
+ * @returns {boolean} True unless they turned it off.
+ */
+const readChoice = () =>
+{
+  try
+  {
+    return window.localStorage.getItem( choice_key ) !== 'off';
+  }
+  catch
+  {
+    return true;
+  }
+};
+
+/**
+ * Remember the viewer's choice.
+ *
+ * @param {boolean} enabled Whether visits may be counted.
+ * @returns {void}
+ */
+const saveChoice = enabled =>
+{
+  try
+  {
+    if ( enabled ) window.localStorage.removeItem( choice_key );
+    else window.localStorage.setItem( choice_key, 'off' );
+  }
+  catch
+  {
+    // storage can be unavailable (private mode); the choice then lasts until reload
+  }
+};
+
+/**
+ * Whether visits may be counted: blocked when the browser asks not to be tracked (the viewer
+ * cannot turn it on then), enabled by the viewer's own choice in the Settings tab.
+ * @type {import('svelte/store').Writable<{ blocked: boolean, enabled: boolean }>}
+ */
+const choice = writable( typeof window === 'undefined'
+  ? { blocked: true, enabled: false }
+  : { blocked: optedOut(), enabled: readChoice() } );
+
+/**
+ * Whether anything may be sent now.
+ *
+ * @returns {boolean} True when not blocked and enabled.
+ */
+const allowed = () =>
+{
+  const { blocked, enabled } = get( choice );
+  return !blocked && enabled;
+};
+
+/**
  * Fetch where to send the statistics from the server.
  *
  * @returns {Promise<{ url: string, site: number }|null>} Matomo address and site id, or null
@@ -89,7 +153,7 @@ const loadSettings = async () =>
  */
 const push = ( ...command ) =>
 {
-  if ( started ) window._paq.push( command );
+  if ( started && allowed() ) window._paq.push( command );
 };
 
 /**
@@ -104,15 +168,33 @@ const ping = () =>
 
 export const analytics = {
 
+  // whether visits may be counted, for the Settings tab
+  choice: { subscribe: choice.subscribe },
+
   /**
-   * Start tracking: count the page view and load matomo.js. Does nothing when the viewer opted
-   * out or the server has no Matomo settings.
+   * Turn counting this viewer's visits on or off, and remember it. Turning it on again starts
+   * counting when it had not started yet. Ignored while the browser asks not to be tracked.
+   *
+   * @param {boolean} enabled Whether visits may be counted.
+   * @returns {void}
+   */
+  setEnabled( enabled )
+  {
+    if ( get( choice ).blocked ) return;
+    choice.update( current => ( { ...current, enabled } ) );
+    saveChoice( enabled );
+    if ( enabled ) analytics.start();
+  },
+
+  /**
+   * Start tracking: count the page view and load matomo.js. Does nothing when the browser asks
+   * not to be tracked, the viewer turned counting off, or the server has no Matomo settings.
    *
    * @returns {Promise<void>}
    */
   async start()
   {
-    if ( starting || typeof window === 'undefined' || optedOut() ) return;
+    if ( starting || typeof window === 'undefined' || !allowed() ) return;
     starting = true;
 
     const settings = await loadSettings();

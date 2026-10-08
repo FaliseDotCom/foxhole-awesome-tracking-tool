@@ -57,9 +57,10 @@ F.A.T.T. can stand for any of the following:
   brightness, hex shading (fighting in the last hour, or changes in the last 6 hours),
   colour-blind team colours (blue and orange), region colour strength, icon size, hex names,
   the tabs on the right or the left (the logo on the other side), and rocket sounds.
-- Has a Stats tab: players in the game, casualties per hour over the last day, and the hexes
-  with the most fighting in the last hour (click one to go there), from what the server
-  records every 5 minutes. The tabs have icons, and show only the icons on
+- Has a Stats tab: players in the game, viewers of F.A.T.T. with how many are watching now,
+  casualties per hour over the last day, and the hexes with the most fighting in the last hour
+  (click one to go there), from what the server records every 5 minutes. The charts share one
+  time axis: hovering one marks that moment in all of them, each with its values. The tabs have icons, and show only the icons on
   phones.
 - Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
   point at the screen centre, zoom), so a link opens the same view. Without a link it
@@ -125,9 +126,9 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 | `composer.json`, `vendor/` | PHP dependencies; `vendor/` is not committed. |
 | `lib/warlog-*.php`, `lib/warlog.php` | Server-side war log: the comparison (a port of `.app/src/lib/warlog-diff.js`, tested with the same fixtures by `tests/warlog-diff-test.php`), the SQLite storage, and the recorder. |
 | `lib/cron.php` | Scheduled tasks, run every 15 seconds by `/api/cron` or `cron/record.php`; new tasks go in `cron_tasks()`. |
-| `lib/stats.php` | Statistics over time: the war report of every hex and the Steam player count, sampled every 5 minutes. See `.docs/plans/2026-10-08-history-and-stats.md`. |
+| `lib/stats.php` | Statistics over time: the war report of every hex, the Steam player count and the viewers from Matomo, sampled every 5 minutes. See `.docs/plans/2026-10-08-history-and-stats.md`. |
 | `lib/env.php`, `.env` | Server settings from `.env`, which exists only on the server; see [Server settings](#server-settings). |
-| `lib/analytics.php` | Where the browser sends visitor statistics (`/api/analytics`), from the server settings. |
+| `lib/analytics.php` | Where the browser sends visitor statistics (`/api/analytics`), from the server settings, and the viewers in the last 5 minutes from the Matomo API. |
 | `lib/watch.php` | Watches the War API for new hexes, icon types and map flags, and hexes that are gone; `/api/health` lists them. See [Monitoring](#monitoring). |
 | `cron/record.php` | Runs the scheduled tasks from the command line, like `/api/cron` does by URL. |
 | `cache/`, `data/` | Runtime output, created on first use and not committed. `data/` holds the war log database: never overwrite or delete it when deploying. |
@@ -155,7 +156,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
 | `config.js` | Site-relative URLs for `/assets/` and `/api/`, the available icon and map styles, per-topic console logging switches, the dev-only points tool, update interval. |
 | `shards.js` | The live shards, loaded from `/api/shards`, and the selected one (the first live shard by default). |
 | `world.js` | Polls `/api/data/<shard>` and publishes the dynamic data, adding a stable `key` to each item. Restarts on shard change. While a past moment is chosen (`showAt()`, from `/api/history`), it publishes that instead; `world.live` is always the live data. |
-| `stats.js` | Statistics from `/api/stats/<shard>` for the Stats tab and the hex shading, fetched only while something uses them. |
+| `stats.js` | Statistics from `/api/stats/<shard>` for the Stats tab and the hex shading, fetched only while something uses them; the time span all charts share and the moment hovered in them. |
 | `world_data.json` | Static, hand-built geometry for every hex: grid column/row, named points, region polygons built from those points, and label positions. |
 | `grid.js` | Hex layout maths (1024 × 888 px hexes on a staggered grid), polygon helpers, and cached point-in-polygon tests that assign map items to regions. |
 | `icons.js` | War API icon type IDs, resource types, flag bits, and the icon file name and CSS class for an item. |
@@ -164,7 +165,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
 | `settings.js` | The viewer's settings, saved in `localStorage`: styles from `config.styles` (icons, maps, shading, palette, side), switches (sound, hex names) and sliders (icon size, region colour strength). `components/appearance.svelte` applies the map look to the page. |
 | `link.js` | Reads and writes the shareable link in the URL hash. |
 | `war.js` | War state from `/api/war/<shard>`, the player count from `/api/players`, and victory towns and key structures per team counted from the world store. |
-| `analytics.js` | Visitor statistics with Matomo, set up from `/api/analytics`: the page view, a ping every minute while the page is visible, and events for tabs, searches, history and settings. See [Visitor statistics](#visitor-statistics). |
+| `analytics.js` | Visitor statistics with Matomo, set up from `/api/analytics`: the page view, a ping every minute while the page is visible, and events for tabs, searches, history and settings; the viewer's choice to turn counting off. See [Visitor statistics](#visitor-statistics). |
 
 **Components** (`src/components/`)
 
@@ -287,13 +288,20 @@ is tracked. `stores/analytics.js` then loads `matomo.js` and sends:
   suggestions, only when a result is chosen (searches without results, and choices from the
   recent list, are not counted).
 
-When the browser sends Do Not Track or Global Privacy Control, not even `/api/analytics` is
-requested. The tracker runs without cookies (`disableCookies`) and also has `setDoNotTrack`.
-The Settings tab tells visitors this. Development and the tests are not counted, because a
+When the browser sends Do Not Track or Global Privacy Control, or the visitor unticked "Count
+my visits" in the Settings tab (remembered in `localStorage` as `fatt-tracking`), not even
+`/api/analytics` is requested; unticking it later stops sending at once. With Do Not Track or
+Global Privacy Control the box is unticked and cannot be changed. The tracker runs without
+cookies (`disableCookies`) and also has `setDoNotTrack`. The Settings tab explains this. Development and the tests are not counted, because a
 local `.api/` has no `.env`. Matomo itself is set up for privacy under Administration >
 Privacy: anonymise IP addresses (2 bytes), force tracking without cookies, and support Do Not
 Track; under Websites, F.A.T.T. only accepts visits whose URL starts with
 `https://fatt.fali.se`, so a development server using the live API is not counted either.
+
+The Stats tab shows the viewers: every 5 minutes the cron job asks Matomo (`Live.getCounters`)
+how many visitors it saw in the last 5 minutes. The pings keep a map left open counted. This
+needs `MATOMO_TOKEN`, the token of a Matomo user with view access, sent in the request body;
+without it the chart is not shown.
 Both sites are behind Cloudflare, so Matomo needs `proxy_client_headers[] = HTTP_CF_CONNECTING_IP`
 under `[General]` in its `config/config.ini.php`; without it every visitor has a Cloudflare IP
 address, and visitors cannot be told apart or placed in a country.
@@ -310,6 +318,7 @@ is never served.
 | --- | --- |
 | `MATOMO_URL` | Matomo address for visitor statistics, `https://` and ending in a slash. |
 | `MATOMO_SITE_ID` | Site id of F.A.T.T. in that Matomo. Empty or missing: no tracking. |
+| `MATOMO_TOKEN` | Token of a Matomo user with view access to F.A.T.T., for the viewers in the Stats tab. Never sent to the browser. Empty or missing: no viewers. |
 
 ### Monitoring
 

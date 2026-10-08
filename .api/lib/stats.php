@@ -68,11 +68,13 @@ function stats_reports_cron( FoxholeApi $api, string $via ) : array
 
 /**
  * Statistics of a shard's current war for /api/stats: totals over time, casualties per hex in
- * the last hour and day, when each hex last changed, and players over time. Never throws.
+ * the last hour and day, when each hex last changed, and players and viewers over time. Never
+ * throws.
  *
  * @param  string $shard Shard name.
  * @param  int    $hours How far back the series go, 1 to 168.
- * @return array<string, mixed> { war, now, series, hexes, changed, players }, or [] without data.
+ * @return array<string, mixed> { war, now, series, hexes, changed, players, viewers }, or []
+ *                              without data.
  */
 function stats_summary( string $shard, int $hours ) : array
 {
@@ -113,7 +115,9 @@ function stats_summary( string $shard, int $hours ) : array
       'hexes'   => $hexes,
       'changed' => $store->getLastChanges( $shard, $war ),
       // [ time, players in the game ]
-      'players' => $store->getPlayerSeries( $now - $hours * 3600 * 1000 )
+      'players' => $store->getCountSeries( WarlogStore::PLAYERS, $now - $hours * 3600 * 1000 ),
+      // [ time, viewers of F.A.T.T. in the ANALYTICS_ACTIVE_MINUTES before ]
+      'viewers' => $store->getCountSeries( WarlogStore::VIEWERS, $now - $hours * 3600 * 1000 )
     ];
   }
   catch ( Throwable $e )
@@ -138,11 +142,11 @@ function stats_players() : array
     {
       return [ 'time' => 0, 'count' => 0 ];
     }
-    $players = $store->getPlayers();
+    $players = $store->getCount( WarlogStore::PLAYERS );
     if ( (int) round( microtime( true ) * 1000 ) - $players[ 'time' ] > 2 * STATS_INTERVAL * 1000 )
     {
       stats_players_cron( 'request' );
-      $players = $store->getPlayers();
+      $players = $store->getCount( WarlogStore::PLAYERS );
     }
     return $players;
   }
@@ -166,7 +170,7 @@ function stats_players_cron( string $via ) : array
   {
     return [ 'skipped' => 'no database' ];
   }
-  if ( !stats_due( $store->getPlayersTime() ) )
+  if ( !stats_due( $store->getCount( WarlogStore::PLAYERS )[ 'time' ] ) )
   {
     return [ 'skipped' => 'sampled less than ' . STATS_INTERVAL . 's ago' ];
   }
@@ -179,7 +183,37 @@ function stats_players_cron( string $via ) : array
     return [ 'skipped' => 'Steam sent no player count' ];
   }
 
-  $store->savePlayers( (int) round( microtime( true ) * 1000 ), $count );
+  $store->saveCount( WarlogStore::PLAYERS, (int) round( microtime( true ) * 1000 ), $count );
   log_line( CRON_LOG, "{$via}: {$count} players" );
   return [ 'players' => $count ];
+}
+
+/**
+ * Cron task: sample the viewers of F.A.T.T. from Matomo, every STATS_INTERVAL. Skipped without
+ * the Matomo settings and token (lib/analytics.php).
+ *
+ * @param  string $via How the run was started, for the log: cli or url.
+ * @return array<string, mixed> { viewers } or { skipped: reason }.
+ */
+function stats_viewers_cron( string $via ) : array
+{
+  $store = warlog_store();
+  if ( !$store )
+  {
+    return [ 'skipped' => 'no database' ];
+  }
+  if ( !stats_due( $store->getCount( WarlogStore::VIEWERS )[ 'time' ] ) )
+  {
+    return [ 'skipped' => 'sampled less than ' . STATS_INTERVAL . 's ago' ];
+  }
+
+  $active = analytics_active();
+  if ( !$active )
+  {
+    return [ 'skipped' => 'no Matomo token or no answer' ];
+  }
+
+  $store->saveCount( WarlogStore::VIEWERS, (int) round( microtime( true ) * 1000 ), $active[ 'count' ] );
+  log_line( CRON_LOG, "{$via}: {$active[ 'count' ]} viewers" );
+  return [ 'viewers' => $active[ 'count' ] ];
 }

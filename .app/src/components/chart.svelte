@@ -1,17 +1,19 @@
 <script>
 
   /**
-   * Small line chart of values over time, scaled to fill its box; one line per series.
-   * Hovering shows the time and the values, with their unit, at that moment. Styled by .chart in stats.css, the line colour by
-   * each series' class.
+   * Small line chart of values over time, scaled to fill its box; one line per series. Every
+   * chart of the Stats tab spans the same time (from, to), so they line up. Hovering one marks
+   * that moment in all of them (the parent passes the hovered time back in as hover), and each
+   * shows its own values then, with their unit. Styled by .chart in stats.css, the line colour
+   * by each series' class.
    */
 
-  import { tooltip } from '@stores/tooltip'
+  import { createEventDispatcher } from 'svelte'
   import { ago } from '@lib/time'
 
   /**
    * Lines to draw: points [ time, value ], oldest first, a class for the colour, and a title
-   * for the hover.
+   * for the values shown on hover.
    * @type {{ points: number[][], class: string, title: string }[]}
    */
   export let lines = [];
@@ -36,18 +38,37 @@
   export let zero = true;
 
   /**
+   * Time span of the chart in ms, the same for every chart; 0 for the span of the points.
+   * @type {number}
+   */
+  export let from = 0;
+  export let to = 0;
+
+  /**
+   * Hovered moment in ms, in this chart or another one; 0 when none.
+   * @type {number}
+   */
+  export let hover = 0;
+
+  /**
    * Drawing size in user units; the svg scales to the width of its box.
    * @type {number}
    */
   const width = 300,
         height = 70;
 
-  // time of the point under the pointer, or 0
-  let hover = 0;
+  /**
+   * Furthest a sample may be from the hovered moment to be shown, in ms (samples are 5 minutes
+   * apart).
+   * @type {number}
+   */
+  const reach = 10 * 60 * 1000;
+
+  const dispatch = createEventDispatcher();
 
   $: all = lines.flatMap( line => line.points );
-  $: first = all.length ? Math.min( ...all.map( point => point[ 0 ] ) ) : 0;
-  $: last = all.length ? Math.max( ...all.map( point => point[ 0 ] ) ) : 1;
+  $: first = from || ( all.length ? Math.min( ...all.map( point => point[ 0 ] ) ) : 0 );
+  $: last = to || ( all.length ? Math.max( ...all.map( point => point[ 0 ] ) ) : 1 );
   $: top = all.length ? Math.max( 1, ...all.map( point => point[ 1 ] ) ) : 1;
   $: bottom = zero || !all.length ? 0 : Math.min( ...all.map( point => point[ 1 ] ) );
 
@@ -66,7 +87,28 @@
   const toPoints = points => points.map( ( [ time, value ] ) => `${ toX( time ).toFixed( 1 ) },${ toY( value ).toFixed( 1 ) }` ).join( ' ' );
 
   /**
-   * Show the values at the sample nearest to the pointer.
+   * The sample of each line nearest to a moment, when it is close enough.
+   *
+   * @param {number} time Moment in ms.
+   * @param {{ points: number[][], class: string, title: string }[]} series The lines.
+   * @returns {{ title: string, class: string, value: string }[]} Readout per line with a sample.
+   */
+  const valuesAt = ( time, series ) => series
+    .map( line =>
+    {
+      const nearest = line.points.reduce( ( best, point ) => !best || Math.abs( point[ 0 ] - time ) < Math.abs( best[ 0 ] - time ) ? point : best, null );
+      return nearest && Math.abs( nearest[ 0 ] - time ) <= reach
+        ? { title: line.title, class: line.class, value: `${ number( nearest[ 1 ] ) } ${ unit }` }
+        : null;
+    } )
+    .filter( Boolean );
+
+  // the value of each line at the hovered moment, and which side the readout goes
+  $: values = hover ? valuesAt( hover, lines ) : [];
+  $: right = hover && toX( hover ) < width / 2;
+
+  /**
+   * Hover the moment under the pointer, in every chart.
    *
    * @param {PointerEvent} e Pointer event on the chart.
    * @returns {void}
@@ -74,42 +116,46 @@
   const onMove = e =>
   {
     const box = e.currentTarget.getBoundingClientRect(),
-          time = first + ( e.clientX - box.left ) / box.width * ( last - first ),
-          times = [ ...new Set( all.map( point => point[ 0 ] ) ) ];
-    if ( !times.length ) return;
-
-    hover = times.reduce( ( best, candidate ) => Math.abs( candidate - time ) < Math.abs( best - time ) ? candidate : best );
-    const values = lines
-      .map( line => [ line.title, line.points.find( point => point[ 0 ] === hover ) ] )
-      .filter( ( [ , point ] ) => point )
-      .map( ( [ title, point ] ) => `${ title ? `${ title }: ` : '' }${ number( point[ 1 ] ) } ${ unit }` );
-    const moment = new Date( hover ).toLocaleTimeString( 'en-GB', { hour: '2-digit', minute: '2-digit' } );
-    tooltip.show( `${ moment } (${ ago( hover, Date.now() ) })`, values, e );
+          fraction = Math.min( 1, Math.max( 0, ( e.clientX - box.left ) / box.width ) );
+    dispatch( 'hover', first + fraction * ( last - first ) );
   };
 
-  const onLeave = () =>
-  {
-    hover = 0;
-    tooltip.hide();
-  };
+  const onLeave = () => dispatch( 'hover', 0 );
 
 </script>
 
-<svg
-  class="chart"
-  viewBox={ `0 0 ${ width } ${ height }` }
-  preserveAspectRatio="none"
-  role="img"
-  aria-label={ label }
-  on:pointermove={ onMove }
-  on:pointerleave={ onLeave }
->
-  {#each lines as line ( line.class )}
-    {#if line.points.length > 1}
-      <polyline class={ `chart-line ${ line.class }` } points={ toPoints( line.points ) } vector-effect="non-scaling-stroke"/>
+<div class="chart-box">
+  <svg
+    class="chart"
+    viewBox={ `0 0 ${ width } ${ height }` }
+    preserveAspectRatio="none"
+    role="img"
+    aria-label={ label }
+    on:pointermove={ onMove }
+    on:pointerleave={ onLeave }
+  >
+    {#each lines as line ( line.class )}
+      {#if line.points.length > 1}
+        <polyline class={ `chart-line ${ line.class }` } points={ toPoints( line.points ) } vector-effect="non-scaling-stroke"/>
+      {/if}
+    {/each}
+    {#if hover}
+      <line class="chart-hover" x1={ toX( hover ) } x2={ toX( hover ) } y1="0" y2={ height } vector-effect="non-scaling-stroke"/>
     {/if}
-  {/each}
+  </svg>
   {#if hover}
-    <line class="chart-hover" x1={ toX( hover ) } x2={ toX( hover ) } y1="0" y2={ height } vector-effect="non-scaling-stroke"/>
+    <!-- away from the hovered moment, so the line stays visible -->
+    <p class="chart-readout" class:right>
+      <span class="chart-time">
+        { new Date( hover ).toLocaleTimeString( 'en-GB', { hour: '2-digit', minute: '2-digit' } ) } ({ ago( hover, Date.now() ) })
+      </span>
+      {#each values as value ( value.class )}
+        <span class="chart-value">
+          {#if value.title}<span class={ `stats-key ${ value.class }` }></span>{ `${ value.title } ` }{/if}{ value.value }
+        </span>
+      {:else}
+        <span class="chart-value">no data</span>
+      {/each}
+    </p>
   {/if}
-</svg>
+</div>

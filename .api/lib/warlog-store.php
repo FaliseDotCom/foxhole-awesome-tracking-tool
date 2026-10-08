@@ -7,6 +7,19 @@
 class WarlogStore
 {
   /**
+   * Counts sampled over time, each in a table of its own name: players in the game (all
+   * shards together, from Steam) and viewers of F.A.T.T. (from Matomo).
+   * @var string
+   */
+  public const PLAYERS = 'players';
+
+  /**
+   * See PLAYERS.
+   * @var string
+   */
+  public const VIEWERS = 'viewers';
+
+  /**
    * Database connection.
    * @var PDO
    */
@@ -93,11 +106,14 @@ class WarlogStore
       wardens     INTEGER NOT NULL,
       PRIMARY KEY ( shard, war, hex, time )
     )' );
-    // players in the game (all shards together, from Steam), sampled every few minutes
-    $this->db->exec( 'CREATE TABLE IF NOT EXISTS players (
-      time  INTEGER PRIMARY KEY,
-      count INTEGER NOT NULL
-    )' );
+    // counts sampled every few minutes: players in the game, viewers of F.A.T.T.
+    foreach ( [ self::PLAYERS, self::VIEWERS ] as $table )
+    {
+      $this->db->exec( "CREATE TABLE IF NOT EXISTS {$table} (
+        time  INTEGER PRIMARY KEY,
+        count INTEGER NOT NULL
+      )" );
+    }
     // what the War API watch (watch.php) has seen: hexes, icon types, flag bits, gone hexes;
     // baseline rows were there when watching started
     $this->db->exec( 'CREATE TABLE IF NOT EXISTS seen (
@@ -436,49 +452,58 @@ class WarlogStore
   }
 
   /**
-   * Player counts over time.
+   * Table of a sampled count.
    *
-   * @param  int $since Oldest sample time in ms.
+   * @param  string $kind PLAYERS or VIEWERS.
+   * @return string Table name.
+   * @throws InvalidArgumentException For an unknown kind.
+   */
+  private function countTable( string $kind ) : string
+  {
+    if ( !in_array( $kind, [ self::PLAYERS, self::VIEWERS ], true ) )
+    {
+      throw new InvalidArgumentException( "Unknown count: {$kind}" );
+    }
+    return $kind;
+  }
+
+  /**
+   * A sampled count over time.
+   *
+   * @param  string $kind  PLAYERS or VIEWERS.
+   * @param  int    $since Oldest sample time in ms.
    * @return array<int, array{0: int, 1: int}> [ time, count ], oldest first.
    */
-  public function getPlayerSeries( int $since ) : array
+  public function getCountSeries( string $kind, int $since ) : array
   {
-    $query = $this->db->prepare( 'SELECT time, count FROM players WHERE time >= ? ORDER BY time' );
+    $query = $this->db->prepare( 'SELECT time, count FROM ' . $this->countTable( $kind ) . ' WHERE time >= ? ORDER BY time' );
     $query->execute( [ $since ] );
     return array_map( fn( array $row ) : array => array_map( 'intval', $row ), $query->fetchAll( PDO::FETCH_NUM ) );
   }
 
   /**
-   * When the player count was last sampled.
+   * The last sample of a count.
    *
-   * @return int Time in ms, 0 for never.
-   */
-  public function getPlayersTime() : int
-  {
-    return (int) $this->db->query( 'SELECT MAX( time ) FROM players' )->fetchColumn();
-  }
-
-  /**
-   * The last sample of the player count.
-   *
+   * @param  string $kind PLAYERS or VIEWERS.
    * @return array{time: int, count: int} Sample; time 0 and count 0 when there is none.
    */
-  public function getPlayers() : array
+  public function getCount( string $kind ) : array
   {
-    $row = $this->db->query( 'SELECT time, count FROM players ORDER BY time DESC LIMIT 1' )->fetch( PDO::FETCH_ASSOC );
+    $row = $this->db->query( 'SELECT time, count FROM ' . $this->countTable( $kind ) . ' ORDER BY time DESC LIMIT 1' )->fetch( PDO::FETCH_ASSOC );
     return [ 'time' => (int) ( $row[ 'time' ] ?? 0 ), 'count' => (int) ( $row[ 'count' ] ?? 0 ) ];
   }
 
   /**
-   * Store one sample of the player count.
+   * Store one sample of a count.
    *
-   * @param  int $time  Sample time in ms.
-   * @param  int $count Players in the game.
+   * @param  string $kind  PLAYERS or VIEWERS.
+   * @param  int    $time  Sample time in ms.
+   * @param  int    $count The count.
    * @return void
    */
-  public function savePlayers( int $time, int $count ) : void
+  public function saveCount( string $kind, int $time, int $count ) : void
   {
-    $this->db->prepare( 'INSERT OR REPLACE INTO players ( time, count ) VALUES ( ?, ? )' )->execute( [ $time, $count ] );
+    $this->db->prepare( 'INSERT OR REPLACE INTO ' . $this->countTable( $kind ) . ' ( time, count ) VALUES ( ?, ? )' )->execute( [ $time, $count ] );
   }
 
   /**

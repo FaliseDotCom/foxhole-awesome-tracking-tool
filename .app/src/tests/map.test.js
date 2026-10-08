@@ -567,7 +567,8 @@ test( 'the war log loads older entries and shows the map at a moment', async ( {
 } );
 
 /**
- * Statistics as /api/stats sends them: a day of hourly samples, two busy hexes, one change.
+ * Statistics as /api/stats sends them: a day of hourly samples, viewers for the last two hours,
+ * two busy hexes, one change.
  *
  * @returns {object} Statistics.
  */
@@ -575,7 +576,8 @@ const sampleStats = () =>
 {
   const now = Date.now(),
         series = [],
-        players = [];
+        players = [],
+        viewers = [ [ now - 7200000, 12 ], [ now - 3600000, 30 ], [ now - 60000, 25 ] ];
   for ( let i = 0; i < 24; i++ )
   {
     const time = now - ( 23 - i ) * 3600000;
@@ -583,7 +585,7 @@ const sampleStats = () =>
     players.push( [ time, 1400 + i * 10 ] );
   }
   return {
-    war: 141, now, series, players,
+    war: 141, now, series, players, viewers,
     hexes: {
       DeadLands: { hour: { wardens: 210, colonials: 260, from: now - 3600000 }, day: { wardens: 3000, colonials: 3300, from: 0 } },
       Westgate: { hour: { wardens: 120, colonials: 60, from: now - 3600000 }, day: { wardens: 900, colonials: 700, from: 0 } }
@@ -603,7 +605,8 @@ test( 'the stats tab shows players, casualties and the busiest hexes', async ( {
   // the last hour: 400 and 500 more casualties than the hour before
   await expect( panel.locator( '.stats-legend' ) ).toContainText( 'Wardens 400' );
   await expect( panel.locator( '.stats-legend' ) ).toContainText( 'Colonials 500' );
-  await expect( panel.locator( '.chart-line' ) ).toHaveCount( 3 );
+  await expect( panel.locator( '.chart-line' ) ).toHaveCount( 4 );
+  await expect( panel ).toContainText( '25 on F.A.T.T. now' );
 
   // busiest first; clicking one moves the map there
   const hexes = panel.locator( '.stats-hex' );
@@ -677,18 +680,59 @@ test( 'zoomed out, hovering a hex shows its structures and latest changes', asyn
   await expect( tip.locator( '.tooltip-detail' ).first() ).toContainText( /\d+ structures/ );
 } );
 
-test( 'the stats charts show the values under the pointer, with their unit', async ( { page } ) =>
+test( 'hovering a stats chart marks that moment in every chart, with their values', async ( { page } ) =>
 {
   await page.route( '**/api/stats/able**', route => route.fulfill( { json: sampleStats() } ) );
   await page.goto( '/' );
   await page.getByRole( 'tab', { name: 'Stats' } ).click();
   const panel = page.getByRole( 'tabpanel', { name: 'Stats' } );
 
-  const chart = panel.locator( 'svg.chart' ).nth( 1 );
-  const box = await chart.boundingBox();
+  // the charts span the same time, so the same moment is at the same place in each
+  const charts = panel.locator( 'svg.chart' );
+  await expect( charts ).toHaveCount( 3 );
+  const box = await charts.nth( 2 ).boundingBox();
   await page.mouse.move( box.x + box.width - 2, box.y + box.height / 2 );
-  const tip = page.locator( '.tooltip' );
-  await expect( tip.locator( '.tooltip-detail' ).first() ).toHaveText( 'Wardens: 400 per hour' );
-  await expect( tip.locator( '.tooltip-detail' ).nth( 1 ) ).toHaveText( 'Colonials: 500 per hour' );
-  await expect( panel.locator( '.chart-hover' ) ).toHaveCount( 1 );
+  await expect( panel.locator( '.chart-hover' ) ).toHaveCount( 3 );
+  const xs = await panel.locator( '.chart-hover' ).evaluateAll( lines => lines.map( line => Math.round( line.getBoundingClientRect().x ) ) );
+  expect( new Set( xs ).size ).toBe( 1 );
+
+  const readouts = panel.locator( '.chart-readout' );
+  await expect( readouts ).toHaveCount( 3 );
+  await expect( readouts.nth( 0 ) ).toContainText( '1,630 players' );
+  await expect( readouts.nth( 1 ) ).toContainText( '25 viewers' );
+  await expect( readouts.nth( 2 ).locator( '.chart-value' ).first() ).toHaveText( 'Wardens 400 per hour' );
+  await expect( readouts.nth( 2 ).locator( '.chart-value' ).nth( 1 ) ).toHaveText( 'Colonials 500 per hour' );
+
+  // two hours back the viewers have a sample, earlier they have none
+  await page.mouse.move( box.x + box.width * 22 / 24, box.y + box.height / 2 );
+  await expect( readouts.nth( 1 ) ).toContainText( '12 viewers' );
+  await page.mouse.move( box.x + box.width / 4, box.y + box.height / 2 );
+  await expect( readouts.nth( 1 ) ).toContainText( 'no data' );
+
+  await page.mouse.move( 0, 0 );
+  await expect( panel.locator( '.chart-hover' ) ).toHaveCount( 0 );
+} );
+
+test( 'visits can be left uncounted, and never are with Do Not Track', async ( { page, browser } ) =>
+{
+  await page.goto( '/' );
+  await page.getByRole( 'tab', { name: 'Settings' } ).click();
+  const count = page.getByRole( 'tabpanel', { name: 'Settings' } ).getByLabel( 'Count my visits' );
+  await expect( count ).toBeChecked();
+  await count.uncheck();
+  await page.reload();
+  await page.getByRole( 'tab', { name: 'Settings' } ).click();
+  await expect( page.getByRole( 'tabpanel', { name: 'Settings' } ).getByLabel( 'Count my visits' ) ).not.toBeChecked();
+
+  // the browser asks not to be tracked: off, and it cannot be turned on
+  const context = await browser.newContext();
+  await context.addInitScript( () => Object.defineProperty( navigator, 'doNotTrack', { get: () => '1' } ) );
+  const blocked = await context.newPage();
+  await blocked.goto( page.url() );
+  await blocked.getByRole( 'tab', { name: 'Settings' } ).click();
+  const panel = blocked.getByRole( 'tabpanel', { name: 'Settings' } );
+  await expect( panel.getByLabel( 'Count my visits' ) ).not.toBeChecked();
+  await expect( panel.getByLabel( 'Count my visits' ) ).toBeDisabled();
+  await expect( panel ).toContainText( 'Your browser asks websites not to track you' );
+  await context.close();
 } );

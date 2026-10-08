@@ -23,6 +23,18 @@ const recent_window = 6 * 60 * 60 * 1000;
  */
 const hours = 24;
 
+/**
+ * Oldest viewer sample still shown as the number watching now, in ms (sampled every 5 minutes).
+ * @type {number}
+ */
+const viewers_fresh = 15 * 60 * 1000;
+
+/**
+ * The moment hovered in one of the charts, marked in all of them; 0 when none.
+ * @type {import('svelte/store').Writable<number>}
+ */
+const hover = writable( 0 );
+
 let shard = '',
     timeout = 0,
     users = 0;
@@ -94,7 +106,9 @@ const summary = derived( data, $data =>
 {
   if ( !$data ) return null;
   const series = $data.series || [],
-        players = $data.players || [];
+        players = $data.players || [],
+        viewers = $data.viewers || [],
+        viewer = viewers.length ? viewers[ viewers.length - 1 ] : null;
 
   // the most active hexes in the last hour, by casualties of both teams
   const active = Object.entries( $data.hexes || {} )
@@ -114,8 +128,14 @@ const summary = derived( data, $data =>
     now: $data.now,
     // from when there are samples; less than an hour means the statistics are just starting
     since: series.length ? series[ 0 ][ 0 ] : 0,
+    // every chart spans the same time, so they line up
+    from: $data.now - hours * 3600000,
+    to: $data.now,
     players: players.length ? players[ players.length - 1 ][ 1 ] : 0,
     playerSeries: players,
+    // viewers of F.A.T.T. (Matomo), when the server samples them; watching now from a recent sample
+    viewerSeries: viewers,
+    watching: viewer && $data.now - viewer[ 0 ] < viewers_fresh ? viewer[ 1 ] : -1,
     casualties: {
       wardens: perHour( series, 1 ),
       colonials: perHour( series, 2 )
@@ -152,6 +172,18 @@ const shading = derived( summary, $summary =>
 export const stats = {
   subscribe: summary.subscribe,
   shading: { subscribe: shading.subscribe },
+  hover: { subscribe: hover.subscribe },
+
+  /**
+   * Mark a moment in every chart.
+   *
+   * @param {number} time Moment in ms, 0 for none.
+   * @returns {void}
+   */
+  setHover( time )
+  {
+    hover.set( time );
+  },
 
   /**
    * Move the map to a whole hex.

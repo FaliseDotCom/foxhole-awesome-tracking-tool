@@ -1,13 +1,20 @@
 <script>
 
   /**
-   * Stats tab: players in the game, casualties per hour over the last day, and the hexes with
-   * the most fighting in the last hour. Built from what the server recorded, so it fills up
-   * over time.
+   * Stats tab: players in the game, viewers of F.A.T.T., casualties per hour over the last day,
+   * and the hexes with the most fighting in the last hour. Built from what the server recorded,
+   * so it fills up over time. The charts share their time span and the hovered moment.
    */
 
   import { stats } from '@stores/stats'
   import Chart from '@components/chart.svelte'
+
+  import { onDestroy } from 'svelte'
+
+  const hover = stats.hover;
+
+  // a moment hovered when the tab closed is not marked when it opens again
+  onDestroy( () => stats.setHover( 0 ) );
 
   /**
    * Hexes listed as most active.
@@ -22,6 +29,9 @@
 
   $: active = $stats ? $stats.active.filter( hex => hex.total > 0 ).slice( 0, max_hexes ) : [];
   $: busiest = active.length ? active[ 0 ].total : 1;
+  // props every chart shares: the time span and the hovered moment
+  $: span = $stats ? { from: $stats.from, to: $stats.to, hover: $hover } : {};
+
   // less than an hour of samples: the numbers are still building up
   $: young = $stats && ( !$stats.since || $stats.now - $stats.since < 3600000 );
 
@@ -42,8 +52,26 @@
       unit="players"
       zero={ false }
       label="Players over the last 24 hours"
+      { ...span }
+      on:hover={ e => stats.setHover( e.detail ) }
     />
   </section>
+
+  {#if $stats.viewerSeries.length}
+    <section class="stats-section">
+      <h3>Viewers</h3>
+      <Chart
+        lines={ [ { points: $stats.viewerSeries, class: 'viewers', title: '' } ] }
+        unit="viewers"
+        label="Viewers of F.A.T.T. over the last 24 hours"
+        { ...span }
+        on:hover={ e => stats.setHover( e.detail ) }
+      />
+      {#if $stats.watching >= 0}
+        <p class="stats-big stats-below">{ number( $stats.watching ) } <span>on F.A.T.T. now (last 5 minutes)</span></p>
+      {/if}
+    </section>
+  {/if}
 
   <section class="stats-section">
     <h3>Casualties per hour</h3>
@@ -58,6 +86,8 @@
       ] }
       unit="per hour"
       label="Casualties per hour over the last 24 hours, per team"
+      { ...span }
+      on:hover={ e => stats.setHover( e.detail ) }
     />
     {#if $stats.totals}
       <p class="stats-note">
