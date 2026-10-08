@@ -6,7 +6,8 @@
    */
 
   /**
-   * Which icon: search, map, list, legend, settings or shard.
+   * Which icon: search, map, list, legend, settings, shard, target, clock, chart, up, down, left,
+   * right, plus, minus or fit.
    * @type {string}
    */
   export let name = '';
@@ -49,6 +50,40 @@
     <circle class="icon-knob" cx="9" cy="6" r="2.2"/>
     <circle class="icon-knob" cx="15" cy="12" r="2.2"/>
     <circle class="icon-knob" cx="7" cy="18" r="2.2"/>
+  {:else if name === 'target'}
+    <!-- crosshair: go to the place -->
+    <circle cx="12" cy="12" r="7"/>
+    <line x1="12" y1="2" x2="12" y2="6"/>
+    <line x1="12" y1="18" x2="12" y2="22"/>
+    <line x1="2" y1="12" x2="6" y2="12"/>
+    <line x1="18" y1="12" x2="22" y2="12"/>
+  {:else if name === 'up'}
+    <polyline points="6 15 12 9 18 15"/>
+  {:else if name === 'down'}
+    <polyline points="6 9 12 15 18 9"/>
+  {:else if name === 'left'}
+    <polyline points="15 6 9 12 15 18"/>
+  {:else if name === 'right'}
+    <polyline points="9 6 15 12 9 18"/>
+  {:else if name === 'plus'}
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  {:else if name === 'minus'}
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  {:else if name === 'fit'}
+    <!-- four corners: the whole map -->
+    <polyline points="4 9 4 4 9 4"/>
+    <polyline points="15 4 20 4 20 9"/>
+    <polyline points="20 15 20 20 15 20"/>
+    <polyline points="9 20 4 20 4 15"/>
+  {:else if name === 'chart'}
+    <!-- a line going up and down over a base line -->
+    <polyline points="3 17 9 11 13 14 21 6"/>
+    <line x1="3" y1="21" x2="21" y2="21"/>
+  {:else if name === 'clock'}
+    <!-- the map at that moment -->
+    <circle cx="12" cy="12" r="9"/>
+    <polyline points="12 7 12 12 15.5 14"/>
   {:else if name === 'shard'}
     <!-- servers -->
     <rect x="3" y="4" width="18" height="7" rx="2"/>

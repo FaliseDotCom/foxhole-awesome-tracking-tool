@@ -13,17 +13,30 @@ const storage_key = 'fatt-settings';
  */
 const switches = {
   // alarm and impact sounds for rocket launches
-  sound: true
+  sound: true,
+  // hex names written large over each hex
+  names: true
 };
 
 /**
- * Default settings: the first style of each asset type, and the switches.
- * @type {{ icons: string, maps: string, sound: boolean }}
+ * Settings chosen on a slider: their range, step and default.
+ * @type {Record<string, { min: number, max: number, step: number, value: number }>}
+ */
+const ranges = {
+  // icon size on the map, times the normal size
+  iconScale: { min: .6, max: 1.6, step: .1, value: 1 },
+  // strength of the region colours, times the normal strength
+  regionStrength: { min: 0, max: 2, step: .25, value: 1 }
+};
+
+/**
+ * Default settings: the first of each style, the switches, and the slider defaults.
+ * @type {Record<string, string|boolean|number>}
  */
 const defaults = {
-  icons: config.styles.icons[ 0 ],
-  maps: config.styles.maps[ 0 ],
-  ...switches
+  ...Object.fromEntries( Object.entries( config.styles ).map( ( [ key, styles ] ) => [ key, styles[ 0 ] ] ) ),
+  ...switches,
+  ...Object.fromEntries( Object.entries( ranges ).map( ( [ key, range ] ) => [ key, range.value ] ) )
 };
 
 /**
@@ -31,16 +44,19 @@ const defaults = {
  *
  * @param {string} key   Setting name.
  * @param {*}      value Value to check.
- * @returns {boolean} True for a known style, or a boolean for a switch.
+ * @returns {boolean} True for a known style, a boolean for a switch, or a number in range.
  */
-const isValid = ( key, value ) => key in switches
-  ? typeof value === 'boolean'
-  : key in defaults && config.styles[ key ].includes( value );
+const isValid = ( key, value ) =>
+{
+  if ( key in switches ) return typeof value === 'boolean';
+  if ( key in ranges ) return typeof value === 'number' && value >= ranges[ key ].min && value <= ranges[ key ].max;
+  return key in config.styles && config.styles[ key ].includes( value );
+};
 
 /**
  * Read saved settings, keeping only valid values.
  *
- * @returns {{ icons: string, maps: string, sound: boolean }} Saved settings merged over the defaults.
+ * @returns {Record<string, string|boolean|number>} Saved settings merged over the defaults.
  */
 const read = () =>
 {
@@ -65,8 +81,8 @@ const store = writable( typeof window === 'undefined' ? { ...defaults } : read()
 /**
  * Change one setting and remember it.
  *
- * @param {string}         key   Setting name: icons, maps or sound.
- * @param {string|boolean} value A style from config.styles, or a boolean for a switch.
+ * @param {string}                key   Setting name: a style, a switch or a slider.
+ * @param {string|boolean|number} value A style from config.styles, a boolean for a switch, or a number in range.
  * @returns {void}
  */
 const set = ( key, value ) =>
@@ -86,5 +102,7 @@ const set = ( key, value ) =>
 
 export const settings = {
   subscribe: store.subscribe,
+  // slider settings and their ranges, for the settings tab
+  ranges,
   set
 };

@@ -33,6 +33,13 @@
 </div>
 
 <div class="legend-section">
+  <h3>Hex shading</h3>
+  <div class="legend-row"><span class="legend-swatch shade-fighting"></span>Fighting: red by the casualties in the last hour, strongest on the busiest hex</div>
+  <div class="legend-row"><span class="legend-swatch shade-changes"></span>Changes: darker the more recently something changed there, up to 6 hours ago</div>
+  <p class="legend-note">Off by default; choose one under Hex shading in Settings. Hover a hex when zoomed out for its structures, casualties and latest changes.</p>
+</div>
+
+<div class="legend-section">
   <h3>Regions</h3>
   <div class="legend-row"><span class="legend-swatch team-W"></span>Held by the Wardens</div>
   <div class="legend-row"><span class="legend-swatch team-C"></span>Held by the Colonials</div>

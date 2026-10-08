@@ -28,7 +28,11 @@
 {#if $tooltip}
   <div class="tooltip" class:above={ $tooltip.above } bind:clientWidth={ width } style:left={ `${ left }px` } style:top={ `${ $tooltip.y }px` } aria-hidden="true">
     <div class="tooltip-title">{ $tooltip.title }</div>
-    {#if $tooltip.detail}
+    {#if Array.isArray( $tooltip.detail )}
+      {#each $tooltip.detail as line, index ( index )}
+        <div class="tooltip-detail">{ line }</div>
+      {/each}
+    {:else if $tooltip.detail}
       <div class="tooltip-detail">{ $tooltip.detail }</div>
     {/if}
   </div>

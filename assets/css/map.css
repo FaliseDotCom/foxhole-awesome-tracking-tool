@@ -4,6 +4,12 @@ svg text
   dominant-baseline: middle;
 }
 
+/* hex names can be turned off in Settings */
+.hide-hex-names .background text
+{
+  display: none;
+}
+
 .background text
 {
   font-family: var( --font-header );
@@ -16,6 +22,29 @@ svg text
   stroke: #111;
   stroke-width: 2;
   fill: none;
+}
+
+/* zoomed out, the whole hex shows its details on hover (hex/summary.svelte) */
+.hex-hover
+{
+  fill: rgba( 0, 0, 0, 0 );
+  pointer-events: all;
+}
+
+/* hex shading from Settings (hex/shade.svelte); its strength is the fill opacity */
+.shade polygon
+{
+  pointer-events: none;
+}
+
+.shade.fighting polygon
+{
+  fill: #c0392b;
+}
+
+.shade.changes polygon
+{
+  fill: #1b1b1b;
 }
 
 .static text
@@ -34,12 +63,25 @@ svg text
   font-weight: bold;
 }
 
+/* the colour-blind palette turns the green Colonial icons orange, as their regions */
+.palette-colour-blind .icon.team-C
+{
+  filter: hue-rotate( -70deg ) saturate( 1.4 );
+}
+
+/* zoomed out the icons also keep their glow */
+.palette-colour-blind .summary .icon.team-C
+{
+  filter: drop-shadow( 0 0 20px white ) hue-rotate( -70deg ) saturate( 1.4 );
+}
+
+/* --icon-scale is the icon size from Settings */
 .summary .icon,
 .dynamic .icon
 {
-  width: var( --icon-size );
-  height: var( --icon-size );
-  transform: translate( calc( var( --icon-size ) / -2 ), calc( var( --icon-size ) / -2 ) );
+  width: calc( var( --icon-size ) * var( --icon-scale ) );
+  height: calc( var( --icon-size ) * var( --icon-scale ) );
+  transform: translate( calc( var( --icon-size ) * var( --icon-scale ) / -2 ), calc( var( --icon-size ) * var( --icon-scale ) / -2 ) );
 }
 
 .dynamic .icon
@@ -87,21 +129,20 @@ svg text
   transition: all var( --transition-time );  
 }
 
+/* region colours from vars.css; --region-strength is the strength from Settings */
 .areas .area.scorched
 {
-  --area-fill: rgba( 255, 0, 0, .3 );
+  --area-fill: rgba( var( --area-scorched ), calc( .3 * var( --region-strength ) ) );
 }
 
-/*.dynamic .team.colonial,*/
 .areas .area.team-C
 {
-  --area-fill: rgba( 0, 255, 0, .15 );
+  --area-fill: rgba( var( --area-colonials ), calc( .15 * var( --region-strength ) ) );
 }
 
-/*.dynamic .team.warden,*/
 .areas .area.team-W
 {
-  --area-fill:rgba( 0, 0, 255, .15 );
+  --area-fill: rgba( var( --area-wardens ), calc( .15 * var( --region-strength ) ) );
 }
 
 .areas .area.flash.animate

@@ -10,6 +10,7 @@
   import { tooltip } from '@stores/tooltip'
   import { icons } from '@stores/icons'
   import { settings } from '@stores/settings'
+  import { config } from '@stores/config'
 
   /**
    * Places listed in a counter's tooltip; the rest are counted.
@@ -17,8 +18,16 @@
    */
   const max_places = 6;
 
-  // Wardens on the left, Colonials on the right, as in the bar
-  const teams = [ { t: 'W', title: 'Wardens' }, { t: 'C', title: 'Colonials' } ];
+  // Wardens on the left, Colonials on the right, as in the bar; emblems in assets/icons/factions
+  const teams = [ { t: 'W', title: 'Wardens', key: 'wardens' }, { t: 'C', title: 'Colonials', key: 'colonials' } ];
+
+  /**
+   * Url of a faction emblem.
+   *
+   * @param {{ key: string }} team Team.
+   * @returns {string} Image url.
+   */
+  const emblem = team => `${ config.urls.icons }factions/${ team.key }.png${ config.assetsQuery }`;
 
   /**
    * Share of all victory towns, as a percentage.
@@ -101,24 +110,34 @@
       {/if}
     {/each}
   </div>
-  {#if $war.winner}
-    <div class="war-winner">{ $war.winner } won</div>
-  {:else}
-    <div class="war-bar" role="img" aria-label={ `Victory towns: Wardens ${ $war.wardens }, Colonials ${ $war.colonials }, unclaimed ${ $war.neutral }, scorched ${ $war.scorched }; ${ $war.required } needed to win` }>
-      {#each parts as part ( part.key )}
-        {#if part.count}
-          <div
-            class={ `war-part ${ part.key }` }
-            style:width={ `${ percent( part.count, $war.total ) }%` }
-            on:pointerenter={ e => tooltip.show( part.title, describe( part ), e, true ) }
-            on:pointermove={ tooltip.move }
-            on:pointerleave={ tooltip.hide }
-          >
-            { part.need ? part.count : '' }
-          </div>
-        {/if}
-      {/each}
+  <div class="war-body">
+    <div class="war-faction wardens">
+      <img src={ emblem( teams[ 0 ] ) } alt="" width="40" height="40"/>
+      <span>Wardens</span>
     </div>
-  {/if}
+    {#if $war.winner}
+      <div class="war-winner">{ $war.winner } won</div>
+    {:else}
+      <div class="war-bar" role="img" aria-label={ `Victory towns: Wardens ${ $war.wardens }, Colonials ${ $war.colonials }, unclaimed ${ $war.neutral }, scorched ${ $war.scorched }; ${ $war.required } needed to win` }>
+        {#each parts as part ( part.key )}
+          {#if part.count}
+            <div
+              class={ `war-part ${ part.key }` }
+              style:width={ `${ percent( part.count, $war.total ) }%` }
+              on:pointerenter={ e => tooltip.show( part.title, describe( part ), e, true ) }
+              on:pointermove={ tooltip.move }
+              on:pointerleave={ tooltip.hide }
+            >
+              { part.need ? part.count : '' }
+            </div>
+          {/if}
+        {/each}
+      </div>
+    {/if}
+    <div class="war-faction colonials">
+      <img src={ emblem( teams[ 1 ] ) } alt="" width="40" height="40"/>
+      <span>Colonials</span>
+    </div>
+  </div>
 </div>
 {/if}

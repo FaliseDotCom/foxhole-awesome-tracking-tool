@@ -93,6 +93,32 @@
   color: #c0392b;
 }
 
+/* the faction emblems with their names, outside both ends of the bar */
+.war-body
+{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.war-faction
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 56px;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1.1;
+}
+
+.war-bar,
+.war-winner
+{
+  flex: 1;
+}
+
 .war-bar
 {
   position: relative;
@@ -150,12 +176,49 @@
   position: absolute;
   left: 50%;
   /* above the war overview */
-  bottom: 80px;
+  bottom: 116px;
   transform: translateX( -50% );
   z-index: 10000;
   max-width: calc( 100% - 32px );
   text-align: center;
   background-color: rgba( 255, 236, 200, .95 );
+}
+
+/* while the map shows a past moment, above the war overview */
+
+.history-bar
+{
+  position: absolute;
+  left: 50%;
+  bottom: 116px;
+  transform: translateX( -50% );
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc( 100% - 32px );
+  white-space: nowrap;
+  background-color: #fff3d6;
+  border: 1px solid #e0b450;
+}
+
+.history-live
+{
+  padding: 4px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  color: var( --clr-white );
+  background-color: rgba( 0, 0, 0, .75 );
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.history-live:hover,
+.history-live:focus-visible
+{
+  background-color: rgba( 0, 0, 0, .6 );
 }
 
 /* tabs at the top right: war log, legend, settings, shard; the open one's panel below */
@@ -237,6 +300,127 @@
   overflow-y: auto;
   background-color: rgba( 255, 255, 255, .92 );
   border-radius: 10px 0 10px 10px;
+}
+
+/* map controls, bottom of the screen on the logo's side (map-controls.svelte) */
+
+.map-controls
+{
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+}
+
+.tabs-left .map-controls
+{
+  left: auto;
+  right: 10px;
+}
+
+/* the arrows around the fit button */
+.map-pad
+{
+  display: grid;
+  grid-template-columns: repeat( 3, 32px );
+  grid-template-rows: repeat( 3, 32px );
+  grid-template-areas:
+    ". up ."
+    "left fit right"
+    ". down .";
+  gap: 2px;
+}
+
+.map-button
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var( --clr-black );
+  background: rgba( 0, 0, 0, .06 );
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.map-button:hover,
+.map-button:focus-visible
+{
+  background: rgba( 255, 165, 0, .3 );
+}
+
+.map-button.up
+{
+  grid-area: up;
+}
+
+.map-button.left
+{
+  grid-area: left;
+}
+
+.map-button.fit
+{
+  grid-area: fit;
+}
+
+.map-button.right
+{
+  grid-area: right;
+}
+
+.map-button.down
+{
+  grid-area: down;
+}
+
+.map-zoom
+{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.map-zoom input
+{
+  width: 90px;
+  accent-color: var( --clr-focus );
+}
+
+/* phones and small tablets pan and zoom by touch, and the war overview needs the room */
+@media ( max-width: 760px )
+{
+  .map-controls
+  {
+    display: none;
+  }
+}
+
+/* tabs on the left (Settings): mirrored, the logo moves to the right */
+.tabs-left .tabs
+{
+  right: auto;
+  left: 8px;
+}
+
+.tabs-left .tab-list
+{
+  justify-content: flex-start;
+  padding-left: 0;
+  padding-right: 10px;
+}
+
+.tabs-left .tab-panel
+{
+  border-radius: 0 10px 10px 10px;
 }
 
 .tab-panel h3
@@ -331,6 +515,22 @@
   background-color: var( --clr-scorched-region );
 }
 
+/* the hex shading colours of map.css */
+.legend-swatch.shade-fighting
+{
+  background-color: rgba( 192, 57, 43, .55 );
+}
+
+.legend-swatch.shade-changes
+{
+  background-color: rgba( 27, 27, 27, .55 );
+}
+
+.legend-row .legend-swatch
+{
+  flex-shrink: 0;
+}
+
 .legend-alias
 {
   display: block;
@@ -364,6 +564,20 @@
   cursor: pointer;
 }
 
+/* a slider with its name and value above it */
+.settings-slider span
+{
+  display: flex;
+  justify-content: space-between;
+}
+
+.settings-slider input
+{
+  width: 100%;
+  margin: 2px 0 6px 0;
+  accent-color: var( --clr-focus );
+}
+
 /* phones: smaller panels so the map stays usable */
 
 @media ( max-width: 600px )
@@ -377,6 +591,13 @@
   .war-title
   {
     font-size: 13px;
+  }
+
+  /* the war overview is taller here: its title has a row of its own */
+  .status,
+  .history-bar
+  {
+    bottom: 136px;
   }
 
   /* the title gets its own row above the counters */

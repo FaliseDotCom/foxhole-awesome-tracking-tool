@@ -24,7 +24,33 @@
 
   --icon-size: 20px;
 
+  /* map look settings, set by components/appearance.svelte: icon size and region colour
+     strength, times normal */
+  --icon-scale: 1;
+  --region-strength: 1;
+
+  /* region fills on the map as red, green, blue; their strength is in map.css */
+  --area-wardens: 0, 0, 255;
+  --area-colonials: 0, 255, 0;
+  --area-scorched: 255, 0, 0;
+
   --points-display: none;
 
   --transition-time: .3s;
+}
+
+/* colour-blind team colours (Okabe and Ito): blue and orange instead of blue and green, and
+   purple for scorched instead of red */
+:root.palette-colour-blind
+{
+  --clr-colonials-medium: #e69f00;
+  --clr-wardens-medium: #0072b2;
+
+  --clr-wardens-region: #8db4d6;
+  --clr-colonials-region: #e8c070;
+  --clr-scorched-region: #c98fb4;
+
+  --area-wardens: 0, 114, 178;
+  --area-colonials: 230, 159, 0;
+  --area-scorched: 204, 121, 167;
 }

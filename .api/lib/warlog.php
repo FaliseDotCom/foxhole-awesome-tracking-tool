@@ -105,6 +105,52 @@ function warlog_latest( string $shard ) : array
 }
 
 /**
+ * The map data of every hex as it was at a moment of the current war, in the shape of
+ * /api/data. The version of each hex is the time of the stored version, so it never equals a
+ * live version and the map redraws when it goes back to live. Never throws.
+ *
+ * @param  string $shard Shard name.
+ * @param  int    $at    Moment in ms.
+ * @return array<string, mixed> { time, since, hexes }, or [] before history starts.
+ */
+function warlog_history( string $shard, int $at ) : array
+{
+  try
+  {
+    $store = warlog_store();
+    $status = $store ? $store->getStatus( $shard ) : [];
+    if ( !$status )
+    {
+      return [];
+    }
+    $war = (int) $status[ 'war' ];
+    $since = $store->getHistorySince( $shard, $war );
+    if ( !$since || $at < $since )
+    {
+      return [];
+    }
+
+    $hexes = [];
+    foreach ( $store->getHexesAt( $shard, $war, $at ) as $hex => $version )
+    {
+      $hexes[ $hex ] = [
+        // scorched victory towns, as the War API counts them
+        's' => count( array_filter( $version[ 'items' ], fn( array $item ) : bool => ( $item[ 'f' ] & WarlogRecorder::VICTORY_BASE ) && ( $item[ 'f' ] & WarlogRecorder::SCORCHED ) ) ),
+        'l' => $version[ 'time' ],
+        'v' => $version[ 'time' ],
+        'd' => $version[ 'items' ]
+      ];
+    }
+    return [ 'time' => $at, 'since' => $since, 'hexes' => $hexes ];
+  }
+  catch ( Throwable $e )
+  {
+    error_log( 'Reading the history failed: ' . $e->getMessage() );
+    return [];
+  }
+}
+
+/**
  * Cron task (see cron.php): record every live shard as the cron job, and report each shard in
  * cron-record.log.
  *

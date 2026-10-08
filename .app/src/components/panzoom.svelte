@@ -218,6 +218,27 @@
   onDestroy( view.request.subscribe( onViewRequest ) );
 
   /**
+   * Carry out a command of the map control buttons (map-controls.svelte).
+   *
+   * @param {object|null} command Command from the view store.
+   * @returns {void}
+   */
+  const onCommand = command =>
+  {
+    if ( !command || !pz ) return;
+    if ( command.type === 'reset' ) centerMap( true );
+    // looking right moves the map left, as with the arrow keys
+    if ( command.type === 'look' ) panBy( -command.x * pan_step, -command.y * pan_step, true );
+    if ( command.type === 'zoom' )
+    {
+      const t = pz.getTransform();
+      showPoint( ( window.innerWidth / 2 - t.x ) / t.scale, ( window.innerHeight / 2 - t.y ) / t.scale, Math.min( zoom.max, Math.max( zoom.min, command.scale ) ) );
+    }
+  };
+
+  onDestroy( view.command.subscribe( onCommand ) );
+
+  /**
    * Current size of the browser viewport.
    *
    * @returns {{ width: number, height: number }} Width and height in CSS pixels.
@@ -297,7 +318,6 @@
   // reset map
   const panCenter = e =>
   {
-    console.log( 'panCenter')
     centerMap( true );
     return cancelEvent( e );
   };

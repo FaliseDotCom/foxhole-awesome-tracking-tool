@@ -17,7 +17,7 @@ The War API keeps no history, so everything below depends on recording it now. T
 
 `WarlogStore::getHexesAt()` gives every hex as it was at any moment since recording started.
 
-## 2. The war log as a timeline
+## 2. The war log as a timeline (done)
 
 - Load older entries while scrolling down (`/api/log?before=<id>` exists already).
 - Each entry gets two buttons: **go there** (as clicking does now) and **show the map at this
@@ -27,21 +27,24 @@ The War API keeps no history, so everything below depends on recording it now. T
   live updates pause, the war log stays usable to step through moments. Entries from before
   history recording started have no map button.
 
-## 3. Statistics and active hexes
+## 3. Statistics and active hexes (done)
 
 - `/api/stats/<shard>?hours=24`: casualties per hour per hex and in total, enlistments, and the
   player count over time, worked out from `reports` and `players`.
 - A **Stats** tab: players in the game now, casualties per hour over the last 24 hours, and the
   most active hexes (casualties in the last hour and day, per team); click a hex to go there.
 
-## 4. Map shading and map look
+## 4. Map shading and map look (done)
 
-A **Map** group in Settings:
+In Settings:
 
-- **Shading:** none, *recent change* (hexes or regions darker the more recently they changed,
-  from the war log), or *activity* (hexes tinted by casualties in the last hour, from `reports`).
+- **Hex shading:** none, *fighting* (hexes red by casualties in the last hour, against the
+  busiest hex, from `reports`), or *changes* (hexes darker the more recently they had a war log
+  event, within 6 hours).
 - **Colour-blind palette** for the team colours (regions, war bar, log stripes).
-- **Icon size** and **region opacity** sliders, and hex names on or off.
+- **Region colours** and **icon size** sliders, and hex names on or off.
+
+The war bar also got the faction emblems, with their names, at both ends.
 
 ## 5. Structure counters and players (done)
 
@@ -54,6 +57,6 @@ look broken. The title shows the players in the game (`/api/players`).
 
 1. Recording (done; needs a deploy, history starts then).
 2. Structure counters and player count (done).
-3. Timeline: older entries and the map at a moment.
-4. Statistics tab and activity shading.
-5. Map look settings.
+3. Timeline: older entries and the map at a moment (done).
+4. Statistics tab and hex shading (done).
+5. Map look settings (done).

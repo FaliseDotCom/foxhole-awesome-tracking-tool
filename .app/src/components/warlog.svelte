@@ -10,9 +10,13 @@
   import { icons } from '@stores/icons'
   import { settings } from '@stores/settings'
   import FilterField from '@components/filter-field.svelte'
+  import Icon from '@components/icon.svelte'
+  import { ago, agoShort } from '@lib/time'
 
   const major_only = warlog.majorOnly,
         query = warlog.query,
+        paging = warlog.paging,
+        history_since = warlog.historySince,
         source = warlog.source,
         checked = warlog.checked,
         recorder = warlog.recorder;
@@ -23,34 +27,6 @@
 
   onMount( () => clock = setInterval( () => now = Date.now(), 5000 ) );
   onDestroy( () => clearInterval( clock ) );
-
-  /**
-   * How long ago something happened, roughly.
-   *
-   * @param {number} time Time in ms.
-   * @param {number} current Current time in ms.
-   * @returns {string} "just now", "5 min ago", "2 h ago".
-   */
-  const ago = ( time, current ) =>
-  {
-    const minutes = Math.floor( ( current - time ) / 60000 );
-    if ( minutes < 1 ) return 'just now';
-    if ( minutes < 60 ) return `${ minutes } min ago`;
-    return `${ Math.floor( minutes / 60 ) } h ago`;
-  };
-
-  /**
-   * How long ago something was checked, to the second while recent.
-   *
-   * @param {number} time Time in ms.
-   * @param {number} current Current time in ms.
-   * @returns {string} "5s ago", or as ago() from a minute on.
-   */
-  const agoShort = ( time, current ) =>
-  {
-    const seconds = Math.max( 0, Math.round( ( current - time ) / 1000 ) );
-    return seconds < 60 ? `${ seconds }s ago` : ago( time, current );
-  };
 
   /**
    * Who keeps the log up to date, for the status line's tooltip: shows whether the cron job runs.
@@ -69,6 +45,33 @@
   };
 
   const teamClass = team => team ? `team-${ team.toLowerCase() }` : 'team-none';
+
+  /**
+   * Whether the map can be shown as it was at an entry: a structure entry from the server log,
+   * after history recording started.
+   *
+   * @param {object} entry Log entry.
+   * @param {number} since Start of the history, in ms; 0 when there is none.
+   * @returns {boolean} True when the moment can be shown.
+   */
+  const hasMoment = ( entry, since ) => Boolean( entry.item ) && entry.source === 'server' && since > 0 && entry.time >= since;
+
+  /**
+   * Svelte action: call back when the element scrolls into view, to load older entries.
+   *
+   * @param {HTMLElement} node Element at the end of the list.
+   * @param {function(): void} callback Called each time it comes into view.
+   * @returns {{ destroy: function(): void }} Action handle.
+   */
+  const whenVisible = ( node, callback ) =>
+  {
+    const observer = new IntersectionObserver( entries =>
+    {
+      if ( entries.some( entry => entry.isIntersecting ) ) callback();
+    } );
+    observer.observe( node );
+    return { destroy: () => observer.disconnect() };
+  };
 
 </script>
 
@@ -103,13 +106,14 @@
   {#if $warlog.length}
     <ul class="warlog-list">
       {#each $warlog as entry ( entry.id )}
-        <li>
+        <li class="warlog-row">
           <button
             type="button"
             class={ `warlog-entry ${ teamClass( entry.team ) }` }
             class:major={ entry.major }
             disabled={ !entry.item }
-            on:click={ () => warlog.focus( entry ) }
+            title={ entry.item ? 'Show where on the map' : undefined }
+            on:click={ () => warlog.highlight( entry ) }
           >
             {#if entry.item}
               <img src={ icons.getIcon( entry.item, $settings.icons ) } alt="" width="20" height="20"/>
@@ -122,8 +126,30 @@
               { ago( entry.time, now ) }
             </time>
           </button>
+          {#if entry.item}
+            <span class="warlog-actions">
+              <button type="button" class="warlog-action" title="Go there" aria-label="Go there" on:click={ () => warlog.focus( entry ) }>
+                <Icon name="target" size={ 16 }/>
+              </button>
+              <button
+                type="button"
+                class="warlog-action"
+                disabled={ !hasMoment( entry, $history_since ) }
+                title={ hasMoment( entry, $history_since ) ? 'Show the map at this moment' : 'The map history starts later than this' }
+                aria-label="Show the map at this moment"
+                on:click={ () => warlog.showAt( entry ) }
+              >
+                <Icon name="clock" size={ 16 }/>
+              </button>
+            </span>
+          {/if}
         </li>
       {/each}
+      {#if $paging.next && $source === 'server'}
+        <li class="warlog-more" use:whenVisible={ () => warlog.loadOlder() }>
+          { $paging.loading ? 'Loading older entries…' : 'Older entries' }
+        </li>
+      {/if}
     </ul>
   {:else}
     <p class="warlog-empty">

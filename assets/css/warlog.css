@@ -16,13 +16,68 @@
   padding: 0;
 }
 
+/* an entry and its buttons (go there, the map at that moment) side by side */
+.warlog-row
+{
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  margin: 0 0 4px 0;
+}
+
+/* side by side, as tall as the entry: square for an entry of two lines, taller for longer ones */
+.warlog-actions
+{
+  display: flex;
+  gap: 2px;
+}
+
+.warlog-action
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: rgba( 0, 0, 0, .04 );
+  color: rgba( 0, 0, 0, .6 );
+  cursor: pointer;
+}
+
+.warlog-action:hover,
+.warlog-action:focus-visible
+{
+  background: rgba( 255, 165, 0, .2 );
+  color: var( --clr-black );
+}
+
+.warlog-action:disabled
+{
+  opacity: .35;
+  cursor: default;
+  background: rgba( 0, 0, 0, .04 );
+}
+
+/* loads the next page of older entries when scrolled into view */
+.warlog-more
+{
+  padding: 6px;
+  text-align: center;
+  font-size: 12px;
+  opacity: .6;
+}
+
 .warlog-entry
 {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  width: 100%;
-  margin: 0 0 4px 0;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   padding: 4px 6px 4px 8px;
   text-align: left;
   font-family: inherit;

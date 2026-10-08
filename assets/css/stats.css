@@ -1,0 +1,141 @@
+/* Stats tab: players, casualties per hour, most active hexes */
+
+.stats-section + .stats-section
+{
+  margin-top: 10px;
+}
+
+.stats-big
+{
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.stats-big span
+{
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.stats-note
+{
+  margin: 4px 0;
+  font-size: 12px;
+  opacity: .7;
+}
+
+.stats-legend
+{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 4px 0;
+  font-size: 12px;
+}
+
+.stats-key
+{
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-left: 6px;
+  border-radius: 2px;
+}
+
+.stats-key.wardens
+{
+  background-color: var( --clr-wardens-medium );
+}
+
+.stats-key.colonials
+{
+  background-color: var( --clr-colonials-medium );
+}
+
+/* line charts (chart.svelte) */
+.chart
+{
+  display: block;
+  width: 100%;
+  height: 70px;
+  background-color: rgba( 0, 0, 0, .04 );
+  border-radius: 4px;
+}
+
+.chart-line
+{
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.chart-line.players
+{
+  stroke: var( --clr-black );
+}
+
+.chart-line.wardens
+{
+  stroke: var( --clr-wardens-medium );
+}
+
+.chart-line.colonials
+{
+  stroke: var( --clr-colonials-medium );
+}
+
+.stats-hexes
+{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* a hex with its casualties per team; click to go there */
+.stats-hex
+{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  width: 100%;
+  margin: 0 0 4px 0;
+  padding: 4px 6px;
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  color: var( --clr-black );
+  background: rgba( 0, 0, 0, .04 );
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.stats-hex:hover,
+.stats-hex:focus-visible
+{
+  background: rgba( 255, 165, 0, .2 );
+}
+
+.stats-hex-numbers
+{
+  font-size: 12px;
+  opacity: .75;
+}
+
+.stats-hex-bar
+{
+  display: flex;
+  grid-column: 1 / -1;
+  height: 4px;
+}
+
+.stats-hex-bar .wardens
+{
+  background-color: var( --clr-wardens-medium );
+}
+
+.stats-hex-bar .colonials
+{
+  background-color: var( --clr-colonials-medium );
+}

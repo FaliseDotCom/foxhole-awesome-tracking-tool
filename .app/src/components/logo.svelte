@@ -44,6 +44,13 @@
   pointer-events: none;
 }
 
+/* with the tabs on the left (Settings) the logo is on the right */
+:global( .tabs-left ) .logo
+{
+  left: auto;
+  right: 0;
+}
+
 .logo h1,
 .logo h2
 {
@@ -57,6 +64,7 @@
 
 .logo h1
 {
+  font-family: var( --font-header );
   font-size: 4.2em;
   letter-spacing: -2px;
 }

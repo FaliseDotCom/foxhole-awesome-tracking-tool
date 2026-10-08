@@ -172,17 +172,24 @@
   }
 
   /* an open tab panel hangs from its tab; the search field makes way on its left */
-  /* the panel is as wide as the tabs: 334px for three, 426px with the shard tab */
+  /* the panel is as wide as the tabs: 419px for four, about 515px with the shard tab */
   body:has( .tab-panel ) .search
   {
     left: 8px;
     transform: none;
-    width: calc( 100% - 358px );
+    width: calc( 100% - 445px );
   }
 
   body:has( #tab-shard ):has( .tab-panel ) .search
   {
-    width: calc( 100% - 450px );
+    width: calc( 100% - 540px );
+  }
+
+  /* with the tabs on the left (Settings), it makes way on the right */
+  .tabs-left body:has( .tab-panel ) .search
+  {
+    left: auto;
+    right: 8px;
   }
 }
 

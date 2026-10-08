@@ -14,6 +14,10 @@
    *   GET /api/cron          the scheduled tasks (lib/cron.php), for cron jobs that can only
    *                          request a URL; at most every 10 seconds
    *   GET /api/players       players in the game (all shards, from Steam): { time, count }
+   *   GET /api/stats/<shard>?hours=24  casualties over time and per hex (last hour and day),
+   *                          when each hex last changed, and players over time
+   *   GET /api/history/<shard>?at=<ms>  the map data of every hex as it was at that moment of
+   *                          the current war, like /api/data; 404 before historySince
    */
 
   require_once( __DIR__ . '/bootstrap.php' );
@@ -130,6 +134,8 @@
     $limit = min( 200, max( 1, (int) ( $_GET[ 'limit' ] ?? 100 ) ) );
     $war = (int) $status[ 'war' ];
     $rows = $store->getEvents( $shard, $war, $since, $before, $limit );
+    // where the next page of older events starts, before the major events are added below
+    $next_before = count( $rows ) === $limit ? (int) end( $rows )[ 'id' ] : 0;
 
     // ?major=1 on the first request also returns the major events older than the latest ones
     // (victory towns, relics, rockets), so a page opening late still sees them
@@ -145,8 +151,43 @@
       // who recorded last (cron or request), and when the cron job last ran (0: never)
       'recordedBy' => $status[ 'recorded_by' ] ?? '',
       'cronAt'     => (int) ( $status[ 'cron_at' ] ?? 0 ),
+      // ?before= for the next page of older events, 0 when there are no more
+      'nextBefore' => $next_before,
+      // the map can be shown as it was at any moment from this time on (0: not yet)
+      'historySince' => $store->getHistorySince( $shard, $war ),
       'events'     => array_map( warlog_event_json( ... ), $rows )
     ] );
+  }
+
+  if ( $route[ 0 ] === 'stats' && count( $route ) === 2 )
+  {
+    $shard = $route[ 1 ];
+    if ( !$api->is_live_shard( $shard ) )
+    {
+      json( [ 'error' => 'Shard is unknown or unavailable' ], 502 );
+    }
+    $stats = stats_summary( $shard, (int) ( $_GET[ 'hours' ] ?? 24 ) );
+    if ( !$stats )
+    {
+      json( [ 'error' => 'No statistics yet' ], 404 );
+    }
+    json( $stats );
+  }
+
+  if ( $route[ 0 ] === 'history' && count( $route ) === 2 )
+  {
+    $shard = $route[ 1 ];
+    if ( !$api->is_live_shard( $shard ) )
+    {
+      json( [ 'error' => 'Shard is unknown or unavailable' ], 502 );
+    }
+
+    $history = warlog_history( $shard, (int) ( $_GET[ 'at' ] ?? 0 ) );
+    if ( !$history )
+    {
+      json( [ 'error' => 'No history for that moment' ], 404 );
+    }
+    json( $history );
   }
 
   if ( $route[ 0 ] === 'war' && count( $route ) === 2 )

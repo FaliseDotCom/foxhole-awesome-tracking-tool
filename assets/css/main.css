@@ -32,9 +32,12 @@ html, body
   fill: currentColor;
 }
 
+/* headings in the panels use the body font: the stencil header font is hard to read at small
+   sizes, so it is kept for the logo and the hex names on the map */
 h1, h2, h3, h4, h5, h6
 {
-  font-family: var( --font-header );
+  font-family: var( --font-body );
+  font-weight: bold;
 }
 
 .block

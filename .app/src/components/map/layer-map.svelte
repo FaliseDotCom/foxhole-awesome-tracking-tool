@@ -14,12 +14,14 @@
   import HexDynamic from '@components/map/hex/dynamic.svelte';
   import HexSummary from '@components/map/hex/summary.svelte'
   import HexAreas from '@components/map/hex/areas.svelte';
+  import HexShade from '@components/map/hex/shade.svelte';
   import HexPoints from '@components/map/hex/points.svelte';
   import Marker from '@components/map/marker.svelte';
   import Arcs from '@components/map/arcs.svelte';
   import Effects from '@components/map/effects.svelte';
   import { config } from '@stores/config.js'
   import { zoom } from '@stores/zoom'
+  import { settings } from '@stores/settings'
 	import Scaler from '../scaler.svelte';
 	import Polygon from './polygon.svelte';
 </script>
@@ -30,6 +32,7 @@
       <clipPath id="clipPoly"><Polygon/></clipPath>
       <Layer class="backgrounds" component={ HexBackground } show={ true }/>
       <Layer class="areas" component={ HexAreas } show={ true }/>   
+      <Layer class="shades" component={ HexShade } show={ $settings.shading !== 'none' }/>
       <Layer class="borders" component={ HexBorder } show={ true }/>
       <Layer class="summaries" component={ HexSummary } show={ $zoom.toFixed( 1 ) < .4 }/>
       <Layer class="dynamics" component={ HexDynamic } show={ $zoom.toFixed( 1 ) >= .4 }/>

@@ -157,6 +157,7 @@ test( 'the legend lists the structures on the map', async ( { page } ) =>
   await expect( legend ).toContainText( 'Town Hall' );
   // how the map works comes first
   await expect( legend.locator( 'h3' ).first() ).toHaveText( 'How the map works' );
+  await expect( legend ).toContainText( 'Fighting: red by the casualties in the last hour' );
 
   // the search keeps the types that match every word, in the name or other names
   const rows = legend.locator( '.legend-section' ).last().locator( '.legend-row' );
@@ -322,7 +323,13 @@ test( 'the war log is filled from the server and moves the map to an entry', asy
   await expect( page.locator( '.warlog-entry' ) ).toHaveCount( 2, { timeout: 15000 } );
 
   // Dead Lands is at column 6, row 6
+  // clicking the entry only rings the structure; the target button moves the map there
+  const centre_before = await centrePoint( page );
   await page.locator( '.warlog-entry' ).nth( 1 ).click();
+  await expect( page.locator( 'circle.marker' ) ).toHaveCount( 1 );
+  const unmoved = await centrePoint( page );
+  expect( Math.abs( unmoved.x - centre_before.x ) ).toBeLessThan( 1 );
+  await page.locator( '.warlog-row' ).nth( 1 ).getByRole( 'button', { name: 'Go there' } ).click();
   await page.waitForTimeout( 1500 );
   const centre = await centrePoint( page );
   expect( Math.abs( centre.x - ( 4609 + town.x * 1024 ) ) ).toBeLessThan( 5 );
@@ -378,8 +385,8 @@ test( 'a rocket launch and impact show as one entry with an arc', async ( { page
   await expect( page.locator( '.warlog-entry' ) ).toHaveCount( 1 );
   await expect( page.locator( 'path.rocket-arc' ) ).toHaveCount( 1 );
 
-  // clicking fits launch and impact: the centre lies between them
-  await entry.click();
+  // going there fits launch and impact: the centre lies between them
+  await page.locator( '.warlog-row' ).first().getByRole( 'button', { name: 'Go there' } ).click();
   await page.waitForTimeout( 1500 );
   const centre = await centrePoint( page );
   // Dead Lands is at column 6, row 6; Westgate at column 3, row 7
@@ -448,17 +455,17 @@ test( 'the tabs switch panels and close again', async ( { page } ) =>
   await page.goto( '/' );
 
   // the war log is open on a wide screen
-  const warlog = page.getByRole( 'tab', { name: 'War log' } );
+  const warlog = page.getByRole( 'tab', { name: 'Log', exact: true } );
   await expect( warlog ).toHaveAttribute( 'aria-selected', 'true' );
-  await expect( page.getByRole( 'tabpanel', { name: 'War log' } ) ).toBeVisible();
+  await expect( page.getByRole( 'tabpanel', { name: 'Log', exact: true } ) ).toBeVisible();
 
   // arrow keys move to the next tab
   await warlog.focus();
   await page.keyboard.press( 'ArrowRight' );
-  await expect( page.getByRole( 'tabpanel', { name: 'Legend' } ) ).toBeVisible();
+  await expect( page.getByRole( 'tabpanel', { name: 'Stats' } ) ).toBeVisible();
 
   // clicking the open tab closes its panel
-  await page.getByRole( 'tab', { name: 'Legend' } ).click();
+  await page.getByRole( 'tab', { name: 'Stats' } ).click();
   await expect( page.getByRole( 'tabpanel' ) ).toHaveCount( 0 );
 } );
 
@@ -510,7 +517,7 @@ test( 'on a phone the tabs show only icons and the open panel hides the map sear
   await page.setViewportSize( { width: 390, height: 800 } );
   await page.goto( '/' );
 
-  const tab = page.getByRole( 'tab', { name: 'War log' } );
+  const tab = page.getByRole( 'tab', { name: 'Log', exact: true } );
   await expect( tab.locator( '.icon' ) ).toBeVisible();
   await expect( tab.locator( '.tab-label' ) ).toHaveCSS( 'width', '1px' );
 
@@ -519,4 +526,153 @@ test( 'on a phone the tabs show only icons and the open panel hides the map sear
   await tab.click();
   await expect( page.getByRole( 'textbox', { name: 'Search the war log' } ) ).toBeVisible();
   await expect( map_search ).toBeHidden();
+} );
+
+test( 'the war log loads older entries and shows the map at a moment', async ( { page, request } ) =>
+{
+  const { changed, town, from } = await mapDataWithCapture( request );
+  const recent = { ...captureEvent( 200, town, from ), time: Date.now() - 60000 },
+        older = { ...captureEvent( 100, { ...town, t: from }, town.t ), time: Date.now() - 3600000 };
+
+  // the first page has one entry and says older ones start before id 150; history covers both
+  await page.route( '**/api/log/able**', route =>
+  {
+    const params = new URL( route.request().url() ).searchParams;
+    const since = Number( params.get( 'since' ) || 0 ),
+          before = Number( params.get( 'before' ) || 0 );
+    const events = before ? [ older ] : [ recent ].filter( e => e.id > since );
+    route.fulfill( { json: { war: 141, recordedAt: Date.now(), nextBefore: before ? 0 : 150, historySince: Date.now() - 7200000, events } } );
+  } );
+  let asked = 0;
+  await page.route( '**/api/history/able**', route =>
+  {
+    asked = Number( new URL( route.request().url() ).searchParams.get( 'at' ) );
+    route.fulfill( { json: { time: asked, since: 0, hexes: changed } } );
+  } );
+  await page.goto( '/' );
+
+  // scrolling to the end of the list loads the older page
+  const rows = page.locator( '.warlog-row' );
+  await expect( rows ).toHaveCount( 2, { timeout: 20000 } );
+  await expect( page.locator( '.warlog-more' ) ).toHaveCount( 0 );
+
+  // the clock button asks for the map at that entry's moment and shows the history bar
+  await rows.nth( 1 ).getByRole( 'button', { name: 'Show the map at this moment' } ).click();
+  const bar = page.locator( '.history-bar' );
+  await expect( bar ).toContainText( 'Map as it was on' );
+  expect( asked ).toBe( older.time );
+
+  await bar.getByRole( 'button', { name: 'Back to live' } ).click();
+  await expect( bar ).toHaveCount( 0 );
+} );
+
+/**
+ * Statistics as /api/stats sends them: a day of hourly samples, two busy hexes, one change.
+ *
+ * @returns {object} Statistics.
+ */
+const sampleStats = () =>
+{
+  const now = Date.now(),
+        series = [],
+        players = [];
+  for ( let i = 0; i < 24; i++ )
+  {
+    const time = now - ( 23 - i ) * 3600000;
+    series.push( [ time, 50000 + i * 400, 60000 + i * 500, 9000 + i * 10 ] );
+    players.push( [ time, 1400 + i * 10 ] );
+  }
+  return {
+    war: 141, now, series, players,
+    hexes: {
+      DeadLands: { hour: { wardens: 210, colonials: 260, from: now - 3600000 }, day: { wardens: 3000, colonials: 3300, from: 0 } },
+      Westgate: { hour: { wardens: 120, colonials: 60, from: now - 3600000 }, day: { wardens: 900, colonials: 700, from: 0 } }
+    },
+    changed: { Godcrofts: now - 600000 }
+  };
+};
+
+test( 'the stats tab shows players, casualties and the busiest hexes', async ( { page } ) =>
+{
+  await page.route( '**/api/stats/able**', route => route.fulfill( { json: sampleStats() } ) );
+  await page.goto( '/' );
+
+  await page.getByRole( 'tab', { name: 'Stats' } ).click();
+  const panel = page.getByRole( 'tabpanel', { name: 'Stats' } );
+  await expect( panel ).toContainText( '1,630 in Foxhole now' );
+  // the last hour: 400 and 500 more casualties than the hour before
+  await expect( panel.locator( '.stats-legend' ) ).toContainText( 'Wardens 400' );
+  await expect( panel.locator( '.stats-legend' ) ).toContainText( 'Colonials 500' );
+  await expect( panel.locator( '.chart-line' ) ).toHaveCount( 3 );
+
+  // busiest first; clicking one moves the map there
+  const hexes = panel.locator( '.stats-hex' );
+  await expect( hexes ).toHaveCount( 2 );
+  await expect( hexes.first() ).toContainText( 'Dead Lands' );
+  await expect( hexes.first() ).toContainText( '210 / 260' );
+  await hexes.first().click();
+  await expect( page ).toHaveURL( /#able\/\d+\/\d+\// );
+} );
+
+test( 'map look settings shade hexes and change colours, names and sizes', async ( { page } ) =>
+{
+  await page.route( '**/api/stats/able**', route => route.fulfill( { json: sampleStats() } ) );
+  await page.goto( '/' );
+  await expect( page.locator( '.war-part' ).first() ).toBeVisible( { timeout: 20000 } );
+
+  await page.getByRole( 'tab', { name: 'Settings' } ).click();
+  const panel = page.getByRole( 'tabpanel', { name: 'Settings' } );
+
+  // fighting: the busiest hex fully, the other one less
+  await panel.getByLabel( 'fighting: casualties in the last hour' ).check();
+  await expect( page.locator( '.shade.fighting' ) ).toHaveCount( 2 );
+  await panel.getByLabel( 'changes: the last 6 hours' ).check();
+  await expect( page.locator( '.shade.changes' ) ).toHaveCount( 1 );
+
+  await panel.getByLabel( 'colour-blind: blue and orange' ).check();
+  await expect( page.locator( 'html' ) ).toHaveClass( /palette-colour-blind/ );
+  await panel.getByLabel( 'Hex names' ).uncheck();
+  await expect( page.locator( '.background text' ).first() ).toBeHidden();
+  await panel.getByLabel( 'on the left, logo on the right' ).check();
+  const tabs = await page.locator( '.tabs' ).boundingBox();
+  expect( tabs.x ).toBeLessThan( 20 );
+  await panel.locator( 'input[type=range]' ).last().fill( '1.5' );
+  expect( await page.evaluate( () => document.documentElement.style.getPropertyValue( '--icon-scale' ) ) ).toBe( '1.5' );
+
+  // remembered after a reload
+  await page.reload();
+  await expect( page.locator( 'html' ) ).toHaveClass( /palette-colour-blind/ );
+  await expect( page.locator( 'html' ) ).toHaveClass( /hide-hex-names/ );
+} );
+
+test( 'the map controls pan, zoom and show the whole map again', async ( { page } ) =>
+{
+  await page.goto( '/' );
+  await expect( page.locator( '.war-part' ).first() ).toBeVisible( { timeout: 20000 } );
+  const controls = page.getByRole( 'group', { name: 'Map controls' } );
+  const start = await centrePoint( page );
+
+  await controls.getByRole( 'button', { name: 'Look right' } ).click();
+  await expect.poll( async () => ( await centrePoint( page ) ).x ).toBeGreaterThan( start.x + 10 );
+
+  const zoom = Number( await controls.getByRole( 'slider', { name: 'Zoom' } ).inputValue() );
+  await controls.getByRole( 'button', { name: 'Zoom in' } ).click();
+  await expect.poll( async () => Number( await controls.getByRole( 'slider', { name: 'Zoom' } ).inputValue() ) ).toBeGreaterThan( zoom );
+
+  await controls.getByRole( 'button', { name: 'Show the whole map' } ).click();
+  await expect.poll( async () => Math.round( ( await centrePoint( page ) ).x ) ).toBe( Math.round( start.x ) );
+} );
+
+test( 'zoomed out, hovering a hex shows its structures and latest changes', async ( { page } ) =>
+{
+  await page.goto( '/' );
+  const hex = page.locator( '.summaries svg.DeadLandsHex' );
+  await expect( hex ).toBeVisible( { timeout: 20000 } );
+
+  const box = await hex.boundingBox();
+  // off centre, away from the town icon
+  await page.mouse.move( box.x + box.width * .3, box.y + box.height * .75 );
+  const tip = page.locator( '.tooltip' );
+  await expect( tip.locator( '.tooltip-title' ) ).toHaveText( 'Dead Lands' );
+  await expect( tip.locator( '.tooltip-detail' ).first() ).toContainText( /\d+ structures/ );
 } );

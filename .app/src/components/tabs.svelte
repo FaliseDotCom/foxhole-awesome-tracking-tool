@@ -1,7 +1,7 @@
 <script>
 
   /**
-   * Tabs at the top right: war log, legend, settings, and the shard picker when there is more
+   * Tabs at the top right: war log, stats, legend, settings, and the shard picker when there is more
    * than one live shard. One panel at a time opens below the tabs; clicking the open tab, or
    * Escape, closes it.
    */
@@ -11,6 +11,7 @@
   import Legend from '@components/legend.svelte'
   import Settings from '@components/settings.svelte'
   import Shard from '@components/shard.svelte'
+  import Stats from '@components/stats.svelte'
   import { warlog } from '@stores/warlog'
   import { shards } from '@stores/shards'
   import Icon from '@components/icon.svelte'
@@ -22,7 +23,8 @@
   onMount( () => shards.load() );
 
   $: tabs = [
-    { key: 'warlog', title: 'War log', icon: 'list', component: Warlog },
+    { key: 'warlog', title: 'Log', icon: 'list', component: Warlog },
+    { key: 'stats', title: 'Stats', icon: 'chart', component: Stats },
     { key: 'legend', title: 'Legend', icon: 'legend', component: Legend },
     { key: 'settings', title: 'Settings', icon: 'settings', component: Settings },
     ...( $available.length > 1 ? [ { key: 'shard', title: 'Shard', icon: 'shard', component: Shard } ] : [] )

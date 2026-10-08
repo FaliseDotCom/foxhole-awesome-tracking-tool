@@ -1,4 +1,4 @@
-import { writable , get } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import { shards } from './shards'
 import { config } from './config'
 
@@ -85,9 +85,24 @@ const augmentData = d =>
   return d;
 }
 
+/**
+ * The map at a past moment while history is shown: { time, hexes } with hexes in the shape of
+ * the live data, or null for the live map.
+ * @type {import('svelte/store').Writable<{ time: number, hexes: object }|null>}
+ */
+const past = writable( null );
+
+/**
+ * What the map shows: the past moment while one is chosen, otherwise the live data. Live
+ * updates keep running underneath, so going back is instant.
+ * @type {import('svelte/store').Readable<object>}
+ */
+const shown = derived( [ { subscribe }, past ], ( [ $live, $past ] ) => $past ? $past.hexes : $live );
+
 // when shard changes reload everything
 shards.subscribe( s => {
   shard = s;
+  past.set( null );
   clearTimeout( timeout );
   // drop the previous shard's data so it is not shown if the new shard fails to load
   set( {} );
@@ -96,7 +111,44 @@ shards.subscribe( s => {
 });
 
 export const world = {
-  subscribe,
+  subscribe: shown.subscribe,
+  // the live data even while history is shown, for comparing versions (the war log)
+  live: { subscribe },
+  // the past moment shown, or null
+  past: { subscribe: past.subscribe },
   // state of the last request, for showing an error message
-  status: { subscribe: status.subscribe }
+  status: { subscribe: status.subscribe },
+
+  /**
+   * Show the map as it was at a moment of the current war.
+   *
+   * @param {number} time Moment in ms.
+   * @returns {Promise<boolean>} Whether the server had that moment.
+   */
+  async showAt( time )
+  {
+    if ( !shard ) return false;
+    try
+    {
+      const response = await fetch( `${ config.urls.api }history/${ shard }?at=${ Math.round( time ) }` );
+      if ( !response.ok ) return false;
+      const history = await response.json();
+      past.set( { time: history.time, hexes: augmentData( history.hexes || {} ) } );
+      return true;
+    }
+    catch
+    {
+      return false;
+    }
+  },
+
+  /**
+   * Go back to the live map.
+   *
+   * @returns {void}
+   */
+  showLive()
+  {
+    past.set( null );
+  }
 }

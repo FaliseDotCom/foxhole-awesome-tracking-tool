@@ -27,11 +27,17 @@ const urls = {
  * The `color` map style (assets/maps/color) is left out: its tiles are from 2022, outdated for
  * many hexes and missing for 16, so it mixed old and new terrain. A saved `color` setting is
  * no longer valid and falls back to `classic`.
- * @type {{ icons: string[], maps: string[] }}
+ * @type {{ icons: string[], maps: string[], shading: string[], palette: string[], side: string[] }}
  */
 const styles = {
   icons: [ 'brighter', 'superbright', 'bright', 'default' ],
-  maps: [ 'classic' ]
+  maps: [ 'classic' ],
+  // not asset folders: hex shading (components/map/hex/shade.svelte) and team colours
+  // (components/appearance.svelte)
+  shading: [ 'none', 'fighting', 'changes' ],
+  palette: [ 'standard', 'colour-blind' ],
+  // which side the tabs are on; the logo goes to the other side
+  side: [ 'right', 'left' ]
 }
 
 // enabled or disabled tools

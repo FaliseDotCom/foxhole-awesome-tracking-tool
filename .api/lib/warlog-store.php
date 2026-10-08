@@ -319,6 +319,23 @@ class WarlogStore
   }
 
   /**
+   * From when the map of a war can be shown exactly: the moment by which every hex has a stored
+   * version. Each hex's first version is how it was since its last change before recording
+   * started, so any moment after the latest of those first versions is complete.
+   *
+   * @param  string $shard Shard name.
+   * @param  int    $war   War number.
+   * @return int Time in ms, 0 when there is no history.
+   */
+  public function getHistorySince( string $shard, int $war ) : int
+  {
+    $query = $this->db->prepare( 'SELECT MAX( first ) FROM ( SELECT MIN( time ) AS first FROM hex_history
+      WHERE shard = ? AND war = ? GROUP BY hex )' );
+    $query->execute( [ $shard, $war ] );
+    return (int) $query->fetchColumn();
+  }
+
+  /**
    * When the war reports of a shard were last sampled.
    *
    * @param  string $shard Shard name.
@@ -348,6 +365,78 @@ class WarlogStore
     {
       $query->execute( [ $shard, $war, $hex, $time, $report[ 'enlistments' ], $report[ 'colonials' ], $report[ 'wardens' ] ] );
     }
+  }
+
+  /**
+   * War report totals of a shard over time: casualties per team and enlistments summed over all
+   * hexes, per sample.
+   *
+   * @param  string $shard Shard name.
+   * @param  int    $war   War number.
+   * @param  int    $since Oldest sample time in ms.
+   * @return array<int, array{0: int, 1: int, 2: int, 3: int}> [ time, wardens, colonials, enlistments ], oldest first.
+   */
+  public function getReportSeries( string $shard, int $war, int $since ) : array
+  {
+    $query = $this->db->prepare( 'SELECT time, SUM( wardens ), SUM( colonials ), SUM( enlistments ) FROM reports
+      WHERE shard = ? AND war = ? AND time >= ? GROUP BY time ORDER BY time' );
+    $query->execute( [ $shard, $war, $since ] );
+    return array_map( fn( array $row ) : array => array_map( 'intval', $row ), $query->fetchAll( PDO::FETCH_NUM ) );
+  }
+
+  /**
+   * The war report of every hex at a moment: per hex its last sample at or before that time,
+   * or its first sample after it when there is none before (the start of recording).
+   *
+   * @param  string $shard Shard name.
+   * @param  int    $war   War number.
+   * @param  int    $time  Moment in ms.
+   * @return array<string, array{time: int, wardens: int, colonials: int}> Per hex.
+   */
+  public function getReportsAt( string $shard, int $war, int $time ) : array
+  {
+    $reports = [];
+    foreach ( [ [ '<=', 'MAX' ], [ '>', 'MIN' ] ] as [ $compare, $pick ] )
+    {
+      $query = $this->db->prepare( "SELECT r.hex, r.time, r.wardens, r.colonials FROM reports r
+        JOIN ( SELECT hex, {$pick}( time ) AS time FROM reports
+               WHERE shard = :shard AND war = :war AND time {$compare} :time GROUP BY hex ) pick
+          ON pick.hex = r.hex AND pick.time = r.time
+        WHERE r.shard = :shard AND r.war = :war" );
+      $query->execute( [ 'shard' => $shard, 'war' => $war, 'time' => $time ] );
+      foreach ( $query->fetchAll( PDO::FETCH_ASSOC ) as $row )
+      {
+        $reports[ $row[ 'hex' ] ] ??= [ 'time' => (int) $row[ 'time' ], 'wardens' => (int) $row[ 'wardens' ], 'colonials' => (int) $row[ 'colonials' ] ];
+      }
+    }
+    return $reports;
+  }
+
+  /**
+   * When each hex last had an event in the war log.
+   *
+   * @param  string $shard Shard name.
+   * @param  int    $war   War number.
+   * @return array<string, int> Per hex name, the time in ms.
+   */
+  public function getLastChanges( string $shard, int $war ) : array
+  {
+    $query = $this->db->prepare( "SELECT hex, MAX( time ) FROM events WHERE shard = ? AND war = ? AND hex != '' GROUP BY hex" );
+    $query->execute( [ $shard, $war ] );
+    return array_map( 'intval', $query->fetchAll( PDO::FETCH_KEY_PAIR ) );
+  }
+
+  /**
+   * Player counts over time.
+   *
+   * @param  int $since Oldest sample time in ms.
+   * @return array<int, array{0: int, 1: int}> [ time, count ], oldest first.
+   */
+  public function getPlayerSeries( int $since ) : array
+  {
+    $query = $this->db->prepare( 'SELECT time, count FROM players WHERE time >= ? ORDER BY time' );
+    $query->execute( [ $since ] );
+    return array_map( fn( array $row ) : array => array_map( 'intval', $row ), $query->fetchAll( PDO::FETCH_NUM ) );
   }
 
   /**

@@ -38,30 +38,43 @@ F.A.T.T. can stand for any of the following:
   - 0.8× and up — minor labels.
 - Only renders hexes that are on screen.
 - Supports mouse, touch, and keyboard pan and zoom (arrows / WASD / numpad to pan, `+` / `-`
-  to zoom, numpad 5 to recentre), and remembers the last view.
+  to zoom, numpad 5 to recentre), and remembers the last view. Buttons at the bottom on the
+  logo's side do the same: arrows, a zoom slider with zoom out and in, and one that shows the
+  whole map (hidden on narrow screens, which pan and zoom by touch).
+- Zoomed out, hovering a hex shows its structures per team, its casualties in the last hour
+  and day, and its three latest war log entries.
 - Lets you switch between live shards in the Shard tab at the top right. Since May 2026 Foxhole runs a
   single shard, so the picker is hidden until there is more than one.
 - Shows, bottom centre, the war number, the day of the war, the players in the game (all
   shards, from Steam), rocket sites (armed ones in red), storm cannons and intel centres per
   team, and one bar of the victory towns held per team against the number needed (lowered by
-  one for every scorched victory town). Hover a counter for where they are.
+  one for every scorched victory town), between the faction emblems. Hover a counter for where
+  they are.
 - Shows a tooltip when you hover over a structure: type, team, state, and the nearest named
   place, such as "Town Base Tier 3 · Wardens · Victory town / The Spine, Dead Lands".
 - Has a legend (region colours, team colours, and every structure type on the map with its
-  in-game name) and settings (icon brightness, rocket sounds) in tabs at the top right;
-  settings are remembered in the browser. The tabs have icons, and show only the icons on
+  in-game name) and settings in tabs at the top right, remembered in the browser: icon
+  brightness, hex shading (fighting in the last hour, or changes in the last 6 hours),
+  colour-blind team colours (blue and orange), region colour strength, icon size, hex names,
+  the tabs on the right or the left (the logo on the other side), and rocket sounds.
+- Has a Stats tab: players in the game, casualties per hour over the last day, and the hexes
+  with the most fighting in the last hour (click one to go there), from what the server
+  records every 5 minutes. The tabs have icons, and show only the icons on
   phones.
 - Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
   point at the screen centre, zoom), so a link opens the same view. Without a link it
   restores the last view from `localStorage`.
-- Keeps a war log (the first tab at the top right, open by default on wide screens): captures, losses, upgrades, scorched towns, structures built
+- Keeps a war log (the Log tab, first at the top right, open by default on wide screens): captures, losses, upgrades, scorched towns, structures built
   or destroyed, construction started and finished, and victory town totals; click an entry to go there. Its own search field
   filters the entries as you type (every word must appear in the team, text, or place). A status line ("Live · checked
   5 s ago · last change 12 min ago") shows the log is working during quiet spells. The server records it
   (`.api/data/warlog.sqlite`), so it is the same for everyone and has history; when the server
   log does not answer, the browser shows the changes it sees itself. Major events (victory
-  towns, relics, rockets) from the whole war are loaded too, not only the latest 100. See
-  `.docs/plans/2026-10-07-war-log.md`.
+  towns, relics, rockets) from the whole war are loaded too, not only the latest 100, and
+  older entries load as you scroll down. Each entry has a button to go there and one to show
+  the map as it was right after it happened (from when history recording started), with a
+  bar to go back to live. See `.docs/plans/2026-10-07-war-log.md` and
+  `.docs/plans/2026-10-08-history-and-stats.md`.
 - Draws rocket launches as an arc from the launch site to the impact, with one war log entry
   ("Wardens fired a rocket from … hit …"); see `.docs/plans/2026-10-07-rocket-arcs.md`. A
   launch seen live sets off an air raid siren, a flashing beacon on the launch site and a
@@ -99,7 +112,7 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 
 | File | Purpose |
 | --- | --- |
-| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (the war log and hex history of every live shard as the cron job, the latest map data for `/api/data`, and every 5 minutes the war report of every hex and the player count), at most every 10 seconds; `GET /api/players` returns the last player count `{ time, count }`. `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
+| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (the war log and hex history of every live shard as the cron job, the latest map data for `/api/data`, and every 5 minutes the war report of every hex and the player count), at most every 10 seconds; `GET /api/players` returns the last player count `{ time, count }`; `GET /api/stats/<shard>?hours=24` returns casualties over time and per hex (last hour and day), when each hex last changed, and players over time; `GET /api/history/<shard>?at=<ms>` returns the map data of every hex as it was at that moment, like `/api/data` (the log's `historySince` says from when). `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
 | `router.php` | Router for `php -S`, mirroring `.htaccess`. |
 | `bootstrap.php` | Error logging (never to the response), Composer autoloader, library includes. |
 | `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`, `DATA_DIR`) and the time zone. |
@@ -136,13 +149,14 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
 | --- | --- |
 | `config.js` | Site-relative URLs for `/assets/` and `/api/`, the available icon and map styles, per-topic console logging switches, the dev-only points tool, update interval. |
 | `shards.js` | The live shards, loaded from `/api/shards`, and the selected one (the first live shard by default). |
-| `world.js` | Polls `/api/data/<shard>` and publishes the dynamic data, adding a stable `key` to each item. Restarts on shard change. |
+| `world.js` | Polls `/api/data/<shard>` and publishes the dynamic data, adding a stable `key` to each item. Restarts on shard change. While a past moment is chosen (`showAt()`, from `/api/history`), it publishes that instead; `world.live` is always the live data. |
+| `stats.js` | Statistics from `/api/stats/<shard>` for the Stats tab and the hex shading, fetched only while something uses them. |
 | `world_data.json` | Static, hand-built geometry for every hex: grid column/row, named points, region polygons built from those points, and label positions. |
 | `grid.js` | Hex layout maths (1024 × 888 px hexes on a staggered grid), polygon helpers, and cached point-in-polygon tests that assign map items to regions. |
 | `icons.js` | War API icon type IDs, resource types, flag bits, and the icon file name and CSS class for an item. |
 | `visible.js` | Which grid rows and columns are on screen for the current pan/zoom. |
 | `zoom.js` | Current zoom level and its limits. |
-| `settings.js` | Icon and map style chosen by the viewer, saved in `localStorage`. |
+| `settings.js` | The viewer's settings, saved in `localStorage`: styles from `config.styles` (icons, maps, shading, palette, side), switches (sound, hex names) and sliders (icon size, region colour strength). `components/appearance.svelte` applies the map look to the page. |
 | `link.js` | Reads and writes the shareable link in the URL hash. |
 | `war.js` | War state from `/api/war/<shard>`, the player count from `/api/players`, and victory towns and key structures per team counted from the world store. |
 
@@ -156,8 +170,10 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
   `dynamic.svelte`, and `summary.svelte` build on that.
 - `panzoom.svelte` wraps the `panzoom` library and adds keyboard controls and view
   persistence.
-- `icon.svelte` draws the line icons of the tabs and search fields.
-- `logo.svelte`, `search.svelte`, `war.svelte`, and `status.svelte` are the panels over the map, and `tabs.svelte` holds the tabs at the top right: `warlog.svelte`, `legend.svelte`, `settings.svelte`, and `shard.svelte` (only with more than one live shard). Their styles are in `assets/css/panels.css` and the per-feature files next to it.
+- `icon.svelte` draws the line icons of the tabs and buttons, `chart.svelte` the line charts of the Stats tab, and `filter-field.svelte` the search fields of the war log and legend.
+- `map-controls.svelte` holds the pan and zoom buttons (they send commands through `stores/view.js` to `panzoom.svelte`); `stores/hex-info.js` builds the hex details shown zoomed out.
+- `history-bar.svelte` shows which past moment the map shows, with a way back to live; `appearance.svelte` applies the map look settings.
+- `logo.svelte`, `search.svelte`, `war.svelte`, and `status.svelte` are the panels over the map, and `tabs.svelte` holds the tabs at the top right: `warlog.svelte`, `stats.svelte`, `legend.svelte`, `settings.svelte`, and `shard.svelte` (only with more than one live shard). Their styles are in `assets/css/panels.css` and the per-feature files next to it.
 
 ### Assets
 

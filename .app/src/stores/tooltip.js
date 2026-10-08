@@ -15,7 +15,7 @@ export const tooltip = {
    * Show the tooltip at the pointer.
    *
    * @param {string} title  First line.
-   * @param {string} detail Second line.
+   * @param {string|string[]} detail Second line, or several lines.
    * @param {PointerEvent} e Event with the pointer position.
    * @param {boolean} [above] Show it above the pointer instead of below.
    * @returns {void}

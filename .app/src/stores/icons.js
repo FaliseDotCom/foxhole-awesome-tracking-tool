@@ -221,6 +221,8 @@ const getIcon = ( d, style = config.styles.icons[ 0 ] ) =>
 const getCss = d =>
 {
   let css = 'icon';
+  // the team, for recolouring Colonial icons with the colour-blind palette
+  if ( d.t ) css += ` team-${ d.t }`;
   if ( isScorched( d ) ) css += ' scorched';
   if ( isVictoryBase( d ) ) css += ' victory';
   if ( isBuildSite( d ) ) css += ' build';

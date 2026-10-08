@@ -67,6 +67,63 @@ function stats_reports_cron( FoxholeApi $api, string $via ) : array
 }
 
 /**
+ * Statistics of a shard's current war for /api/stats: totals over time, casualties per hex in
+ * the last hour and day, when each hex last changed, and players over time. Never throws.
+ *
+ * @param  string $shard Shard name.
+ * @param  int    $hours How far back the series go, 1 to 168.
+ * @return array<string, mixed> { war, now, series, hexes, changed, players }, or [] without data.
+ */
+function stats_summary( string $shard, int $hours ) : array
+{
+  try
+  {
+    $store = warlog_store();
+    $status = $store ? $store->getStatus( $shard ) : [];
+    if ( !$status )
+    {
+      return [];
+    }
+
+    $war = (int) $status[ 'war' ];
+    $now = (int) round( microtime( true ) * 1000 );
+    $hours = min( 168, max( 1, $hours ) );
+    $latest = $store->getReportsAt( $shard, $war, $now );
+    $hour_ago = $store->getReportsAt( $shard, $war, $now - 3600 * 1000 );
+    $day_ago = $store->getReportsAt( $shard, $war, $now - 86400 * 1000 );
+
+    // casualties per team since a moment; with less recorded, since recording started
+    $since = fn( array $then, string $hex ) : array => [
+      'wardens'   => max( 0, $latest[ $hex ][ 'wardens' ] - ( $then[ $hex ][ 'wardens' ] ?? $latest[ $hex ][ 'wardens' ] ) ),
+      'colonials' => max( 0, $latest[ $hex ][ 'colonials' ] - ( $then[ $hex ][ 'colonials' ] ?? $latest[ $hex ][ 'colonials' ] ) ),
+      'from'      => (int) ( $then[ $hex ][ 'time' ] ?? $latest[ $hex ][ 'time' ] )
+    ];
+
+    $hexes = [];
+    foreach ( array_keys( $latest ) as $hex )
+    {
+      $hexes[ $hex ] = [ 'hour' => $since( $hour_ago, $hex ), 'day' => $since( $day_ago, $hex ) ];
+    }
+
+    return [
+      'war'     => $war,
+      'now'     => $now,
+      // [ time, wardens casualties, colonials casualties, enlistments ], totals so far this war
+      'series'  => $store->getReportSeries( $shard, $war, $now - $hours * 3600 * 1000 ),
+      'hexes'   => $hexes,
+      'changed' => $store->getLastChanges( $shard, $war ),
+      // [ time, players in the game ]
+      'players' => $store->getPlayerSeries( $now - $hours * 3600 * 1000 )
+    ];
+  }
+  catch ( Throwable $e )
+  {
+    error_log( 'Statistics unavailable: ' . $e->getMessage() );
+    return [];
+  }
+}
+
+/**
  * The last sampled player count, for /api/players. When the cron job has not sampled for
  * twice STATS_INTERVAL, the request samples it itself. Never throws.
  *

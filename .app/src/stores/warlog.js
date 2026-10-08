@@ -21,7 +21,7 @@ import { effects } from './effects';
  * Most entries kept per source; older ones drop off.
  * @type {number}
  */
-const max_entries = 200;
+const max_entries = 2000;
 
 /**
  * Events fetched when the page opens.
@@ -94,7 +94,11 @@ const server_entries = writable( [] ),
       unseen = writable( 0 ),
       major_only = writable( readFilter() ),
       // text typed in the war log's search field
-      query = writable( '' );
+      query = writable( '' ),
+      // older server events: ?before= for the next page (0: no more), and whether one is loading
+      paging = writable( { next: 0, loading: false } ),
+      // the map can be shown as it was at any moment from this time on (0: not yet)
+      history_since = writable( 0 );
 
 let shard = '',
     // browser comparison: previous items and version per hex; null until the first data
@@ -198,6 +202,8 @@ const toEntry = ( change, hex, time, extra ) =>
     text,
     item,
     iconFrom: entry.iconFrom,
+    // world data key of the hex, for the hex details when zoomed out
+    hex,
     place: search.placeOf( hex, item ),
     x: bounds.x + item.x * bounds.width,
     y: bounds.y + item.y * bounds.height,
@@ -363,6 +369,9 @@ const loadServer = async () =>
     if ( !fresh ) throw new Error( 'server log is not being recorded' );
     checked.set( log.recordedAt );
     recorder.set( { by: log.recordedBy || '', cronAt: log.cronAt || 0 } );
+    history_since.set( log.historySince || 0 );
+    // the first answer says where older events start
+    if ( !newest_server_id ) paging.set( { next: log.nextBefore || 0, loading: false } );
 
     const events = Array.isArray( log.events ) ? log.events : [];
     // events are live (worth an alarm) only after the first answer, and not when catching up
@@ -454,7 +463,7 @@ const onWar = state =>
   add( browser_entries, added, get( source ) === 'browser' );
 };
 
-world.subscribe( onWorld );
+world.live.subscribe( onWorld );
 war.subscribe( onWar );
 
 // a new shard starts a new log
@@ -464,6 +473,8 @@ shards.subscribe( name =>
   snapshot = null;
   previous_war = null;
   newest_server_id = 0;
+  paging.set( { next: 0, loading: false } );
+  history_since.set( 0 );
   server_entries.set( [] );
   browser_entries.set( [] );
   source.set( 'loading' );
@@ -549,10 +560,68 @@ const rockets = derived( combined, $combined => $combined.filter( entry => entry
 
 export const warlog = {
   subscribe: visible.subscribe,
+  // every entry, before the filter and the search
+  all: { subscribe: combined.subscribe },
   rockets: { subscribe: rockets.subscribe },
   unseen: { subscribe: unseen.subscribe },
   majorOnly: { subscribe: major_only.subscribe },
   query: { subscribe: query.subscribe },
+  paging: { subscribe: paging.subscribe },
+  historySince: { subscribe: history_since.subscribe },
+
+  /**
+   * Load the next page of older server events, for scrolling down the log as a timeline.
+   *
+   * @returns {Promise<void>}
+   */
+  async loadOlder()
+  {
+    const { next, loading: busy } = get( paging );
+    if ( !next || busy || !shard ) return;
+    paging.set( { next, loading: true } );
+    const requested_shard = shard;
+    try
+    {
+      const response = await fetch( `${ config.urls.api }log/${ requested_shard }?before=${ next }&limit=${ initial_events }` );
+      if ( !response.ok ) throw new Error( `status ${ response.status }` );
+      const log = await response.json();
+      if ( requested_shard !== shard ) return;
+      const events = Array.isArray( log.events ) ? log.events : [];
+      add( server_entries, withoutNoise( events.map( fromEvent ).filter( Boolean ), get( server_entries ) ), false );
+      paging.set( { next: log.nextBefore || 0, loading: false } );
+    }
+    catch
+    {
+      // try again on the next scroll
+      if ( requested_shard === shard ) paging.set( { next, loading: false } );
+    }
+  },
+
+  /**
+   * Show the map as it was right after an entry happened, without moving it; the changed
+   * structure gets a ring.
+   *
+   * @param {object} entry Log entry.
+   * @returns {Promise<boolean>} Whether the server had that moment.
+   */
+  async showAt( entry )
+  {
+    const shown = await world.showAt( entry.time );
+    if ( shown ) warlog.highlight( entry );
+    return shown;
+  },
+
+  /**
+   * Ring the structure of an entry on the map, without moving the map (for a rocket: the
+   * impact).
+   *
+   * @param {object} entry Log entry.
+   * @returns {void}
+   */
+  highlight( entry )
+  {
+    if ( entry.item ) view.mark( { x: entry.x, y: entry.y } );
+  },
   // loading, server, or browser (the fallback)
   source: { subscribe: source.subscribe },
   checked: { subscribe: checked.subscribe },
@@ -599,7 +668,7 @@ export const warlog = {
   },
 
   /**
-   * Move the map to where an entry happened.
+   * Move the map to where an entry happened, zoomed in.
    *
    * @param {object} entry Log entry.
    * @returns {void}
