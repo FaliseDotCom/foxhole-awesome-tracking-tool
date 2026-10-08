@@ -15,6 +15,19 @@ use GuzzleHttp\Client;
 const STATS_INTERVAL = 5 * 60;
 
 /**
+ * Hours of statistics that stand for the whole current war in /api/stats (?hours=war).
+ * @var int
+ */
+const STATS_WHOLE_WAR = 0;
+
+/**
+ * Most samples per series in /api/stats; longer spans keep the last sample of each stretch of
+ * time, so a week or a whole war stays small.
+ * @var int
+ */
+const STATS_MAX_POINTS = 300;
+
+/**
  * Steam's count of players in the game right now (all shards together; Steam knows no teams).
  * @var string
  */
@@ -72,9 +85,10 @@ function stats_reports_cron( FoxholeApi $api, string $via ) : array
  * throws.
  *
  * @param  string $shard Shard name.
- * @param  int    $hours How far back the series go, 1 to 168.
- * @return array<string, mixed> { war, now, series, hexes, changed, players, viewers }, or []
- *                              without data.
+ * @param  int    $hours How far back the series go, 1 to 168, or STATS_WHOLE_WAR for since the
+ *                       first sample of the war.
+ * @return array<string, mixed> { war, now, from, series, hexes, changed, players, viewers }, or
+ *                              [] without data.
  */
 function stats_summary( string $shard, int $hours ) : array
 {
@@ -89,7 +103,9 @@ function stats_summary( string $shard, int $hours ) : array
 
     $war = (int) $status[ 'war' ];
     $now = (int) round( microtime( true ) * 1000 );
-    $hours = min( 168, max( 1, $hours ) );
+    $from = $hours === STATS_WHOLE_WAR
+      ? ( $store->getReportStart( $shard, $war ) ?: $now - 3600 * 1000 )
+      : $now - min( 168, max( 1, $hours ) ) * 3600 * 1000;
     $latest = $store->getReportsAt( $shard, $war, $now );
     $hour_ago = $store->getReportsAt( $shard, $war, $now - 3600 * 1000 );
     $day_ago = $store->getReportsAt( $shard, $war, $now - 86400 * 1000 );
@@ -110,14 +126,16 @@ function stats_summary( string $shard, int $hours ) : array
     return [
       'war'     => $war,
       'now'     => $now,
+      // start of the series, the same for all of them
+      'from'    => $from,
       // [ time, wardens casualties, colonials casualties, enlistments ], totals so far this war
-      'series'  => $store->getReportSeries( $shard, $war, $now - $hours * 3600 * 1000 ),
+      'series'  => stats_thin( $store->getReportSeries( $shard, $war, $from ), $from, $now ),
       'hexes'   => $hexes,
       'changed' => $store->getLastChanges( $shard, $war ),
       // [ time, players in the game ]
-      'players' => $store->getCountSeries( WarlogStore::PLAYERS, $now - $hours * 3600 * 1000 ),
+      'players' => stats_thin( $store->getCountSeries( WarlogStore::PLAYERS, $from ), $from, $now ),
       // [ time, viewers of F.A.T.T. in the ANALYTICS_ACTIVE_MINUTES before ]
-      'viewers' => $store->getCountSeries( WarlogStore::VIEWERS, $now - $hours * 3600 * 1000 )
+      'viewers' => stats_thin( $store->getCountSeries( WarlogStore::VIEWERS, $from ), $from, $now )
     ];
   }
   catch ( Throwable $e )
@@ -125,6 +143,32 @@ function stats_summary( string $shard, int $hours ) : array
     error_log( 'Statistics unavailable: ' . $e->getMessage() );
     return [];
   }
+}
+
+/**
+ * At most STATS_MAX_POINTS samples of a series: the time is cut into that many equal stretches
+ * and the last sample of each is kept, so the newest sample always stays. Series that are short
+ * enough are returned as they are.
+ *
+ * @param  array<int, array<int, int>> $series Samples [ time, ...values ], oldest first.
+ * @param  int                         $from   Start of the span in ms.
+ * @param  int                         $to     End of the span in ms.
+ * @return array<int, array<int, int>> The kept samples, oldest first.
+ */
+function stats_thin( array $series, int $from, int $to ) : array
+{
+  $step = (int) ceil( max( 1, $to - $from ) / STATS_MAX_POINTS );
+  if ( count( $series ) <= STATS_MAX_POINTS )
+  {
+    return $series;
+  }
+
+  $kept = [];
+  foreach ( $series as $sample )
+  {
+    $kept[ intdiv( max( 0, $sample[ 0 ] - $from ), $step ) ] = $sample;
+  }
+  return array_values( $kept );
 }
 
 /**

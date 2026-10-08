@@ -736,3 +736,42 @@ test( 'visits can be left uncounted, and never are with Do Not Track', async ( {
   await expect( panel ).toContainText( 'Your browser asks websites not to track you' );
   await context.close();
 } );
+
+test( 'the stats charts can show the whole war, a week, a day, or the last hours', async ( { page } ) =>
+{
+  const asked = [];
+  await page.route( '**/api/stats/able**', route =>
+  {
+    const hours = new URL( route.request().url() ).searchParams.get( 'hours' ),
+          stats = sampleStats();
+    asked.push( hours );
+    // the war started ten days ago
+    route.fulfill( { json: { ...stats, from: hours === 'war' ? stats.now - 10 * 86400000 : stats.now - Number( hours ) * 3600000 } } );
+  } );
+  await page.goto( '/' );
+  await page.getByRole( 'tab', { name: 'Stats' } ).click();
+  const panel = page.getByRole( 'tabpanel', { name: 'Stats' } ),
+        spans = panel.getByRole( 'group', { name: 'Time span of the charts' } );
+
+  await expect( spans.getByRole( 'button', { name: '24 h', exact: true } ) ).toHaveAttribute( 'aria-pressed', 'true' );
+  expect( asked.at( -1 ) ).toBe( '24' );
+
+  await spans.getByRole( 'button', { name: 'War' } ).click();
+  await expect( spans.getByRole( 'button', { name: 'War' } ) ).toHaveAttribute( 'aria-pressed', 'true' );
+  await expect.poll( () => asked.at( -1 ) ).toBe( 'war' );
+  await expect( panel.locator( 'svg.chart' ).first() ).toHaveAttribute( 'aria-label', 'Players over this war' );
+
+  // the day of samples fills the last tenth of a ten day chart; over days the moment has its date
+  const box = await panel.locator( 'svg.chart' ).first().boundingBox();
+  await page.mouse.move( box.x + box.width - 2, box.y + box.height / 2 );
+  await expect( panel.locator( '.chart-time' ).first() ).toHaveText( /^[A-Z][a-z]{2} \d+ [A-Z][a-z]{2}, \d\d:\d\d$/ );
+  // a pixel is over an hour here, so the nearest sample is one of the last
+  await expect( panel.locator( '.chart-readout' ).first() ).toContainText( /1,6[23]0 players/ );
+
+  // remembered after a reload
+  await page.reload();
+  await page.getByRole( 'tab', { name: 'Stats' } ).click();
+  await expect( spans.getByRole( 'button', { name: 'War' } ) ).toHaveAttribute( 'aria-pressed', 'true' );
+  await spans.getByRole( 'button', { name: '4 h', exact: true } ).click();
+  await expect.poll( () => asked.at( -1 ) ).toBe( '4' );
+} );

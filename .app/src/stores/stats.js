@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import { config } from './config';
 import { shards } from './shards';
 import { grid } from './grid';
@@ -18,10 +18,47 @@ const refresh = 5 * 60;
 const recent_window = 6 * 60 * 60 * 1000;
 
 /**
- * Hours of history fetched for the charts.
- * @type {number}
+ * Time spans the charts can show: what /api/stats is asked for (hours, or "war" for the whole
+ * war), the button text, and the span in words. The third is the default.
+ * @type {{ key: string, hours: string, title: string, label: string }[]}
  */
-const hours = 24;
+const spans = [
+  { key: 'war', hours: 'war', title: 'War', label: 'this war' },
+  { key: '7d', hours: '168', title: '7 d', label: 'the last 7 days' },
+  { key: '24h', hours: '24', title: '24 h', label: 'the last 24 hours' },
+  { key: '8h', hours: '8', title: '8 h', label: 'the last 8 hours' },
+  { key: '4h', hours: '4', title: '4 h', label: 'the last 4 hours' }
+];
+
+/**
+ * localStorage key of the chosen time span.
+ * @type {string}
+ */
+const span_key = 'fatt-stats-span';
+
+/**
+ * Read the chosen time span.
+ *
+ * @returns {string} Span key, the default when none or an unknown one was saved.
+ */
+const readSpan = () =>
+{
+  try
+  {
+    const saved = window.localStorage.getItem( span_key );
+    return spans.some( option => option.key === saved ) ? saved : spans[ 2 ].key;
+  }
+  catch
+  {
+    return spans[ 2 ].key;
+  }
+};
+
+/**
+ * The chosen time span of the charts.
+ * @type {import('svelte/store').Writable<string>}
+ */
+const span = writable( typeof window === 'undefined' ? spans[ 2 ].key : readSpan() );
 
 /**
  * Oldest viewer sample still shown as the number watching now, in ms (sampled every 5 minutes).
@@ -64,11 +101,14 @@ const load = async () =>
 {
   clearTimeout( timeout );
   if ( !shard ) return;
-  const requested = shard;
+  const requested = shard,
+        requested_span = get( span );
   try
   {
-    const response = await fetch( `${ config.urls.api }stats/${ requested }?hours=${ hours }` );
-    if ( requested === shard ) data.set( response.ok ? await response.json() : null );
+    const hours = spans.find( option => option.key === requested_span ).hours,
+          response = await fetch( `${ config.urls.api }stats/${ requested }?hours=${ hours }` );
+    // an answer for a shard or span no longer chosen is dropped
+    if ( requested === shard && requested_span === get( span ) ) data.set( response.ok ? await response.json() : null );
   }
   catch
   {
@@ -129,7 +169,7 @@ const summary = derived( data, $data =>
     // from when there are samples; less than an hour means the statistics are just starting
     since: series.length ? series[ 0 ][ 0 ] : 0,
     // every chart spans the same time, so they line up
-    from: $data.now - hours * 3600000,
+    from: $data.from || $data.now - 86400000,
     to: $data.now,
     players: players.length ? players[ players.length - 1 ][ 1 ] : 0,
     playerSeries: players,
@@ -173,6 +213,29 @@ export const stats = {
   subscribe: summary.subscribe,
   shading: { subscribe: shading.subscribe },
   hover: { subscribe: hover.subscribe },
+  span: { subscribe: span.subscribe },
+  spans,
+
+  /**
+   * Show the charts over another time span, and remember it.
+   *
+   * @param {string} key Span key from spans.
+   * @returns {void}
+   */
+  setSpan( key )
+  {
+    if ( !spans.some( option => option.key === key ) || key === get( span ) ) return;
+    span.set( key );
+    try
+    {
+      window.localStorage.setItem( span_key, key );
+    }
+    catch
+    {
+      // storage can be unavailable (private mode); the span then lasts until reload
+    }
+    if ( users ) load();
+  },
 
   /**
    * Mark a moment in every chart.

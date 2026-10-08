@@ -11,7 +11,8 @@
 
   import { onDestroy } from 'svelte'
 
-  const hover = stats.hover;
+  const hover = stats.hover,
+        span = stats.span;
 
   // a moment hovered when the tab closed is not marked when it opens again
   onDestroy( () => stats.setHover( 0 ) );
@@ -29,8 +30,11 @@
 
   $: active = $stats ? $stats.active.filter( hex => hex.total > 0 ).slice( 0, max_hexes ) : [];
   $: busiest = active.length ? active[ 0 ].total : 1;
+  // the chosen time span in words, for the chart descriptions
+  $: spanLabel = stats.spans.find( option => option.key === $span ).label;
+
   // props every chart shares: the time span and the hovered moment
-  $: span = $stats ? { from: $stats.from, to: $stats.to, hover: $hover } : {};
+  $: shared = $stats ? { from: $stats.from, to: $stats.to, hover: $hover } : {};
 
   // less than an hour of samples: the numbers are still building up
   $: young = $stats && ( !$stats.since || $stats.now - $stats.since < 3600000 );
@@ -40,6 +44,18 @@
 {#if !$stats}
   <p class="stats-note">No statistics yet. They are recorded every 5 minutes from now on.</p>
 {:else}
+  <div class="stats-spans" role="group" aria-label="Time span of the charts">
+    {#each stats.spans as option ( option.key )}
+      <button
+        type="button"
+        class="stats-span"
+        aria-pressed={ $span === option.key }
+        title={ `Show ${ option.label }` }
+        on:click={ () => stats.setSpan( option.key ) }
+      >{ option.title }</button>
+    {/each}
+  </div>
+
   {#if young}
     <p class="stats-note">Statistics started recording less than an hour ago and fill up over time.</p>
   {/if}
@@ -51,8 +67,8 @@
       lines={ [ { points: $stats.playerSeries, class: 'players', title: '' } ] }
       unit="players"
       zero={ false }
-      label="Players over the last 24 hours"
-      { ...span }
+      label={ `Players over ${ spanLabel }` }
+      { ...shared }
       on:hover={ e => stats.setHover( e.detail ) }
     />
   </section>
@@ -63,8 +79,8 @@
       <Chart
         lines={ [ { points: $stats.viewerSeries, class: 'viewers', title: '' } ] }
         unit="viewers"
-        label="Viewers of F.A.T.T. over the last 24 hours"
-        { ...span }
+        label={ `Viewers of F.A.T.T. over ${ spanLabel }` }
+        { ...shared }
         on:hover={ e => stats.setHover( e.detail ) }
       />
       {#if $stats.watching >= 0}
@@ -85,8 +101,8 @@
         { points: $stats.casualties.colonials, class: 'colonials', title: 'Colonials' }
       ] }
       unit="per hour"
-      label="Casualties per hour over the last 24 hours, per team"
-      { ...span }
+      label={ `Casualties per hour over ${ spanLabel }, per team` }
+      { ...shared }
       on:hover={ e => stats.setHover( e.detail ) }
     />
     {#if $stats.totals}

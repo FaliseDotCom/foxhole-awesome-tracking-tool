@@ -19,7 +19,8 @@
    *   GET /api/health        whether the cron job runs, and War API changes found in the last
    *                          30 days (lib/watch.php), for the daily watch workflow
    *   GET /api/stats/<shard>?hours=24  casualties over time and per hex (last hour and day),
-   *                          when each hex last changed, and players over time
+   *                          ?hours=war for the whole war, at most 300 samples per series,
+   *                          when each hex last changed, and players and viewers over time
    *   GET /api/history/<shard>?at=<ms>  the map data of every hex as it was at that moment of
    *                          the current war, like /api/data; 404 before historySince
    */
@@ -181,7 +182,8 @@
     {
       json( [ 'error' => 'Shard is unknown or unavailable' ], 502 );
     }
-    $stats = stats_summary( $shard, (int) ( $_GET[ 'hours' ] ?? 24 ) );
+    $hours = (string) ( $_GET[ 'hours' ] ?? '24' );
+    $stats = stats_summary( $shard, $hours === 'war' ? STATS_WHOLE_WAR : max( 1, (int) $hours ) );
     if ( !$stats )
     {
       json( [ 'error' => 'No statistics yet' ], 404 );

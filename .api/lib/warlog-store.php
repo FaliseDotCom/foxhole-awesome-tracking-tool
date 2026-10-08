@@ -393,6 +393,20 @@ class WarlogStore
   }
 
   /**
+   * When the first war report of a war was sampled.
+   *
+   * @param  string $shard Shard name.
+   * @param  int    $war   War number.
+   * @return int Time in ms, 0 when there is none.
+   */
+  public function getReportStart( string $shard, int $war ) : int
+  {
+    $query = $this->db->prepare( 'SELECT MIN( time ) FROM reports WHERE shard = ? AND war = ?' );
+    $query->execute( [ $shard, $war ] );
+    return (int) $query->fetchColumn();
+  }
+
+  /**
    * War report totals of a shard over time: casualties per team and enlistments summed over all
    * hexes, per sample.
    *
