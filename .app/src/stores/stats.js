@@ -3,6 +3,7 @@ import { config } from './config';
 import { shards } from './shards';
 import { grid } from './grid';
 import { view } from './view';
+import { perHour } from '@lib/rates';
 
 /**
  * How often the statistics are fetched again while something uses them, in seconds; the
@@ -125,20 +126,6 @@ shards.subscribe( name =>
 } );
 
 /**
- * Rates per hour between consecutive samples of a running total.
- *
- * @param {number[][]} series Samples [ time, ...values ], oldest first.
- * @param {number} index Which value of a sample.
- * @returns {number[][]} [ time, per hour ] for each sample after the first.
- */
-const perHour = ( series, index ) => series.slice( 1 ).map( ( sample, i ) =>
-{
-  const before = series[ i ],
-        hours_between = ( sample[ 0 ] - before[ 0 ] ) / 3600000;
-  return [ sample[ 0 ], hours_between > 0 ? Math.max( 0, sample[ index ] - before[ index ] ) / hours_between : 0 ];
-} );
-
-/**
  * What the Stats tab and the map shading show, worked out from the answer.
  * @type {import('svelte/store').Readable<object|null>}
  */
@@ -148,7 +135,8 @@ const summary = derived( data, $data =>
   const series = $data.series || [],
         players = $data.players || [],
         viewers = $data.viewers || [],
-        viewer = viewers.length ? viewers[ viewers.length - 1 ] : null;
+        viewer = viewers.length ? viewers[ viewers.length - 1 ] : null,
+        from = $data.from || $data.now - 86400000;
 
   // the most active hexes in the last hour, by casualties of both teams
   const active = Object.entries( $data.hexes || {} )
@@ -169,7 +157,7 @@ const summary = derived( data, $data =>
     // from when there are samples; less than an hour means the statistics are just starting
     since: series.length ? series[ 0 ][ 0 ] : 0,
     // every chart spans the same time, so they line up
-    from: $data.from || $data.now - 86400000,
+    from,
     to: $data.now,
     players: players.length ? players[ players.length - 1 ][ 1 ] : 0,
     playerSeries: players,
@@ -177,8 +165,8 @@ const summary = derived( data, $data =>
     viewerSeries: viewers,
     watching: viewer && $data.now - viewer[ 0 ] < viewers_fresh ? viewer[ 1 ] : -1,
     casualties: {
-      wardens: perHour( series, 1 ),
-      colonials: perHour( series, 2 )
+      wardens: perHour( series, 1, from ),
+      colonials: perHour( series, 2, from )
     },
     totals: latest ? { wardens: latest[ 1 ], colonials: latest[ 2 ], enlistments: latest[ 3 ] } : null,
     active,

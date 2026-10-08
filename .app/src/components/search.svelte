@@ -95,7 +95,7 @@
 
 <svelte:window on:keydown={ onWindowKeydown }/>
 
-<div class="search">
+<div class="search" data-track="Search">
   <div class="search-field">
     <span class="search-kind"><Icon name="map"/></span>
     <input

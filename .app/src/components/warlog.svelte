@@ -137,6 +137,7 @@
                 disabled={ !hasMoment( entry, $history_since ) }
                 title={ hasMoment( entry, $history_since ) ? 'Show the map at this moment' : 'The map history starts later than this' }
                 aria-label="Show the map at this moment"
+                data-track-skip
                 on:click={ () => warlog.showAt( entry ) }
               >
                 <Icon name="clock" size={ 16 }/>

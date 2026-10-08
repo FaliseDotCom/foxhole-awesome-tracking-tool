@@ -32,7 +32,7 @@
 
 </script>
 
-<div class="panel map-controls" role="group" aria-label="Map controls">
+<div class="panel map-controls" role="group" aria-label="Map controls" data-track="Map controls">
   <div class="map-pad">
     {#each arrows as arrow ( arrow.name )}
       <button type="button" class={ `map-button ${ arrow.area }` } title={ arrow.label } aria-label={ arrow.label } on:click={ () => view.look( arrow.x, arrow.y ) }>

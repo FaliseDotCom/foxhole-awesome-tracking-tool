@@ -81,7 +81,7 @@
 </script>
 
 {#if $war}
-<div class="war" aria-label="War overview">
+<div class="war" aria-label="War overview" data-track="War">
   <div class="war-head">
     {#each teams as team, index ( team.t )}
       <ul class={ `war-counters ${ index ? 'colonials' : 'wardens' }` } aria-label={ `${ team.title } structures` }>
@@ -104,7 +104,7 @@
         <div class="war-title">
           War { $war.number }{ $war.day ? ` · day ${ $war.day }` : '' }
           {#if $war.players}
-            <span class="war-players" title="Players in Foxhole right now, all shards together (Steam)">· { $war.players.toLocaleString( 'en' ) } players</span>
+            <span class="war-players" title="Players in Foxhole right now according to Steam">· { $war.players.toLocaleString( 'en' ) } players</span>
           {/if}
         </div>
       {/if}

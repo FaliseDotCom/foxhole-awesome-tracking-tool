@@ -62,7 +62,7 @@
 
   <section class="stats-section">
     <h3>Players</h3>
-    <p class="stats-big">{ number( $stats.players ) } <span>in Foxhole now, all shards (Steam)</span></p>
+    <p class="stats-big">{ number( $stats.players ) } <span>in Foxhole now according to Steam</span></p>
     <Chart
       lines={ [ { points: $stats.playerSeries, class: 'players', title: '' } ] }
       unit="players"
@@ -84,7 +84,7 @@
         on:hover={ e => stats.setHover( e.detail ) }
       />
       {#if $stats.watching >= 0}
-        <p class="stats-big stats-below">{ number( $stats.watching ) } <span>on F.A.T.T. now (last 5 minutes)</span></p>
+        <p class="stats-big stats-below">{ number( $stats.watching ) } <span>on F.A.T.T. in the past 5 minutes</span></p>
       {/if}
     </section>
   {/if}
@@ -119,7 +119,13 @@
       <ul class="stats-hexes">
         {#each active as hex ( hex.key )}
           <li>
-            <button type="button" class="stats-hex" on:click={ () => stats.focusHex( hex.key ) }>
+            <button
+              type="button"
+              class="stats-hex"
+              data-track-action="Go to a busy hex"
+              data-track-name={ hex.title }
+              on:click={ () => stats.focusHex( hex.key ) }
+            >
               <span class="stats-hex-name">{ hex.title }</span>
               <span class="stats-hex-numbers">{ number( hex.hour.wardens ) } / { number( hex.hour.colonials ) }</span>
               <!-- casualties per team, against the busiest hex -->

@@ -3,7 +3,8 @@ import { config } from './config';
 
 /**
  * Visitor statistics with Matomo: one page view per visit, a ping every minute while the page
- * is visible (for "active now"), and events for tabs, search, history and settings. Without
+ * is visible (for "active now"), events for tabs, search, history and settings, and an event for
+ * every other click on a control, to see which features are used. Without
  * cookies, only when the server has Matomo settings (/api/analytics, from its .env), and never
  * when the browser asks not to be tracked (Do Not Track or Global Privacy Control) or the
  * viewer turned it off in the Settings tab: then not even the settings are fetched. See the
@@ -27,6 +28,31 @@ const ping_interval = 60 * 1000;
  * @type {number}
  */
 const setting_delay = 1500;
+
+/**
+ * Clicks on these count as using a feature.
+ * @type {string}
+ */
+const controls = 'button, a[href], input, select, summary';
+
+/**
+ * Attributes that steer click events: the area a control is in (the event category, from the
+ * closest element that has it), what a control does and its detail (the event action and name,
+ * when its own name does not say it well), and controls whose use is counted otherwise.
+ * @type {{ area: string, action: string, name: string, skip: string }}
+ */
+const attributes = {
+  area: 'data-track',
+  action: 'data-track-action',
+  name: 'data-track-name',
+  skip: 'data-track-skip'
+};
+
+/**
+ * Longest event action or name sent, in characters.
+ * @type {number}
+ */
+const max_text = 60;
 
 /**
  * Event categories, as they show in Matomo.
@@ -157,6 +183,56 @@ const push = ( ...command ) =>
 };
 
 /**
+ * Text without extra white space, shortened to max_text.
+ *
+ * @param {string|null|undefined} text Text.
+ * @returns {string} Clean text, '' for none.
+ */
+const clean = text => ( text || '' ).replace( /\s+/g, ' ' ).trim().slice( 0, max_text );
+
+/**
+ * What a click on a control did: its action (data-track-action, else its accessible name,
+ * title, label or text) and detail (data-track-name, else the new state of a checkbox or the
+ * value of a radio button, slider or list).
+ *
+ * @param {HTMLElement} control Clicked control.
+ * @returns {{ action: string, name: string }} Event action and name; name '' for none.
+ */
+const describe = control =>
+{
+  const label = control.closest( 'label' ),
+        action = clean( control.getAttribute( attributes.action ) )
+          || clean( control.getAttribute( 'aria-label' ) )
+          || clean( control.getAttribute( 'title' ) )
+          || clean( label ? label.textContent : '' )
+          || clean( control.getAttribute( 'placeholder' ) )
+          || clean( control.textContent );
+
+  let name = clean( control.getAttribute( attributes.name ) );
+  if ( !name && control.type === 'checkbox' ) name = control.checked ? 'on' : 'off';
+  else if ( !name && [ 'radio', 'range', 'select-one' ].includes( control.type ) ) name = clean( control.value );
+  return { action, name };
+};
+
+/**
+ * Count a click on a control, in the area it is in. Listens before the page handles the click,
+ * while the control is still in the page.
+ *
+ * @param {MouseEvent} e Click anywhere on the page.
+ * @returns {void}
+ */
+const onClick = e =>
+{
+  const control = e.target instanceof Element ? e.target.closest( controls ) : null;
+  if ( !control || control.closest( `[${ attributes.skip }]` ) ) return;
+
+  const area = control.closest( `[${ attributes.area }]` ),
+        { action, name } = describe( control );
+  if ( !action ) return;
+  push( 'trackEvent', area ? area.getAttribute( attributes.area ) : 'Page', action, ...( name ? [ name ] : [] ) );
+};
+
+/**
  * Ping Matomo while the page is visible, so open maps count as active.
  *
  * @returns {void}
@@ -216,6 +292,7 @@ export const analytics = {
     document.head.appendChild( script );
 
     setInterval( ping, ping_interval );
+    document.addEventListener( 'click', onClick, true );
   },
 
   /**

@@ -128,8 +128,9 @@ function stats_summary( string $shard, int $hours ) : array
       'now'     => $now,
       // start of the series, the same for all of them
       'from'    => $from,
-      // [ time, wardens casualties, colonials casualties, enlistments ], totals so far this war
-      'series'  => stats_thin( $store->getReportSeries( $shard, $war, $from ), $from, $now ),
+      // [ time, wardens casualties, colonials casualties, enlistments ], totals so far this war;
+      // from an hour before the span, for casualties per hour from its start
+      'series'  => stats_thin( $store->getReportSeries( $shard, $war, $from - 3600 * 1000 ), $from - 3600 * 1000, $now ),
       'hexes'   => $hexes,
       'changed' => $store->getLastChanges( $shard, $war ),
       // [ time, players in the game ]

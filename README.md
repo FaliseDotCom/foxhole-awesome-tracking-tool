@@ -45,8 +45,8 @@ F.A.T.T. can stand for any of the following:
   and day, and its three latest war log entries.
 - Lets you switch between live shards in the Shard tab at the top right. Since May 2026 Foxhole runs a
   single shard, so the picker is hidden until there is more than one.
-- Shows, bottom centre, the war number, the day of the war, the players in the game (all
-  shards, from Steam), rocket sites (armed ones in red), storm cannons and intel centres per
+- Shows, bottom centre, the war number, the day of the war, the players in the game
+  (from Steam), rocket sites (armed ones in red), storm cannons and intel centres per
   team, and one bar of the victory towns held per team against the number needed (lowered by
   one for every scorched victory town), between the faction emblems. Hover a counter for where
   they are.
@@ -60,7 +60,9 @@ F.A.T.T. can stand for any of the following:
 - Has a Stats tab: players in the game, viewers of F.A.T.T. with how many are watching now,
   casualties per hour, and the hexes with the most fighting in the last hour (click one to go
   there), from what the server records every 5 minutes. The charts show the whole war, the
-  last 7 days, 24 hours (the default), 8 or 4 hours, remembered in the browser. They share one
+  last 7 days, 24 hours (the default), 8 or 4 hours, remembered in the browser, as smooth
+  curves; casualties per hour are over the hour before each sample, because the War API updates
+  the hexes' reports at uneven moments. They share one
   time axis: hovering one marks that moment in all of them, each with its values. The tabs have icons, and show only the icons on
   phones.
 - Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
@@ -178,7 +180,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
   `dynamic.svelte`, and `summary.svelte` build on that.
 - `panzoom.svelte` wraps the `panzoom` library and adds keyboard controls and view
   persistence.
-- `icon.svelte` draws the line icons of the tabs and buttons, `chart.svelte` the line charts of the Stats tab, and `filter-field.svelte` the search fields of the war log and legend.
+- `icon.svelte` draws the line icons of the tabs and buttons, `chart.svelte` the line charts of the Stats tab (smooth curves from `lib/curve.js`; casualties per hour from `lib/rates.js`), and `filter-field.svelte` the search fields of the war log and legend.
 - `map-controls.svelte` holds the pan and zoom buttons (they send commands through `stores/view.js` to `panzoom.svelte`); `stores/hex-info.js` builds the hex details shown zoomed out.
 - `history-bar.svelte` shows which past moment the map shows, with a way back to live; `appearance.svelte` applies the map look settings.
 - `logo.svelte`, `search.svelte`, `war.svelte`, and `status.svelte` are the panels over the map, and `tabs.svelte` holds the tabs at the top right: `warlog.svelte`, `stats.svelte`, `legend.svelte`, `settings.svelte`, and `shard.svelte` (only with more than one live shard). Their styles are in `assets/css/panels.css` and the per-feature files next to it.
@@ -285,6 +287,12 @@ is tracked. `stores/analytics.js` then loads `matomo.js` and sends:
 - a ping every minute while the page is visible, so a map left open counts as active;
 - events: `Tab` with the tab opened, `History` with `show` or `live`, `Settings` with the setting
   and its new value (once it stays the same for 1.5 seconds, so dragging a slider counts once);
+- every other click on a control (button, link, field, checkbox, radio button, slider) as an
+  event: the category is the area it is in (the closest `data-track` attribute: the tab panel's
+  title, `Map controls`, `Search`, `War`, else `Page`), the action its `data-track-action`,
+  accessible name, title or label, and the name its `data-track-name`, the new state of a
+  checkbox, or the value of a radio button or slider. Controls inside `data-track-skip` (the
+  tabs, the Settings tab, the history buttons) are counted by the events above instead;
 - site searches: the normalised search words, the kind of result chosen and the number of
   suggestions, only when a result is chosen (searches without results, and choices from the
   recent list, are not counted).

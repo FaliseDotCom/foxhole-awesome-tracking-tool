@@ -10,6 +10,7 @@
 
   import { createEventDispatcher } from 'svelte'
   import { ago } from '@lib/time'
+  import { monotonePath } from '@lib/curve'
 
   /**
    * Lines to draw: points [ time, value ], oldest first, a class for the colour, and a title
@@ -82,12 +83,12 @@
   const toY = value => height - ( value - bottom ) / Math.max( 1, top - bottom ) * ( height - 4 ) - 2;
 
   /**
-   * Points of a line as an svg points attribute.
+   * A line as a smooth svg path through its points.
    *
    * @param {number[][]} points [ time, value ] pairs.
-   * @returns {string} "x,y x,y …".
+   * @returns {string} Path data.
    */
-  const toPoints = points => points.map( ( [ time, value ] ) => `${ toX( time ).toFixed( 1 ) },${ toY( value ).toFixed( 1 ) }` ).join( ' ' );
+  const toPath = points => monotonePath( points.map( ( [ time, value ] ) => [ toX( time ), toY( value ) ] ) );
 
   /**
    * The sample of each line nearest to a moment, when it is close enough.
@@ -151,7 +152,7 @@
   >
     {#each lines as line ( line.class )}
       {#if line.points.length > 1}
-        <polyline class={ `chart-line ${ line.class }` } points={ toPoints( line.points ) } vector-effect="non-scaling-stroke"/>
+        <path class={ `chart-line ${ line.class }` } d={ toPath( line.points ) } vector-effect="non-scaling-stroke"/>
       {/if}
     {/each}
     {#if hover}

@@ -30,7 +30,7 @@ const counted = [
 ];
 
 /**
- * Players in the game (all shards, from Steam via /api/players), or 0 while unknown.
+ * Players in the game according to Steam (/api/players), or 0 while unknown.
  * @type {import('svelte/store').Writable<number>}
  */
 const players = writable( 0 );

@@ -26,6 +26,7 @@
   <div class="panel history-bar" role="status">
     <Icon name="clock" size={ 16 }/>
     <span>Map as it was on <b>{ moment( $past.time ) }</b></span>
-    <button type="button" class="history-live" on:click={ () => world.showLive() }>Back to live</button>
+    <!-- counted as history by world.showLive() -->
+    <button type="button" class="history-live" data-track-skip on:click={ () => world.showLive() }>Back to live</button>
   </div>
 {/if}

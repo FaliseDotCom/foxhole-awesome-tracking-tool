@@ -601,12 +601,12 @@ test( 'the stats tab shows players, casualties and the busiest hexes', async ( {
 
   await page.getByRole( 'tab', { name: 'Stats' } ).click();
   const panel = page.getByRole( 'tabpanel', { name: 'Stats' } );
-  await expect( panel ).toContainText( '1,630 in Foxhole now' );
+  await expect( panel ).toContainText( '1,630 in Foxhole now according to Steam' );
   // the last hour: 400 and 500 more casualties than the hour before
   await expect( panel.locator( '.stats-legend' ) ).toContainText( 'Wardens 400' );
   await expect( panel.locator( '.stats-legend' ) ).toContainText( 'Colonials 500' );
   await expect( panel.locator( '.chart-line' ) ).toHaveCount( 4 );
-  await expect( panel ).toContainText( '25 on F.A.T.T. now' );
+  await expect( panel ).toContainText( '25 on F.A.T.T. in the past 5 minutes' );
 
   // busiest first; clicking one moves the map there
   const hexes = panel.locator( '.stats-hex' );
@@ -774,4 +774,31 @@ test( 'the stats charts can show the whole war, a week, a day, or the last hours
   await expect( spans.getByRole( 'button', { name: 'War' } ) ).toHaveAttribute( 'aria-pressed', 'true' );
   await spans.getByRole( 'button', { name: '4 h', exact: true } ).click();
   await expect.poll( () => asked.at( -1 ) ).toBe( '4' );
+} );
+
+test( 'clicks on controls are counted by area, without counting tabs and history twice', async ( { page } ) =>
+{
+  await page.route( '**/api/analytics', route => route.fulfill( { json: { url: 'https://matomo.test/', site: 1 } } ) );
+  // matomo.js does nothing here, so the commands stay in window._paq
+  await page.route( 'https://matomo.test/**', route => route.fulfill( { body: '', contentType: 'application/javascript' } ) );
+  await page.route( '**/api/stats/able**', route => route.fulfill( { json: sampleStats() } ) );
+  await page.goto( '/' );
+  await expect.poll( () => page.evaluate( () => Array.isArray( window._paq ) ) ).toBe( true );
+
+  await page.getByRole( 'tab', { name: 'Log' } ).click();
+  await page.getByRole( 'tab', { name: 'Log' } ).click();
+  await page.getByLabel( 'Major updates only' ).check();
+  await page.getByRole( 'tab', { name: 'Stats' } ).click();
+  await page.getByRole( 'button', { name: '7 d', exact: true } ).click();
+  await page.locator( '.stats-hex' ).first().click();
+  await page.getByRole( 'button', { name: 'Zoom in' } ).click();
+
+  const events = await page.evaluate( () => window._paq.filter( command => command[ 0 ] === 'trackEvent' ).map( command => command.slice( 1 ).join( ' / ' ) ) );
+  expect( events ).toContain( 'Log / Major updates only / on' );
+  expect( events ).toContain( 'Stats / Show the last 7 days' );
+  expect( events ).toContain( 'Stats / Go to a busy hex / Dead Lands' );
+  expect( events ).toContain( 'Map controls / Zoom in' );
+  // the tab opened once (closing is not counted), and not also as a click
+  expect( events.filter( event => event.startsWith( 'Tab / warlog' ) ) ).toHaveLength( 1 );
+  expect( events.filter( event => event.includes( 'Log' ) && event.startsWith( 'Page' ) ) ).toHaveLength( 0 );
 } );

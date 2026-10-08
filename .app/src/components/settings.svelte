@@ -105,9 +105,10 @@
       Your browser asks websites not to track you (Do Not Track or Global Privacy Control), so
       nothing is counted.
     {:else}
-      F.A.T.T. counts visits, opened tabs, searches that found something, and changed settings on
-      its own statistics server, without cookies and without storing your IP address. When your
-      browser sends Do Not Track or Global Privacy Control, nothing is counted either.
+      F.A.T.T. counts visits and which features are used (clicked buttons and options, opened
+      tabs, searches that found something, changed settings) on its own statistics server,
+      without cookies and without storing your IP address. When your browser sends Do Not Track
+      or Global Privacy Control, nothing is counted either.
     {/if}
   </p>
 </fieldset>

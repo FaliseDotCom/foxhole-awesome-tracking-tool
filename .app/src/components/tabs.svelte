@@ -78,7 +78,8 @@
 <svelte:window on:keydown={ e => { if ( e.key === 'Escape' && !e.target.closest( 'input' ) ) open = '' } }/>
 
 <div class="tabs">
-  <div class="tab-list" role="tablist" aria-label="Panels">
+  <!-- opening a tab is counted by show(), not as a click -->
+  <div class="tab-list" role="tablist" aria-label="Panels" data-track-skip>
     {#each tabs as tab, index ( tab.key )}
       <button
         type="button"
@@ -104,7 +105,15 @@
   </div>
 
   {#if current}
-    <div class="panel tab-panel" id="tab-panel" role="tabpanel" aria-labelledby={ `tab-${ current.key }` }>
+    <!-- clicks count in the area of the tab; settings count their changes instead -->
+    <div
+      class="panel tab-panel"
+      id="tab-panel"
+      role="tabpanel"
+      aria-labelledby={ `tab-${ current.key }` }
+      data-track={ current.title }
+      data-track-skip={ current.key === 'settings' ? '' : undefined }
+    >
       <svelte:component this={ current.component }/>
     </div>
   {/if}
