@@ -1,0 +1,128 @@
+<?php
+
+use GuzzleHttp\Client;
+
+/**
+ * Statistics over time, recorded by cron tasks (see cron.php): the war report of every hex
+ * (enlistments and casualties) and the number of players in the game. Stored next to the war
+ * log in its database.
+ */
+
+/**
+ * Samples closer together than this are skipped, in seconds; the cron job runs every 15.
+ * @var int
+ */
+const STATS_INTERVAL = 5 * 60;
+
+/**
+ * Steam's count of players in the game right now (all shards together; Steam knows no teams).
+ * @var string
+ */
+const STATS_STEAM_PLAYERS = 'https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=505460';
+
+/**
+ * Whether a sample taken at a time is due again.
+ *
+ * @param  int $last Time of the last sample in ms, 0 for never.
+ * @return bool True when STATS_INTERVAL has passed.
+ */
+function stats_due( int $last ) : bool
+{
+  return (int) round( microtime( true ) * 1000 ) - $last >= STATS_INTERVAL * 1000;
+}
+
+/**
+ * Cron task: sample the war report of every hex of every live shard, every STATS_INTERVAL.
+ *
+ * @param  FoxholeApi $api API client.
+ * @param  string     $via How the run was started, for the log: cli or url.
+ * @return array<string, mixed> Per shard the number of hexes sampled, or { skipped: reason }.
+ */
+function stats_reports_cron( FoxholeApi $api, string $via ) : array
+{
+  $store = warlog_store();
+  if ( !$store )
+  {
+    return [ 'skipped' => 'no database' ];
+  }
+
+  $result = [];
+  foreach ( $api->get_shards() as $shard )
+  {
+    if ( !stats_due( $store->getReportTime( $shard ) ) )
+    {
+      continue;
+    }
+    $api->set_shard( $shard );
+    $war = (int) ( $api->get_war()[ 'warNumber' ] ?? 0 );
+    $reports = $war ? $api->async_war_reports() : [];
+    if ( $reports )
+    {
+      $store->saveReports( $shard, $war, (int) round( microtime( true ) * 1000 ), $reports );
+    }
+    $result[ $shard ] = count( $reports );
+    log_line( CRON_LOG, "{$via}: {$shard}: war reports of " . count( $reports ) . ' hexes' );
+  }
+  return $result ?: [ 'skipped' => 'sampled less than ' . STATS_INTERVAL . 's ago' ];
+}
+
+/**
+ * The last sampled player count, for /api/players. When the cron job has not sampled for
+ * twice STATS_INTERVAL, the request samples it itself. Never throws.
+ *
+ * @return array{time: int, count: int} Sample time in ms and players; 0 and 0 when unknown.
+ */
+function stats_players() : array
+{
+  try
+  {
+    $store = warlog_store();
+    if ( !$store )
+    {
+      return [ 'time' => 0, 'count' => 0 ];
+    }
+    $players = $store->getPlayers();
+    if ( (int) round( microtime( true ) * 1000 ) - $players[ 'time' ] > 2 * STATS_INTERVAL * 1000 )
+    {
+      stats_players_cron( 'request' );
+      $players = $store->getPlayers();
+    }
+    return $players;
+  }
+  catch ( Throwable $e )
+  {
+    error_log( 'Player count unavailable: ' . $e->getMessage() );
+    return [ 'time' => 0, 'count' => 0 ];
+  }
+}
+
+/**
+ * Cron task: sample the number of players in the game from Steam, every STATS_INTERVAL.
+ *
+ * @param  string $via How the run was started, for the log: cli or url.
+ * @return array<string, mixed> { players } or { skipped: reason }.
+ */
+function stats_players_cron( string $via ) : array
+{
+  $store = warlog_store();
+  if ( !$store )
+  {
+    return [ 'skipped' => 'no database' ];
+  }
+  if ( !stats_due( $store->getPlayersTime() ) )
+  {
+    return [ 'skipped' => 'sampled less than ' . STATS_INTERVAL . 's ago' ];
+  }
+
+  $response = ( new Client( [ 'timeout' => 5 ] ) )->get( STATS_STEAM_PLAYERS );
+  $body = json_decode( (string) $response->getBody(), true );
+  $count = (int) ( $body[ 'response' ][ 'player_count' ] ?? 0 );
+  if ( !$count )
+  {
+    return [ 'skipped' => 'Steam sent no player count' ];
+  }
+
+  $store->savePlayers( (int) round( microtime( true ) * 1000 ), $count );
+  log_line( CRON_LOG, "{$via}: {$count} players" );
+  return [ 'players' => $count ];
+}

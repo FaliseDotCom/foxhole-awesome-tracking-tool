@@ -14,4 +14,5 @@
   require_once( __DIR__ . '/lib/cache.php' );
   require_once( __DIR__ . '/lib/api-foxhole.php' );
   require_once( __DIR__ . '/lib/warlog.php' );
+  require_once( __DIR__ . '/lib/stats.php' );
   require_once( __DIR__ . '/lib/cron.php' );

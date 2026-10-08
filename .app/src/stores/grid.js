@@ -294,6 +294,13 @@ export const grid = {
   name: id => id in world ? world[ id ].name : '',
   // id to title
   title: id => id in world ? world[ id ].title : '',
+  /**
+   * World data key for a hex name from the API proxy, which drops "Hex" (MarbanHollow never had it).
+   *
+   * @param {string} name Hex name from the API.
+   * @returns {string} World data key, or an empty string for a hex that is not drawn.
+   */
+  key: name => world[ name + 'Hex' ] ? name + 'Hex' : ( world[ name ] ? name : '' ),
   // bounds of a single grid item (hex ) as { x, y, width, height }
   bounds: id => 
   {

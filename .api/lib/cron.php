@@ -21,8 +21,11 @@ const CRON_INTERVAL = 10;
 function cron_tasks() : array
 {
   return [
-    // record the war log of every live shard
-    'warlog' => fn( FoxholeApi $api, string $via ) : array => warlog_cron( $api, $via )
+    // record the war log (and the history of every hex) of every live shard
+    'warlog'  => fn( FoxholeApi $api, string $via ) : array => warlog_cron( $api, $via ),
+    // every 5 minutes: casualties per hex, and the players in the game
+    'reports' => fn( FoxholeApi $api, string $via ) : array => stats_reports_cron( $api, $via ),
+    'players' => fn( FoxholeApi $api, string $via ) : array => stats_players_cron( $via )
   ];
 }
 

@@ -207,9 +207,8 @@ const getStructures = data =>
 
   for ( const [ id, hexData ] of Object.entries( data ) )
   {
-    // the API proxy keys hexes without "Hex"; MarbanHollow never had it
-    const hex = grid.world[ id + 'Hex' ] ? id + 'Hex' : id;
-    if ( !grid.world[ hex ] || !Array.isArray( hexData.d ) ) continue;
+    const hex = grid.key( id );
+    if ( !hex || !Array.isArray( hexData.d ) ) continue;
 
     const bounds = grid.bounds( hex ),
           title = grid.world[ hex ].title;

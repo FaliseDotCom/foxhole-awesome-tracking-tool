@@ -133,18 +133,6 @@ function readFilter()
 const isMajor = item => Boolean( icons.isVictoryBase( item ) ) || major_types.includes( item.i );
 
 /**
- * Hex key in the world data for a hex name from the API proxy, which drops "Hex".
- *
- * @param {string} name Hex name from the API.
- * @returns {string} World data key, or an empty string for a hex that is not drawn.
- */
-const hexKey = name =>
-{
-  if ( grid.world[ name + 'Hex' ] ) return name + 'Hex';
-  return grid.world[ name ] ? name : '';
-};
-
-/**
  * Turn a structure change into a log entry.
  *
  * @param {object} change Change from diffHex: { kind, item, previous }.
@@ -247,7 +235,7 @@ const fromEvent = event =>
   }
   if ( event.kind === 'won' ) return toWarEntry( 'won', event.team, 'won the war', event.time, extra );
 
-  const hex = hexKey( event.hex );
+  const hex = grid.key( event.hex );
   if ( !hex ) return null;
 
   const item = { x: event.x, y: event.y, t: event.team || '', i: event.icon, f: event.flags || 0 },
@@ -419,7 +407,7 @@ const onWorld = data =>
     const before = snapshot && snapshot[ id ];
     if ( !before || before.v === hexData.v ) continue;
 
-    const hex = hexKey( id );
+    const hex = grid.key( id );
     if ( !hex ) continue;
 
     diffHex( before.d, next[ id ].d, { ignore: icons.isResource } )

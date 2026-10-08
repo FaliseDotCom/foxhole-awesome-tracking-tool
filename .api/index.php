@@ -13,6 +13,7 @@
    *                          ?major=1 adds the major events older than the latest ones
    *   GET /api/cron          the scheduled tasks (lib/cron.php), for cron jobs that can only
    *                          request a URL; at most every 10 seconds
+   *   GET /api/players       players in the game (all shards, from Steam): { time, count }
    */
 
   require_once( __DIR__ . '/bootstrap.php' );
@@ -68,6 +69,11 @@
     // every request must reach PHP, never a cached answer
     header( 'Cache-Control: no-store' );
     json( cron_run( $api, 'url' ) );
+  }
+
+  if ( $route[ 0 ] === 'players' && count( $route ) === 1 )
+  {
+    json( stats_players() );
   }
 
   if ( $route[ 0 ] === 'shards' && count( $route ) === 1 )

@@ -108,6 +108,26 @@ test( 'war overview shows victory towns per team', async ( { page } ) =>
   await expect( tip.locator( '.tooltip-detail' ) ).toContainText( /\d+ of \d+ victory towns \(\d+%\) · \d+ needed to win/ );
 } );
 
+test( 'war overview counts key structures per team and shows the players', async ( { page } ) =>
+{
+  await page.route( '**/api/players', route => route.fulfill( { json: { time: Date.now(), count: 1625 } } ) );
+  await page.goto( '/' );
+
+  const panel = page.locator( '.war' );
+  await expect( panel.locator( '.war-title' ) ).toContainText( '1,625 players', { timeout: 20000 } );
+
+  // rocket sites, storm cannons and intel centres for each team
+  for ( const team of [ 'Wardens', 'Colonials' ] )
+  {
+    const counters = panel.getByRole( 'list', { name: `${ team } structures` } ).locator( '.war-counter' );
+    await expect( counters ).toHaveCount( 3 );
+    await expect( counters.first().locator( 'span' ) ).toHaveText( /^\d+$/ );
+  }
+
+  await panel.locator( '.war-counter' ).first().hover();
+  await expect( page.locator( '.tooltip-title' ) ).toHaveText( /^Wardens: \d+ rocket sites$/ );
+} );
+
 test( 'hovering a structure shows its name and place', async ( { page } ) =>
 {
   await page.goto( '/' );

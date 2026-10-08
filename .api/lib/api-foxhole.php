@@ -300,6 +300,44 @@ class FoxholeApi
   }
 
   /**
+   * War report of every hex, fetched in parallel: enlistments and casualties so far this war.
+   * A hex whose request fails is left out.
+   *
+   * @return array<string, array<string, int>> Per hex name (as in async_dynamics()):
+   *   enlistments, colonials, wardens (casualties).
+   */
+  public function async_war_reports() : array
+  {
+    $promises = [];
+    foreach ( $this->get_map_list() as $map )
+    {
+      $promises[ $this->map_name( $map ) ] = $this->get_async( 'worldconquest/warReport/' . $map );
+    }
+
+    $reports = [];
+    foreach ( PromiseUtils::settle( $promises )->wait() as $name => $result )
+    {
+      if ( $result[ 'state' ] !== 'fulfilled' )
+      {
+        continue;
+      }
+      // cached results are arrays already, fresh ones are responses
+      $value = $result[ 'value' ];
+      $body = is_array( $value ) ? $value : json_decode( (string) $value->getBody(), true );
+      if ( !is_array( $body ) )
+      {
+        continue;
+      }
+      $reports[ $name ] = [
+        'enlistments' => (int) ( $body[ 'totalEnlistments' ] ?? 0 ),
+        'colonials'   => (int) ( $body[ 'colonialCasualties' ] ?? 0 ),
+        'wardens'     => (int) ( $body[ 'wardenCasualties' ] ?? 0 )
+      ];
+    }
+    return $reports;
+  }
+
+  /**
    * Get the state of the current war: number, start, winner and victory towns needed.
    * Cached for a minute; it only changes when a war starts or ends.
    * @return array<string, mixed>

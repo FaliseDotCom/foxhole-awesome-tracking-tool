@@ -1,0 +1,1 @@
+import{n as e}from"../chunks/hePW80VL.js";import{B as t,P as n,tt as r,z as i}from"../chunks/DlFOlwam.js";var a=e({ssr:()=>!1});function o(e,a){var o=t(),s=r(o);n(s,()=>a.children),i(e,o)}export{o as component,a as universal};

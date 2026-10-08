@@ -31,13 +31,66 @@
   user-select: none;
 }
 
+/* Wardens' counters, the title, and the Colonials' counters on one row */
+.war-head
+{
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: "wardens title colonials";
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .war-title
 {
+  grid-area: title;
   font-size: 15px;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 4px;
   color: var( --clr-black );
+}
+
+.war-players
+{
+  font-weight: normal;
+}
+
+/* key structures per team: an icon in the team colour with its number */
+.war-counters
+{
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.war-counters.wardens
+{
+  grid-area: wardens;
+}
+
+.war-counters.colonials
+{
+  grid-area: colonials;
+  justify-content: flex-end;
+}
+
+.war-counter
+{
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: default;
+}
+
+/* a rocket site with a rocket on it */
+.war-counter.armed span
+{
+  color: #c0392b;
 }
 
 .war-bar
@@ -324,6 +377,16 @@
   .war-title
   {
     font-size: 13px;
+  }
+
+  /* the title gets its own row above the counters */
+  .war-head
+  {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "title title"
+      "wardens colonials";
+    gap: 4px;
   }
 
   .tab

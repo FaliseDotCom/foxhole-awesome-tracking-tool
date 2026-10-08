@@ -137,6 +137,8 @@ class WarlogRecorder
         $this->store->clearSnapshots( $shard );
       }
       $snapshots = $new_war ? [] : $this->store->getSnapshots( $shard );
+      // hexes without a stored version yet get one, so history has a starting point
+      $in_history = array_flip( $this->store->getHistoryHexes( $shard, $war_number ) );
 
       foreach ( $data as $hex => $hex_data )
       {
@@ -146,6 +148,15 @@ class WarlogRecorder
         }
         $version = (int) ( $hex_data[ 'v' ] ?? 0 );
         $before = $snapshots[ $hex ] ?? null;
+        $time = (int) ( $hex_data[ 'l' ] ?? $now );
+
+        // history keeps every version whose items differ, noise included, so the map can be
+        // shown exactly as it was; a version bump alone (hidden changes) is not kept
+        if ( !isset( $in_history[ $hex ] ) || ( $before && $before[ 'version' ] !== $version && $before[ 'items' ] != $hex_data[ 'd' ] ) )
+        {
+          $this->store->saveHexHistory( $shard, $war_number, (string) $hex, $time, $hex_data[ 'd' ] );
+        }
+
         if ( $before && $before[ 'version' ] === $version )
         {
           continue;
@@ -159,7 +170,7 @@ class WarlogRecorder
             {
               continue;
             }
-            $events[] = $this->toEvent( $shard, $war_number, (string) $hex, (int) ( $hex_data[ 'l' ] ?? $now ), $change );
+            $events[] = $this->toEvent( $shard, $war_number, (string) $hex, $time, $change );
           }
         }
         $this->store->saveSnapshot( $shard, (string) $hex, $version, $hex_data[ 'd' ] );

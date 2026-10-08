@@ -41,12 +41,14 @@ F.A.T.T. can stand for any of the following:
   to zoom, numpad 5 to recentre), and remembers the last view.
 - Lets you switch between live shards in the Shard tab at the top right. Since May 2026 Foxhole runs a
   single shard, so the picker is hidden until there is more than one.
-- Shows the war number, the day of the war, and victory towns held per team against the
-  number needed (lowered by one for every scorched victory town), bottom left.
+- Shows, bottom centre, the war number, the day of the war, the players in the game (all
+  shards, from Steam), rocket sites (armed ones in red), storm cannons and intel centres per
+  team, and one bar of the victory towns held per team against the number needed (lowered by
+  one for every scorched victory town). Hover a counter for where they are.
 - Shows a tooltip when you hover over a structure: type, team, state, and the nearest named
   place, such as "Town Base Tier 3 · Wardens · Victory town / The Spine, Dead Lands".
 - Has a legend (region colours, team colours, and every structure type on the map with its
-  in-game name) and settings (icon brightness, map style) in tabs at the top right;
+  in-game name) and settings (icon brightness, rocket sounds) in tabs at the top right;
   settings are remembered in the browser. The tabs have icons, and show only the icons on
   phones.
 - Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
@@ -97,7 +99,7 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 
 | File | Purpose |
 | --- | --- |
-| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (now: record the war log of every live shard as the cron job, and store the latest map data for `/api/data`), at most every 10 seconds. `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
+| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (the war log and hex history of every live shard as the cron job, the latest map data for `/api/data`, and every 5 minutes the war report of every hex and the player count), at most every 10 seconds; `GET /api/players` returns the last player count `{ time, count }`. `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
 | `router.php` | Router for `php -S`, mirroring `.htaccess`. |
 | `bootstrap.php` | Error logging (never to the response), Composer autoloader, library includes. |
 | `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`, `DATA_DIR`) and the time zone. |
@@ -107,7 +109,8 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 | `lib/grid.php`, `lib/icons.php`, `lib/point-location.php` | Leftovers from the earlier server-rendered version; not used. |
 | `composer.json`, `vendor/` | PHP dependencies; `vendor/` is not committed. |
 | `lib/warlog-*.php`, `lib/warlog.php` | Server-side war log: the comparison (a port of `.app/src/lib/warlog-diff.js`, tested with the same fixtures by `tests/warlog-diff-test.php`), the SQLite storage, and the recorder. |
-| `lib/cron.php` | Scheduled tasks, run every minute by `/api/cron` or `cron/record.php`; new tasks go in `cron_tasks()`. |
+| `lib/cron.php` | Scheduled tasks, run every 15 seconds by `/api/cron` or `cron/record.php`; new tasks go in `cron_tasks()`. |
+| `lib/stats.php` | Statistics over time: the war report of every hex and the Steam player count, sampled every 5 minutes. See `.docs/plans/2026-10-08-history-and-stats.md`. |
 | `cron/record.php` | Runs the scheduled tasks from the command line, like `/api/cron` does by URL. |
 | `cache/`, `data/` | Runtime output, created on first use and not committed. `data/` holds the war log database: never overwrite or delete it when deploying. |
 
@@ -141,7 +144,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
 | `zoom.js` | Current zoom level and its limits. |
 | `settings.js` | Icon and map style chosen by the viewer, saved in `localStorage`. |
 | `link.js` | Reads and writes the shareable link in the URL hash. |
-| `war.js` | War state from `/api/war/<shard>` plus victory towns counted from the world store. |
+| `war.js` | War state from `/api/war/<shard>`, the player count from `/api/players`, and victory towns and key structures per team counted from the world store. |
 
 **Components** (`src/components/`)
 
@@ -158,7 +161,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
 
 ### Assets
 
-`assets/` holds the map backgrounds (`maps/classic`: the official War API images of all 53 hexes, the default; `maps/color`: a recoloured 2022 set of the original 37, falling back to `classic`),
+`assets/` holds the map backgrounds (`maps/classic`: the official War API images of all 53 hexes, the default; `maps/color`: a recoloured 2022 set of the original 37, no longer offered because its terrain is outdated; kept for a possible recolour of the current images). Tile and icon urls get `?v=<content hash>` (made in `vite.config.js`), so browsers load them again when they change,
 icon sets in four brightness levels (`icons/default`, `bright`, `brighter`, `superbright`),
 fonts, stylesheets (`css/`), and the page background. They are served as they are and are
 not part of the app build.
