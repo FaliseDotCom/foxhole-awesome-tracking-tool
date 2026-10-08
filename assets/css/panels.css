@@ -123,6 +123,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 2px;
+  /* the panel reaches this much past the first tab, so its rounded corner clears the tab */
+  padding-left: 10px;
 }
 
 .tab
