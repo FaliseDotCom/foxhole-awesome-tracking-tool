@@ -10,6 +10,8 @@
    *   GET /api/war/<shard>   war number, start time, winner and victory towns needed
    *   GET /api/log/<shard>   war log events, newest first: ?limit=, ?since=<id>, ?before=<id>;
    *                          ?major=1 adds the major events older than the latest ones
+   *   GET /api/cron          the scheduled tasks (lib/cron.php), for cron jobs that can only
+   *                          request a URL; at most every 30 seconds
    */
 
   require_once( __DIR__ . '/bootstrap.php' );
@@ -58,6 +60,14 @@
 
   $route = explode( '/', trim( (string) ( $_GET[ 'route' ] ?? '' ), '/' ) );
   $api = new FoxholeApi();
+
+  if ( $route[ 0 ] === 'cron' && count( $route ) === 1 )
+  {
+    log_line( CRON_LOG, 'url: start, PHP ' . PHP_VERSION . ' (' . PHP_SAPI . ')' );
+    // every request must reach PHP, never a cached answer
+    header( 'Cache-Control: no-store' );
+    json( cron_run( $api, 'url' ) );
+  }
 
   if ( $route[ 0 ] === 'shards' && count( $route ) === 1 )
   {

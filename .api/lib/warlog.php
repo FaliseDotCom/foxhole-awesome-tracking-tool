@@ -54,6 +54,45 @@ function warlog_record( FoxholeApi $api, string $shard, array $data, bool $force
 }
 
 /**
+ * Cron task (see cron.php): record every live shard as the cron job, and report each shard in
+ * cron-record.log.
+ *
+ * @param  FoxholeApi $api API client.
+ * @param  string     $via How the run was started, for the log: cli or url.
+ * @return array<string, array{events: int, hexes: int}> Per shard; events is -1 when it failed.
+ */
+function warlog_cron( FoxholeApi $api, string $via ) : array
+{
+  $shards = $api->get_shards();
+  if ( !$shards )
+  {
+    // no shard answered, or the War API is unreachable from here (a missing CA bundle shows up so)
+    log_line( CRON_LOG, "{$via}: no live shards found, nothing recorded" );
+  }
+
+  $result = [];
+  foreach ( $shards as $shard )
+  {
+    try
+    {
+      $api->set_shard( $shard );
+      $data = $api->async_dynamics();
+      $result[ $shard ] = [ 'events' => warlog_record( $api, $shard, $data, true ), 'hexes' => count( $data ) ];
+      // the hex count shows whether map data came in at all: 0 events with 0 hexes is a failed fetch
+      log_line( CRON_LOG, "{$via}: {$shard}: {$result[ $shard ][ 'events' ]} events, {$result[ $shard ][ 'hexes' ]} hexes" );
+    }
+    catch ( Throwable $e )
+    {
+      // one failing shard must not stop the others
+      error_log( "War log cron failed for {$shard}: " . $e->getMessage() );
+      $result[ $shard ] = [ 'events' => -1, 'hexes' => 0 ];
+      log_line( CRON_LOG, "{$via}: {$shard}: failed, see the error log" );
+    }
+  }
+  return $result;
+}
+
+/**
  * Events for the browser: names in camelCase and numbers as numbers.
  *
  * @param  array<string, mixed> $row Row from the events table.

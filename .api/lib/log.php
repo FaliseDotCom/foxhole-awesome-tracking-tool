@@ -7,6 +7,12 @@
  */
 
 /**
+ * Log of the cron runs, whether started from the command line or by URL.
+ * @var string
+ */
+const CRON_LOG = 'cron-record';
+
+/**
  * Today's log folder, created when missing.
  *
  * @return string Folder path, ending in a slash.

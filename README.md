@@ -95,7 +95,7 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 
 | File | Purpose |
 | --- | --- |
-| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events). Fresh `/api/data` is also handed to the war log recorder. A shard that is down or unknown answers `502` with a JSON error. |
+| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (now: record the war log of every live shard as the cron job), at most every 30 seconds. Fresh `/api/data` is also handed to the war log recorder. A shard that is down or unknown answers `502` with a JSON error. |
 | `router.php` | Router for `php -S`, mirroring `.htaccess`. |
 | `bootstrap.php` | Error logging (never to the response), Composer autoloader, library includes. |
 | `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`, `DATA_DIR`) and the time zone. |
@@ -105,7 +105,8 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 | `lib/grid.php`, `lib/icons.php`, `lib/point-location.php` | Leftovers from the earlier server-rendered version; not used. |
 | `composer.json`, `vendor/` | PHP dependencies; `vendor/` is not committed. |
 | `lib/warlog-*.php`, `lib/warlog.php` | Server-side war log: the comparison (a port of `.app/src/lib/warlog-diff.js`, tested with the same fixtures by `tests/warlog-diff-test.php`), the SQLite storage, and the recorder. |
-| `cron/record.php` | Records the war log for every live shard; run every minute by a cron job. |
+| `lib/cron.php` | Scheduled tasks, run every minute by `/api/cron` or `cron/record.php`; new tasks go in `cron_tasks()`. |
+| `cron/record.php` | Runs the scheduled tasks from the command line, like `/api/cron` does by URL. |
 | `cache/`, `data/` | Runtime output, created on first use and not committed. `data/` holds the war log database: never overwrite or delete it when deploying. |
 
 The compressed response per hex looks like:
@@ -241,35 +242,32 @@ there is an error; `api-foxhole.log` is created as soon as the API runs, empty o
 `cron-record.log` for today means cron did not start the script.
 
 For the war log, add one DirectAdmin cron job that runs every minute (`*` in all five time
-fields) and records every live shard. Either command works; pick the one that matches how the
-other cron jobs on the server are set up. They can be pasted as they are: cron runs them with
-`sh`, which reads `~` as the account's home folder (`/home/<user>`). The script logs each run
-itself (see [Logs](#logs)), so its output can go to `/dev/null`.
+fields). The simplest is to request `/api/cron`, which runs the scheduled tasks (now only the war
+log of every live shard); paste it on one line:
 
 ```
-# run the script directly
-/usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php >/dev/null 2>&1
+/usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1
+```
 
-# from its own folder, at low priority (as the server's other PHP cron jobs)
-cd ~/domains/fatt.fali.se/public_html/.api/cron; /bin/nice -n15 /usr/local/php84/bin/php -q record.php >/dev/null 2>&1
+It answers with what each task did, e.g. `{"warlog":{"able":{"events":2,"hexes":53}}}`. The URL is
+public, so runs less than 30 seconds apart are skipped (`{"skipped":"..."}`): nobody can make the
+server record more often than cron would.
+
+The same run from the command line, without a web request (`~` is the account's home folder):
+
+```
+/usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php >/dev/null 2>&1
 ```
 
 Use the PHP version the site runs on, not the system PHP: on this server `/usr/bin/php` is PHP
 7.2, which cannot load the dependencies (the error log then shows "Composer detected issues in
-your platform"). DirectAdmin installs each PHP version it offers as `/usr/local/phpXY/bin/php`,
-here `/usr/local/php84/bin/php`; `/usr/local/bin/php` is its default version, which may differ
-from the site's. A test cron job such as `/usr/local/php84/bin/php -v > ~/php.txt`
-shows what a binary is. The script refuses web requests: opening it in a browser gives a 404.
+your platform"). DirectAdmin installs each PHP version it offers in `/usr/local/phpXY/bin/`,
+named `php` or `phpXY` depending on the server (`/usr/local/php84/bin/php` did not run here);
+`/usr/local/bin/php` is its default version, which may differ from the site's. A test cron job
+such as `ls /usr/local/php*/bin/ > ~/domains/fatt.fali.se/public_html/.cron-test.txt 2>&1` lists
+them. The script refuses web requests: opening it in a browser gives a 404.
 
-When the server cannot run PHP from cron, a web request can stand in. Requesting the map data
-of a shard records that shard, just as a visitor would, so add one job per shard (`able`,
-`baker`):
-
-```
-/usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/data/<shard>' >/dev/null 2>&1
-```
-
-These recordings count as `request`, not `cron`, so `cronAt` stays 0 with this method.
+Both log each run in `cron-record.log` (see [Logs](#logs)), marked `url` or `cli`.
 
 Without any cron job the log is still recorded, but only while someone has the page open.
 
