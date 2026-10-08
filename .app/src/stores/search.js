@@ -57,7 +57,7 @@ const kinds = {
  * @param {string} text Text to normalise.
  * @returns {string} Normalised text.
  */
-const normalise = text => text
+export const normalise = text => text
   .normalize( 'NFD' )
   .replace( /[̀-ͯ]/g, '' )
   .toLowerCase()

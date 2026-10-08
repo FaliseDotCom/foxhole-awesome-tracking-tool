@@ -47,12 +47,14 @@ F.A.T.T. can stand for any of the following:
   place, such as "Town Base Tier 3 · Wardens · Victory town / The Spine, Dead Lands".
 - Has a legend (region colours, team colours, and every structure type on the map with its
   in-game name) and settings (icon brightness, map style) in tabs at the top right;
-  settings are remembered in the browser.
+  settings are remembered in the browser. The tabs have icons, and show only the icons on
+  phones.
 - Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
   point at the screen centre, zoom), so a link opens the same view. Without a link it
   restores the last view from `localStorage`.
 - Keeps a war log (the first tab at the top right, open by default on wide screens): captures, losses, upgrades, scorched towns, structures built
-  or destroyed, construction started and finished, and victory town totals; click an entry to go there. A status line ("Live · checked
+  or destroyed, construction started and finished, and victory town totals; click an entry to go there. Its own search field
+  filters the entries as you type (every word must appear in the team, text, or place). A status line ("Live · checked
   5 s ago · last change 12 min ago") shows the log is working during quiet spells. The server records it
   (`.api/data/warlog.sqlite`), so it is the same for everyone and has history; when the server
   log does not answer, the browser shows the changes it sees itself. Major events (victory
@@ -151,6 +153,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
   `dynamic.svelte`, and `summary.svelte` build on that.
 - `panzoom.svelte` wraps the `panzoom` library and adds keyboard controls and view
   persistence.
+- `icon.svelte` draws the line icons of the tabs and search fields.
 - `logo.svelte`, `search.svelte`, `war.svelte`, and `status.svelte` are the panels over the map, and `tabs.svelte` holds the tabs at the top right: `warlog.svelte`, `legend.svelte`, `settings.svelte`, and `shard.svelte` (only with more than one live shard). Their styles are in `assets/css/panels.css` and the per-feature files next to it.
 
 ### Assets

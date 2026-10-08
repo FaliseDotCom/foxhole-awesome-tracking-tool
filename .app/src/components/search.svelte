@@ -7,6 +7,7 @@
   import { search } from '@stores/search'
   import { icons } from '@stores/icons'
   import { settings } from '@stores/settings'
+  import Icon from '@components/icon.svelte'
 
   const query = search.query,
         open = search.open,
@@ -96,11 +97,12 @@
 
 <div class="search">
   <div class="search-field">
+    <span class="search-kind"><Icon name="map"/></span>
     <input
       bind:this={ input }
       type="text"
       role="combobox"
-      placeholder="Search places and structures"
+      placeholder="Search the map…"
       aria-label="Search places and structures"
       aria-autocomplete="list"
       aria-expanded={ expanded }
@@ -118,10 +120,7 @@
       <button type="button" class="search-clear" aria-label="Clear search" on:click={ onClear }>×</button>
     {/if}
     <button type="button" class="search-go" aria-label="Search" on:click={ onSearch }>
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-        <circle cx="10.5" cy="10.5" r="6.5"/>
-        <line x1="15.5" y1="15.5" x2="21" y2="21"/>
-      </svg>
+      <Icon name="search"/>
     </button>
   </div>
 

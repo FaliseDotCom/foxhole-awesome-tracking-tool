@@ -278,7 +278,18 @@
   .tab
   {
     font-size: 12px;
-    padding: 6px 8px;
+    padding: 8px 10px;
+  }
+
+  /* icons only */
+  .tab-label
+  {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset( 50% );
+    white-space: nowrap;
   }
 
   .tab-panel

@@ -440,3 +440,51 @@ test( 'the war log status says who recorded and when the cron job ran', async ( 
   const status = page.locator( '.warlog-status' );
   await expect( status ).toHaveAttribute( 'title', /Last checked by a visitor's map update\. The cron job last ran 3\ds ago\./ );
 } );
+
+test( 'the war log search shows only matching entries', async ( { page } ) =>
+{
+  const events = [
+    { id: 2, time: Date.now() - 60000, hex: 'DeadLands', kind: 'victory', major: true, team: 'W', value: 25, required: 34 },
+    { id: 1, time: Date.now() - 120000, hex: 'DeadLands', kind: 'won', major: true, team: 'C' }
+  ];
+  // later requests ask for events since the newest id, as the server answers them
+  await page.route( '**/api/log/able**', route =>
+  {
+    const since = Number( new URL( route.request().url() ).searchParams.get( 'since' ) || 0 );
+    route.fulfill( { json: { war: 141, recordedAt: Date.now(), events: events.filter( e => e.id > since ) } } );
+  } );
+  await page.goto( '/' );
+
+  // the log loads after the first map data, which can take a while from the War API
+  const entries = page.locator( '.warlog-entry' );
+  await expect( entries ).toHaveCount( 2, { timeout: 20000 } );
+
+  // every word must match, in the team, the text or the place
+  const field = page.getByRole( 'textbox', { name: 'Search the war log' } );
+  await field.fill( 'wardens victory' );
+  await expect( entries ).toHaveCount( 1 );
+  await expect( entries.first() ).toContainText( 'now hold 25 of 34 victory towns' );
+
+  await field.fill( 'nothing like this' );
+  await expect( entries ).toHaveCount( 0 );
+  await expect( page.locator( '.warlog-empty' ) ).toContainText( 'Nothing in the log matches' );
+
+  await field.fill( '' );
+  await expect( entries ).toHaveCount( 2 );
+} );
+
+test( 'on a phone the tabs show only icons and the open panel hides the map search', async ( { page } ) =>
+{
+  await page.setViewportSize( { width: 390, height: 800 } );
+  await page.goto( '/' );
+
+  const tab = page.getByRole( 'tab', { name: 'War log' } );
+  await expect( tab.locator( '.icon' ) ).toBeVisible();
+  await expect( tab.locator( '.tab-label' ) ).toHaveCSS( 'width', '1px' );
+
+  const map_search = page.getByRole( 'combobox', { name: 'Search places and structures' } );
+  await expect( map_search ).toBeVisible();
+  await tab.click();
+  await expect( page.getByRole( 'textbox', { name: 'Search the war log' } ) ).toBeVisible();
+  await expect( map_search ).toBeHidden();
+} );

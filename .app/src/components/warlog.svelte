@@ -9,8 +9,10 @@
   import { warlog } from '@stores/warlog'
   import { icons } from '@stores/icons'
   import { settings } from '@stores/settings'
+  import Icon from '@components/icon.svelte'
 
   const major_only = warlog.majorOnly,
+        query = warlog.query,
         source = warlog.source,
         checked = warlog.checked,
         recorder = warlog.recorder;
@@ -70,6 +72,20 @@
 
 </script>
 
+  <div class="warlog-search">
+    <span class="warlog-search-kind"><Icon name="list"/></span>
+    <input
+      type="text"
+      placeholder="Search the log…"
+      aria-label="Search the war log"
+      autocomplete="off"
+      spellcheck="false"
+      value={ $query }
+      on:input={ e => warlog.setQuery( e.target.value ) }
+    />
+    <span class="warlog-search-go"><Icon name="search"/></span>
+  </div>
+
   <label class="warlog-filter">
     <input type="checkbox" checked={ $major_only } on:change={ e => warlog.setMajorOnly( e.target.checked ) }/>
     Major updates only
@@ -117,7 +133,9 @@
     </ul>
   {:else}
     <p class="warlog-empty">
-      {#if $source === 'loading'}
+      {#if $query.trim()}
+        Nothing in the log matches “{ $query.trim() }”.
+      {:else if $source === 'loading'}
         Loading the war log…
       {:else if $major_only}
         No major changes yet. Victory towns, relic bases and rockets appear here.

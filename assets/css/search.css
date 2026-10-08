@@ -22,8 +22,8 @@
 {
   box-sizing: border-box;
   width: 100%;
-  /* room on the right for the clear and search buttons */
-  padding: 9px 68px 9px 12px;
+  /* room for the map icon on the left, and the clear and search buttons on the right */
+  padding: 9px 68px 9px 38px;
   font-family: inherit;
   font-size: 15px;
   color: var( --clr-black );
@@ -38,6 +38,18 @@
 {
   border-color: var( --clr-focus );
   background-color: #fff;
+}
+
+/* what the field searches: the map */
+.search-kind
+{
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY( -50% );
+  display: flex;
+  color: rgba( 0, 0, 0, .5 );
+  pointer-events: none;
 }
 
 .search-clear,
@@ -84,14 +96,6 @@
 {
   color: var( --clr-black );
   background-color: rgba( 255, 165, 0, .25 );
-}
-
-.search-go svg
-{
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.4;
-  stroke-linecap: round;
 }
 
 .search-clear:hover,
@@ -160,16 +164,27 @@
 
 @media ( max-width: 1000px )
 {
+  /* a row of its own, under the logo and the tabs */
   .search
   {
     top: 72px;
     width: calc( 100% - 16px );
   }
 
-  .tab-panel
+  /* an open tab panel hangs from its tab; the search field makes way on its left */
+  body:has( .tab-panel ) .search
   {
-    /* below the search field, which sits under the tabs on narrow screens */
-    margin-top: 82px;
-    max-height: calc( 100vh - 140px );
+    left: 8px;
+    transform: none;
+    width: calc( 100% - 332px );
+  }
+}
+
+@media ( max-width: 600px )
+{
+  /* the panel takes the whole width, so the map search waits until it is closed */
+  body:has( .tab-panel ) .search
+  {
+    display: none;
   }
 }

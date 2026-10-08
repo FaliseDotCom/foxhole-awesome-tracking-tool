@@ -4,7 +4,7 @@ import { war } from './war';
 import { shards } from './shards';
 import { grid } from './grid';
 import { icons } from './icons';
-import { search } from './search';
+import { search, normalise } from './search';
 import { view } from './view';
 import { config } from './config';
 import { diffHex, teamKind } from '@lib/warlog-diff';
@@ -92,7 +92,9 @@ const server_entries = writable( [] ),
       // who made the server's last recording (cron or request), and when the cron job last ran
       recorder = writable( { by: '', cronAt: 0 } ),
       unseen = writable( 0 ),
-      major_only = writable( readFilter() );
+      major_only = writable( readFilter() ),
+      // text typed in the war log's search field
+      query = writable( '' );
 
 let shard = '',
     // browser comparison: previous items and version per hex; null until the first data
@@ -300,11 +302,14 @@ const withoutNoise = ( added, existing ) =>
  */
 const add = ( list, added, shown ) =>
 {
-  if ( !added.length ) return;
-  list.update( current => [ ...added, ...current ]
+  // an entry that is already there (a server repeating events) would break the keyed list
+  const known = new Set( get( list ).map( entry => entry.id ) );
+  const fresh = added.filter( entry => !known.has( entry.id ) );
+  if ( !fresh.length ) return;
+  list.update( current => [ ...fresh, ...current ]
     .sort( ( a, b ) => b.time - a.time )
     .slice( 0, max_entries ) );
-  if ( shown ) unseen.update( count => count + added.length );
+  if ( shown ) unseen.update( count => count + fresh.length );
 };
 
 /**
@@ -526,11 +531,27 @@ const combined = derived( [ server_entries, browser_entries, source ], ( [ $serv
 } );
 
 /**
- * Entries to show, after the "Major updates only" filter.
+ * Whether an entry contains every word of a search, in its team, text or place.
+ *
+ * @param {object} entry Log entry.
+ * @param {string[]} words Normalised search words.
+ * @returns {boolean} True when all words are found.
+ */
+const matches = ( entry, words ) =>
+{
+  const text = normalise( `${ entry.team || '' } ${ entry.text } ${ entry.place || '' }` );
+  return words.every( word => text.includes( word ) );
+};
+
+/**
+ * Entries to show, after the "Major updates only" filter and the search.
  * @type {import('svelte/store').Readable<object[]>}
  */
-const visible = derived( [ combined, major_only ], ( [ $combined, $major_only ] ) =>
-  $major_only ? $combined.filter( entry => entry.major ) : $combined );
+const visible = derived( [ combined, major_only, query ], ( [ $combined, $major_only, $query ] ) =>
+{
+  const words = normalise( $query ).split( ' ' ).filter( Boolean );
+  return $combined.filter( entry => ( !$major_only || entry.major ) && matches( entry, words ) );
+} );
 
 /**
  * Rockets with a known launch site and impact, for drawing arcs on the map; not filtered.
@@ -543,6 +564,7 @@ export const warlog = {
   rockets: { subscribe: rockets.subscribe },
   unseen: { subscribe: unseen.subscribe },
   majorOnly: { subscribe: major_only.subscribe },
+  query: { subscribe: query.subscribe },
   // loading, server, or browser (the fallback)
   source: { subscribe: source.subscribe },
   checked: { subscribe: checked.subscribe },
@@ -565,6 +587,17 @@ export const warlog = {
     {
       // storage unavailable; the filter lasts until reload
     }
+  },
+
+  /**
+   * Show only the entries that contain every word of a search; empty shows all.
+   *
+   * @param {string} value Search text.
+   * @returns {void}
+   */
+  setQuery( value )
+  {
+    query.set( value );
   },
 
   /**

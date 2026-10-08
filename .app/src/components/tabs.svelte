@@ -13,6 +13,7 @@
   import Shard from '@components/shard.svelte'
   import { warlog } from '@stores/warlog'
   import { shards } from '@stores/shards'
+  import Icon from '@components/icon.svelte'
 
   const unseen = warlog.unseen,
         available = shards.available;
@@ -21,10 +22,10 @@
   onMount( () => shards.load() );
 
   $: tabs = [
-    { key: 'warlog', title: 'War log', component: Warlog },
-    { key: 'legend', title: 'Legend', component: Legend },
-    { key: 'settings', title: 'Settings', component: Settings },
-    ...( $available.length > 1 ? [ { key: 'shard', title: 'Shard', component: Shard } ] : [] )
+    { key: 'warlog', title: 'War log', icon: 'list', component: Warlog },
+    { key: 'legend', title: 'Legend', icon: 'legend', component: Legend },
+    { key: 'settings', title: 'Settings', icon: 'settings', component: Settings },
+    ...( $available.length > 1 ? [ { key: 'shard', title: 'Shard', icon: 'shard', component: Shard } ] : [] )
   ];
 
   // open tab, or empty when closed; purely local UI state. The war log starts open on wide
@@ -75,8 +76,11 @@
         tabindex={ open === tab.key || ( !open && index === 0 ) ? 0 : -1 }
         on:click={ () => toggle( tab.key ) }
         on:keydown={ e => onTabKey( e, index ) }
+        title={ tab.title }
       >
-        { tab.title }
+        <Icon name={ tab.icon }/>
+        <!-- hidden on small screens, but still the tab's name for screen readers -->
+        <span class="tab-label">{ tab.title }</span>
         {#if tab.key === 'warlog' && open !== 'warlog' && $unseen}
           <span class="tab-badge" aria-label={ `${ $unseen } new` }>{ $unseen }</span>
         {/if}

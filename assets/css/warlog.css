@@ -1,4 +1,51 @@
-/* War log tab: filter, entries, and the fallback notice */
+/* War log tab: search, filter, entries, and the fallback notice */
+
+/* search field: a list icon (what it searches) before, a search icon after */
+.warlog-search
+{
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.warlog-search input
+{
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px 34px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var( --clr-black );
+  background-color: #fff;
+  border: 1px solid rgba( 0, 0, 0, .25 );
+  border-radius: 8px;
+  outline: none;
+}
+
+.warlog-search input:focus
+{
+  border-color: var( --clr-focus );
+}
+
+.warlog-search-kind,
+.warlog-search-go
+{
+  position: absolute;
+  top: 50%;
+  transform: translateY( -50% );
+  display: flex;
+  color: rgba( 0, 0, 0, .5 );
+  pointer-events: none;
+}
+
+.warlog-search-kind
+{
+  left: 9px;
+}
+
+.warlog-search-go
+{
+  right: 9px;
+}
 
 .warlog-filter
 {
