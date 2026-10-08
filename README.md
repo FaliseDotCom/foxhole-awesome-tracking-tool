@@ -114,7 +114,7 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 
 | File | Purpose |
 | --- | --- |
-| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (the war log and hex history of every live shard as the cron job, the latest map data for `/api/data`, and every 5 minutes the war report of every hex and the player count), at most every 10 seconds; `GET /api/players` returns the last player count `{ time, count }`; `GET /api/health` returns whether the cron job runs and the War API changes of the last 30 days; `GET /api/stats/<shard>?hours=24` returns casualties over time and per hex (last hour and day), when each hex last changed, and players over time; `GET /api/history/<shard>?at=<ms>` returns the map data of every hex as it was at that moment, like `/api/data` (the log's `historySince` says from when). `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
+| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (the war log and hex history of every live shard as the cron job, the latest map data for `/api/data`, and every 5 minutes the war report of every hex and the player count), at most every 10 seconds; `GET /api/players` returns the last player count `{ time, count }`; `GET /api/analytics` returns the Matomo address and site id from the server settings (`[]` when tracking is off); `GET /api/health` returns whether the cron job runs and the War API changes of the last 30 days; `GET /api/stats/<shard>?hours=24` returns casualties over time and per hex (last hour and day), when each hex last changed, and players over time; `GET /api/history/<shard>?at=<ms>` returns the map data of every hex as it was at that moment, like `/api/data` (the log's `historySince` says from when). `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
 | `router.php` | Router for `php -S`, mirroring `.htaccess`. |
 | `bootstrap.php` | Error logging (never to the response), Composer autoloader, library includes. |
 | `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`, `DATA_DIR`) and the time zone. |
@@ -126,6 +126,8 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 | `lib/warlog-*.php`, `lib/warlog.php` | Server-side war log: the comparison (a port of `.app/src/lib/warlog-diff.js`, tested with the same fixtures by `tests/warlog-diff-test.php`), the SQLite storage, and the recorder. |
 | `lib/cron.php` | Scheduled tasks, run every 15 seconds by `/api/cron` or `cron/record.php`; new tasks go in `cron_tasks()`. |
 | `lib/stats.php` | Statistics over time: the war report of every hex and the Steam player count, sampled every 5 minutes. See `.docs/plans/2026-10-08-history-and-stats.md`. |
+| `lib/env.php`, `.env` | Server settings from `.env`, which exists only on the server; see [Server settings](#server-settings). |
+| `lib/analytics.php` | Where the browser sends visitor statistics (`/api/analytics`), from the server settings. |
 | `lib/watch.php` | Watches the War API for new hexes, icon types and map flags, and hexes that are gone; `/api/health` lists them. See [Monitoring](#monitoring). |
 | `cron/record.php` | Runs the scheduled tasks from the command line, like `/api/cron` does by URL. |
 | `cache/`, `data/` | Runtime output, created on first use and not committed. `data/` holds the war log database: never overwrite or delete it when deploying. |
@@ -162,7 +164,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
 | `settings.js` | The viewer's settings, saved in `localStorage`: styles from `config.styles` (icons, maps, shading, palette, side), switches (sound, hex names) and sliders (icon size, region colour strength). `components/appearance.svelte` applies the map look to the page. |
 | `link.js` | Reads and writes the shareable link in the URL hash. |
 | `war.js` | War state from `/api/war/<shard>`, the player count from `/api/players`, and victory towns and key structures per team counted from the world store. |
-| `analytics.js` | Visitor statistics with Matomo: the page view, a ping every minute while the page is visible, and events for tabs, searches, history and settings. See [Visitor statistics](#visitor-statistics). |
+| `analytics.js` | Visitor statistics with Matomo, set up from `/api/analytics`: the page view, a ping every minute while the page is visible, and events for tabs, searches, history and settings. See [Visitor statistics](#visitor-statistics). |
 
 **Components** (`src/components/`)
 
@@ -271,8 +273,10 @@ there is an error; `api-foxhole.log` is created as soon as the API runs, empty o
 ### Visitor statistics
 
 Visits are counted by Matomo at <https://matomo.fali.se/>, installed there with Installatron
-and not part of this repository; only Sander can see the reports. `stores/analytics.js` loads
-`matomo.js` and sends:
+and not part of this repository; only Sander can see the reports. Where to send them is set
+only on the server, in `.api/.env` (see [Server settings](#server-settings)):
+`/api/analytics` hands the Matomo address and site id to the browser, and without them nothing
+is tracked. `stores/analytics.js` then loads `matomo.js` and sends:
 
 - one page view per visit, for `https://fatt.fali.se/` without the hash (the view is not
   counted);
@@ -283,12 +287,26 @@ and not part of this repository; only Sander can see the reports. `stores/analyt
   suggestions, only when a result is chosen (searches without results, and choices from the
   recent list, are not counted).
 
-Nothing is loaded or sent off `config.analytics.host` (so development and the tests are not
-counted) or when the browser sends Do Not Track or Global Privacy Control. The tracker runs
-without cookies (`disableCookies`) and also has `setDoNotTrack`. The Settings tab tells
-visitors this. Matomo itself is set up for privacy under Administration > Privacy: anonymise
-IP addresses (2 bytes), force tracking without cookies, and support Do Not Track. The site id
-of F.A.T.T. in Matomo is `config.analytics.site`.
+When the browser sends Do Not Track or Global Privacy Control, not even `/api/analytics` is
+requested. The tracker runs without cookies (`disableCookies`) and also has `setDoNotTrack`.
+The Settings tab tells visitors this. Development and the tests are not counted, because a
+local `.api/` has no `.env`. Matomo itself is set up for privacy under Administration >
+Privacy: anonymise IP addresses (2 bytes), force tracking without cookies, and support Do Not
+Track; under Websites, F.A.T.T. only accepts visits whose URL starts with
+`https://fatt.fali.se`, so a development server using the live API is not counted either.
+
+### Server settings
+
+Settings that differ per server or must stay out of the repository are in `.api/.env`
+(`KEY=value`, `#` for comments; read by `lib/env.php`, with the process environment as a
+fallback). It is not committed and the deploy never uploads or overwrites it: copy
+`.api/.env.example` to `.api/.env` on the server by FTP and fill it in. Like every dot path it
+is never served.
+
+| Setting | Purpose |
+| --- | --- |
+| `MATOMO_URL` | Matomo address for visitor statistics, `https://` and ending in a slash. |
+| `MATOMO_SITE_ID` | Site id of F.A.T.T. in that Matomo. Empty or missing: no tracking. |
 
 ### Monitoring
 

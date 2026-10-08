@@ -9,6 +9,9 @@
 .api/cache/
 .api/data/
 
+# server settings, only on the server (see .api/.env.example)
+.api/.env
+
 # logs, one folder per day; .api/logs/ is the old place
 .logs/
 .api/logs/

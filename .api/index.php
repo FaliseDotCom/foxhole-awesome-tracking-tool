@@ -13,6 +13,8 @@
    *                          ?major=1 adds the major events older than the latest ones
    *   GET /api/cron          the scheduled tasks (lib/cron.php), for cron jobs that can only
    *                          request a URL; at most every 10 seconds
+   *   GET /api/analytics     where the browser sends visitor statistics: { url, site } from
+   *                          the server settings (.env), or [] when tracking is off
    *   GET /api/players       players in the game (all shards, from Steam): { time, count }
    *   GET /api/health        whether the cron job runs, and War API changes found in the last
    *                          30 days (lib/watch.php), for the daily watch workflow
@@ -86,6 +88,11 @@
   if ( $route[ 0 ] === 'players' && count( $route ) === 1 )
   {
     json( stats_players() );
+  }
+
+  if ( $route[ 0 ] === 'analytics' && count( $route ) === 1 )
+  {
+    json( analytics_config() );
   }
 
   if ( $route[ 0 ] === 'shards' && count( $route ) === 1 )

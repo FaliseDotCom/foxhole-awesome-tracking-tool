@@ -11,6 +11,8 @@
   @ini_set( 'error_log', log_path( ( defined( 'LOG_CONTEXT' ) ? LOG_CONTEXT : 'api' ) . '-error' ) );
 
   require_once( __DIR__ . '/vendor/autoload.php' );
+  require_once( __DIR__ . '/lib/env.php' );
+  require_once( __DIR__ . '/lib/analytics.php' );
   require_once( __DIR__ . '/lib/cache.php' );
   require_once( __DIR__ . '/lib/api-foxhole.php' );
   require_once( __DIR__ . '/lib/warlog.php' );

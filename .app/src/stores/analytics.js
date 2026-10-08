@@ -1,11 +1,11 @@
 import { config } from './config';
 
 /**
- * Visitor statistics with Matomo (config.analytics): one page view per visit, a ping every
- * minute while the page is visible (for "active now"), and events for tabs, search, history and
- * settings. Without cookies, only on the live site, and never when the browser asks not to be
- * tracked (Do Not Track or Global Privacy Control): then matomo.js is not even loaded. See the
- * README, "Visitor statistics".
+ * Visitor statistics with Matomo: one page view per visit, a ping every minute while the page
+ * is visible (for "active now"), and events for tabs, search, history and settings. Without
+ * cookies, only when the server has Matomo settings (/api/analytics, from its .env), and never
+ * when the browser asks not to be tracked (Do Not Track or Global Privacy Control): then not
+ * even the settings are fetched. See the README, "Visitor statistics".
  */
 
 /**
@@ -37,6 +37,12 @@ const categories = {
 let started = false;
 
 /**
+ * Whether start() was called, so the settings are fetched once.
+ * @type {boolean}
+ */
+let starting = false;
+
+/**
  * Pending setting events per setting, waiting for setting_delay.
  * @type {Record<string, number>}
  */
@@ -52,6 +58,27 @@ const optedOut = () =>
 {
   const dnt = [ navigator.doNotTrack, window.doNotTrack, navigator.msDoNotTrack ];
   return dnt.some( value => value === '1' || value === 'yes' ) || navigator.globalPrivacyControl === true;
+};
+
+/**
+ * Fetch where to send the statistics from the server.
+ *
+ * @returns {Promise<{ url: string, site: number }|null>} Matomo address and site id, or null
+ *                                                        when tracking is off or unknown.
+ */
+const loadSettings = async () =>
+{
+  try
+  {
+    const response = await fetch( config.urls.api + 'analytics' );
+    if ( !response.ok ) return null;
+    const settings = await response.json();
+    return settings && typeof settings.url === 'string' && settings.site > 0 ? settings : null;
+  }
+  catch
+  {
+    return null;
+  }
 };
 
 /**
@@ -78,15 +105,18 @@ const ping = () =>
 export const analytics = {
 
   /**
-   * Start tracking: count the page view and load matomo.js. Does nothing off the live site or
-   * when the viewer opted out.
+   * Start tracking: count the page view and load matomo.js. Does nothing when the viewer opted
+   * out or the server has no Matomo settings.
    *
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  start()
+  async start()
   {
-    if ( started || typeof window === 'undefined' ) return;
-    if ( window.location.hostname !== config.analytics.host || optedOut() ) return;
+    if ( starting || typeof window === 'undefined' || optedOut() ) return;
+    starting = true;
+
+    const settings = await loadSettings();
+    if ( !settings ) return;
 
     started = true;
     window._paq = window._paq || [];
@@ -95,12 +125,12 @@ export const analytics = {
     // the hash holds the view (shard, map point, zoom); count the page, not the view
     push( 'setCustomUrl', window.location.origin + window.location.pathname );
     push( 'trackPageView' );
-    push( 'setTrackerUrl', config.analytics.url + 'matomo.php' );
-    push( 'setSiteId', String( config.analytics.site ) );
+    push( 'setTrackerUrl', settings.url + 'matomo.php' );
+    push( 'setSiteId', String( settings.site ) );
 
     const script = document.createElement( 'script' );
     script.async = true;
-    script.src = config.analytics.url + 'matomo.js';
+    script.src = settings.url + 'matomo.js';
     document.head.appendChild( script );
 
     setInterval( ping, ping_interval );

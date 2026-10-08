@@ -74,5 +74,6 @@ jobs:
             .api/cache/**
             .api/logs/**
             .api/data/**
+            .api/.env*
             README.md
             LICENSE
