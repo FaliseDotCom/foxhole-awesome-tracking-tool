@@ -53,33 +53,7 @@
   background-color: var( --clr-colonials-medium );
 }
 
-/* line charts (chart.svelte): the highest and lowest value on the left, the time span below */
-.chart-box
-{
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 6px;
-}
-
-.chart-scale
-{
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-size: 11px;
-  text-align: right;
-  opacity: .7;
-}
-
-.chart-time
-{
-  display: flex;
-  grid-column: 2;
-  justify-content: space-between;
-  font-size: 11px;
-  opacity: .7;
-}
-
+/* line charts (chart.svelte); a line marks the moment under the pointer */
 .chart-hover
 {
   stroke: rgba( 0, 0, 0, .4 );

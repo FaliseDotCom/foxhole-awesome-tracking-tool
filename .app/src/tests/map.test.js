@@ -677,14 +677,12 @@ test( 'zoomed out, hovering a hex shows its structures and latest changes', asyn
   await expect( tip.locator( '.tooltip-detail' ).first() ).toContainText( /\d+ structures/ );
 } );
 
-test( 'the stats charts show their units and the values under the pointer', async ( { page } ) =>
+test( 'the stats charts show the values under the pointer, with their unit', async ( { page } ) =>
 {
   await page.route( '**/api/stats/able**', route => route.fulfill( { json: sampleStats() } ) );
   await page.goto( '/' );
   await page.getByRole( 'tab', { name: 'Stats' } ).click();
   const panel = page.getByRole( 'tabpanel', { name: 'Stats' } );
-  await expect( panel.locator( '.chart-scale' ).first() ).toContainText( 'players' );
-  await expect( panel.locator( '.chart-scale' ).nth( 1 ) ).toContainText( 'per hour' );
 
   const chart = panel.locator( 'svg.chart' ).nth( 1 );
   const box = await chart.boundingBox();

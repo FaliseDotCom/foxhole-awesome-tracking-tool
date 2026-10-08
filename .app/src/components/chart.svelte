@@ -1,9 +1,8 @@
 <script>
 
   /**
-   * Small line chart of values over time, scaled to fill its box; one line per series. The
-   * highest and lowest value are written on the left with the unit, the time span below, and
-   * hovering shows the values at that moment. Styled by .chart in stats.css, the line colour by
+   * Small line chart of values over time, scaled to fill its box; one line per series.
+   * Hovering shows the time and the values, with their unit, at that moment. Styled by .chart in stats.css, the line colour by
    * each series' class.
    */
 
@@ -96,31 +95,21 @@
 
 </script>
 
-<div class="chart-box">
-  <div class="chart-scale" aria-hidden="true">
-    <span>{ number( top ) } { unit }</span>
-    <span>{ number( bottom ) }</span>
-  </div>
-  <svg
-    class="chart"
-    viewBox={ `0 0 ${ width } ${ height }` }
-    preserveAspectRatio="none"
-    role="img"
-    aria-label={ label }
-    on:pointermove={ onMove }
-    on:pointerleave={ onLeave }
-  >
-    {#each lines as line ( line.class )}
-      {#if line.points.length > 1}
-        <polyline class={ `chart-line ${ line.class }` } points={ toPoints( line.points ) } vector-effect="non-scaling-stroke"/>
-      {/if}
-    {/each}
-    {#if hover}
-      <line class="chart-hover" x1={ toX( hover ) } x2={ toX( hover ) } y1="0" y2={ height } vector-effect="non-scaling-stroke"/>
+<svg
+  class="chart"
+  viewBox={ `0 0 ${ width } ${ height }` }
+  preserveAspectRatio="none"
+  role="img"
+  aria-label={ label }
+  on:pointermove={ onMove }
+  on:pointerleave={ onLeave }
+>
+  {#each lines as line ( line.class )}
+    {#if line.points.length > 1}
+      <polyline class={ `chart-line ${ line.class }` } points={ toPoints( line.points ) } vector-effect="non-scaling-stroke"/>
     {/if}
-  </svg>
-  <div class="chart-time" aria-hidden="true">
-    <span>{ all.length ? ago( first, Date.now() ) : '' }</span>
-    <span>now</span>
-  </div>
-</div>
+  {/each}
+  {#if hover}
+    <line class="chart-hover" x1={ toX( hover ) } x2={ toX( hover ) } y1="0" y2={ height } vector-effect="non-scaling-stroke"/>
+  {/if}
+</svg>
