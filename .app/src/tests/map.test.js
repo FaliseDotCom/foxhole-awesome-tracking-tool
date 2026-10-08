@@ -135,6 +135,18 @@ test( 'the legend lists the structures on the map', async ( { page } ) =>
   await expect( legend ).toContainText( 'Colors' );
   await expect( legend ).toContainText( 'Town Base Tier 3' );
   await expect( legend ).toContainText( 'Town Hall' );
+  // how the map works comes first
+  await expect( legend.locator( 'h3' ).first() ).toHaveText( 'How the map works' );
+
+  // the search keeps the types that match every word, in the name or other names
+  const rows = legend.locator( '.legend-section' ).last().locator( '.legend-row' );
+  const all = await rows.count();
+  await legend.getByRole( 'textbox', { name: 'Search the structures' } ).fill( 'town base' );
+  await expect( rows ).not.toHaveCount( all );
+  for ( const text of await rows.allTextContents() ) expect( text ).toMatch( /Town Base/ );
+  await legend.getByRole( 'textbox', { name: 'Search the structures' } ).fill( 'nothing like this' );
+  await expect( rows ).toHaveCount( 0 );
+  await expect( legend ).toContainText( 'No structure matches' );
 } );
 
 test( 'settings change the icon style and are remembered', async ( { page } ) =>

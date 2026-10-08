@@ -38,10 +38,10 @@
   position: absolute;
   left: 0;
   top: 0;
-  background-color: rgba( 255, 255, 255, .5 );
-  border-radius: 0 0 10px 0;
   z-index: 9999;
   user-select: none;
+  /* a watermark: no background, and the map under it stays usable */
+  pointer-events: none;
 }
 
 .logo h1,
@@ -50,7 +50,9 @@
   margin: 0;
   line-height: 1;
   text-align: center;
-  color: rgba( 0, 0, 0, .7 );
+  color: rgba( 0, 0, 0, .45 );
+  /* a faint halo keeps it readable over dark regions */
+  text-shadow: 0 0 6px rgba( 255, 255, 255, .6 );
 }
 
 .logo h1

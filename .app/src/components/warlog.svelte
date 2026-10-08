@@ -9,7 +9,7 @@
   import { warlog } from '@stores/warlog'
   import { icons } from '@stores/icons'
   import { settings } from '@stores/settings'
-  import Icon from '@components/icon.svelte'
+  import FilterField from '@components/filter-field.svelte'
 
   const major_only = warlog.majorOnly,
         query = warlog.query,
@@ -72,19 +72,13 @@
 
 </script>
 
-  <div class="warlog-search">
-    <span class="warlog-search-kind"><Icon name="list"/></span>
-    <input
-      type="text"
-      placeholder="Search the log…"
-      aria-label="Search the war log"
-      autocomplete="off"
-      spellcheck="false"
-      value={ $query }
-      on:input={ e => warlog.setQuery( e.target.value ) }
-    />
-    <span class="warlog-search-go"><Icon name="search"/></span>
-  </div>
+  <FilterField
+    icon="list"
+    label="Search the war log"
+    placeholder="Search the log…"
+    value={ $query }
+    on:input={ e => warlog.setQuery( e.detail ) }
+  />
 
   <label class="warlog-filter">
     <input type="checkbox" checked={ $major_only } on:change={ e => warlog.setMajorOnly( e.target.checked ) }/>

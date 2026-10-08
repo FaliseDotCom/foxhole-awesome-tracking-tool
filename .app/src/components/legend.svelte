@@ -1,12 +1,17 @@
 <script>
 
   /**
-   * Legend: region colours, icon colours, and every structure type on the map
+   * Legend: how the map works, region colours, icon colours, and every structure type on the
+   * map, with a search field for the structures
    */
 
   import { icons } from '@stores/icons'
   import { settings } from '@stores/settings'
   import { legend } from '@stores/legend'
+  import FilterField from '@components/filter-field.svelte'
+
+  const count = legend.count,
+        query = legend.query;
 
   // town hall tier 3 in each state, as colour examples
   const town = 58,
@@ -18,6 +23,14 @@
         ];
 
 </script>
+
+<div class="legend-section">
+  <h3>How the map works</h3>
+  <p class="legend-note">
+    Zoomed out, only victory towns, rocket sites and scorched structures are shown. Hover over an
+    icon to see what it is.
+  </p>
+</div>
 
 <div class="legend-section">
   <h3>Regions</h3>
@@ -35,9 +48,19 @@
   {/each}
 </div>
 
-{#if $legend.length}
+{#if $count}
   <div class="legend-section">
     <h3>Structures</h3>
+    <FilterField
+      icon="legend"
+      label="Search the structures"
+      placeholder="Search structures…"
+      value={ $query }
+      on:input={ e => legend.setQuery( e.detail ) }
+    />
+    {#if !$legend.length}
+      <p class="legend-note">No structure matches “{ $query.trim() }”.</p>
+    {/if}
     {#each $legend as type ( type.name )}
       <div class="legend-row">
         <img src={ icons.getIcon( { i: type.id }, $settings.icons ) } alt="" width="20" height="20"/>
@@ -49,8 +72,3 @@
     {/each}
   </div>
 {/if}
-
-<p class="legend-note">
-  Zoomed out, only victory towns, rocket sites and scorched structures are shown. Hover over an
-  icon to see what it is.
-</p>

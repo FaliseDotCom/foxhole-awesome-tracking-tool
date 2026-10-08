@@ -192,6 +192,54 @@
   margin: 4px 0;
 }
 
+/* search field that filters a tab panel's list (filter-field.svelte): an icon for what it
+   searches before it, a search icon after */
+.filter-field
+{
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.filter-field input
+{
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px 34px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var( --clr-black );
+  background-color: #fff;
+  border: 1px solid rgba( 0, 0, 0, .25 );
+  border-radius: 8px;
+  outline: none;
+}
+
+.filter-field input:focus
+{
+  border-color: var( --clr-focus );
+}
+
+.filter-field-kind,
+.filter-field-go
+{
+  position: absolute;
+  top: 50%;
+  transform: translateY( -50% );
+  display: flex;
+  color: rgba( 0, 0, 0, .5 );
+  pointer-events: none;
+}
+
+.filter-field-kind
+{
+  left: 9px;
+}
+
+.filter-field-go
+{
+  right: 9px;
+}
+
 .legend-section + .legend-section
 {
   margin-top: 8px;
@@ -240,7 +288,7 @@
 .legend-note
 {
   font-size: 12px;
-  margin: 8px 0 0 0;
+  margin: 4px 0;
 }
 
 .settings-group
