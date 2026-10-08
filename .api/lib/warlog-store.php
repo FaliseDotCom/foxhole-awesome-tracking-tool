@@ -72,6 +72,12 @@ class WarlogStore
       items   TEXT    NOT NULL,
       PRIMARY KEY ( shard, hex )
     )' );
+    // the latest map data of each shard, as /api/data sends it
+    $this->db->exec( 'CREATE TABLE IF NOT EXISTS latest (
+      shard    TEXT    PRIMARY KEY,
+      saved_at INTEGER NOT NULL,
+      data     TEXT    NOT NULL
+    )' );
     $this->db->exec( 'CREATE TABLE IF NOT EXISTS status (
       shard       TEXT PRIMARY KEY,
       war         INTEGER,
@@ -199,6 +205,35 @@ class WarlogStore
   {
     $query = $this->db->prepare( 'INSERT OR REPLACE INTO snapshots ( shard, hex, version, items ) VALUES ( ?, ?, ?, ? )' );
     $query->execute( [ $shard, $hex, $version, json_encode( $items ) ] );
+  }
+
+  /**
+   * Keep the latest map data of a shard.
+   *
+   * @param  string               $shard Shard name.
+   * @param  array<string, mixed> $data  Compressed map data from FoxholeApi::async_dynamics().
+   * @param  int                  $time  When it was fetched, in ms.
+   * @return void
+   */
+  public function saveLatest( string $shard, array $data, int $time ) : void
+  {
+    $query = $this->db->prepare( 'INSERT OR REPLACE INTO latest ( shard, saved_at, data ) VALUES ( ?, ?, ? )' );
+    $query->execute( [ $shard, $time, json_encode( $data ) ] );
+  }
+
+  /**
+   * The latest map data of a shard, if it was fetched recently enough.
+   *
+   * @param  string $shard Shard name.
+   * @param  int    $since Oldest acceptable fetch time, in ms.
+   * @return array<string, mixed> Map data, or [] when there is none that recent.
+   */
+  public function getLatest( string $shard, int $since ) : array
+  {
+    $query = $this->db->prepare( 'SELECT data FROM latest WHERE shard = ? AND saved_at >= ?' );
+    $query->execute( [ $shard, $since ] );
+    $data = $query->fetchColumn();
+    return is_string( $data ) ? ( json_decode( $data, true ) ?: [] ) : [];
   }
 
   /**

@@ -54,6 +54,57 @@ function warlog_record( FoxholeApi $api, string $shard, array $data, bool $force
 }
 
 /**
+ * Stored map data counts as current for this long, in seconds. The cron job refreshes it every
+ * 15 seconds; older data means the cron job stopped, and visitors fetch from the War API again.
+ * @var int
+ */
+const WARLOG_LATEST_MAX_AGE = 30;
+
+/**
+ * Keep the latest map data of a shard, for /api/data. Never throws.
+ *
+ * @param  string               $shard Shard name.
+ * @param  array<string, mixed> $data  Compressed map data from async_dynamics().
+ * @return void
+ */
+function warlog_save_latest( string $shard, array $data ) : void
+{
+  try
+  {
+    $store = warlog_store();
+    if ( $store && $data )
+    {
+      $store->saveLatest( $shard, $data, (int) round( microtime( true ) * 1000 ) );
+    }
+  }
+  catch ( Throwable $e )
+  {
+    error_log( 'Saving the latest map data failed: ' . $e->getMessage() );
+  }
+}
+
+/**
+ * The stored map data of a shard while it is current (see WARLOG_LATEST_MAX_AGE). Never throws.
+ *
+ * @param  string $shard Shard name.
+ * @return array<string, mixed> Map data, or [] when it is missing or too old.
+ */
+function warlog_latest( string $shard ) : array
+{
+  try
+  {
+    $store = warlog_store();
+    $since = (int) round( microtime( true ) * 1000 ) - WARLOG_LATEST_MAX_AGE * 1000;
+    return $store ? $store->getLatest( $shard, $since ) : [];
+  }
+  catch ( Throwable $e )
+  {
+    error_log( 'Reading the latest map data failed: ' . $e->getMessage() );
+    return [];
+  }
+}
+
+/**
  * Cron task (see cron.php): record every live shard as the cron job, and report each shard in
  * cron-record.log.
  *
@@ -78,6 +129,7 @@ function warlog_cron( FoxholeApi $api, string $via ) : array
       $api->set_shard( $shard );
       $data = $api->async_dynamics();
       $result[ $shard ] = [ 'events' => warlog_record( $api, $shard, $data, true ), 'hexes' => count( $data ) ];
+      warlog_save_latest( $shard, $data );
       // the hex count shows whether map data came in at all: 0 events with 0 hexes is a failed fetch
       log_line( CRON_LOG, "{$via}: {$shard}: {$result[ $shard ][ 'events' ]} events, {$result[ $shard ][ 'hexes' ]} hexes" );
     }

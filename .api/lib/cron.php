@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Scheduled work, run every minute by a cron job: from the command line (cron/record.php) or by
- * requesting /api/cron. Each run does every task in cron_tasks(); add new tasks there.
+ * Scheduled work, run every 15 seconds by four cron jobs a minute (see the README): from the
+ * command line (cron/record.php) or by requesting /api/cron. Each run does every task in cron_tasks(); add new tasks there.
  */
 
 /**
@@ -10,7 +10,7 @@
  * anyone from making the server do the tasks (and fetch the War API) more often than cron would.
  * @var int
  */
-const CRON_INTERVAL = 30;
+const CRON_INTERVAL = 10;
 
 /**
  * The tasks of a cron run, by name; the name is also the key of the task's result.

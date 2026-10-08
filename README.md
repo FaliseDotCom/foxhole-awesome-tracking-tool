@@ -97,7 +97,7 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 
 | File | Purpose |
 | --- | --- |
-| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (now: record the war log of every live shard as the cron job), at most every 30 seconds. Fresh `/api/data` is also handed to the war log recorder. A shard that is down or unknown answers `502` with a JSON error. |
+| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (now: record the war log of every live shard as the cron job, and store the latest map data for `/api/data`), at most every 10 seconds. `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
 | `router.php` | Router for `php -S`, mirroring `.htaccess`. |
 | `bootstrap.php` | Error logging (never to the response), Composer autoloader, library includes. |
 | `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`, `DATA_DIR`) and the time zone. |
@@ -244,17 +244,26 @@ Times are in Europe/Amsterdam for the website and cron alike. The error logs app
 there is an error; `api-foxhole.log` is created as soon as the API runs, empty on a good day. No
 `cron-record.log` for today means cron did not start the script.
 
-For the war log, add one DirectAdmin cron job that runs every minute (`*` in all five time
-fields). The simplest is to request `/api/cron`, which runs the scheduled tasks (now only the war
-log of every live shard); paste it on one line:
+For the war log, request `/api/cron` every 15 seconds. It runs the scheduled tasks (now only
+the war log of every live shard) and stores the latest map data, which `/api/data` then serves:
+visitors cause no War API requests while it runs. Cron runs at most once a minute, so add four
+DirectAdmin cron jobs, each every minute (`*` in all five time fields), that wait 0, 15, 30 and
+45 seconds first. DirectAdmin refuses a command with a line break, so paste each one on its own
+and check that no line break came along at the end:
 
-```
-/usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1
-```
+`/usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1`
+
+`sleep 15; /usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1`
+
+`sleep 30; /usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1`
+
+`sleep 45; /usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1`
 
 It answers with what each task did, e.g. `{"warlog":{"able":{"events":2,"hexes":53}}}`. The URL is
-public, so runs less than 30 seconds apart are skipped (`{"skipped":"..."}`): nobody can make the
-server record more often than cron would.
+public, so runs less than 10 seconds apart are skipped (`{"skipped":"..."}`): nobody can make the
+server record more often than cron would. When the stored map data is older than 30 seconds (the
+cron jobs stopped), `/api/data` fetches from the War API again and records as before; its
+`X-Fatt-Data` response header says `stored` or `live`.
 
 The same run from the command line, without a web request (`~` is the account's home folder):
 

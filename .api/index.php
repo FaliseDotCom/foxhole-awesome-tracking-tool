@@ -6,12 +6,13 @@
    *
    * Routes:
    *   GET /api/shards        names of the shards whose War API is up
-   *   GET /api/data/<shard>  compressed dynamic map data for every hex of a shard
+   *   GET /api/data/<shard>  compressed dynamic map data for every hex of a shard: stored by the
+   *                          cron job, or fetched when that is older than 30 seconds
    *   GET /api/war/<shard>   war number, start time, winner and victory towns needed
    *   GET /api/log/<shard>   war log events, newest first: ?limit=, ?since=<id>, ?before=<id>;
    *                          ?major=1 adds the major events older than the latest ones
    *   GET /api/cron          the scheduled tasks (lib/cron.php), for cron jobs that can only
-   *                          request a URL; at most every 30 seconds
+   *                          request a URL; at most every 10 seconds
    */
 
   require_once( __DIR__ . '/bootstrap.php' );
@@ -79,9 +80,21 @@
     $shard = $route[ 1 ];
     shard_response( $api, $shard, function () use ( $api, $shard ) : array
     {
+      // while the cron job keeps the stored map data current, visitors get that and cause no
+      // War API requests; the header shows which one answered
+      $data = warlog_latest( $shard );
+      if ( $data )
+      {
+        header( 'X-Fatt-Data: stored' );
+        return $data;
+      }
+
+      // the cron job stopped: fetch, record in the war log (at most every few seconds per
+      // shard), and store it for the next visitors
       $data = $api->async_dynamics();
-      // fresh data is also recorded in the war log; at most every few seconds per shard
       warlog_record( $api, $shard, $data );
+      warlog_save_latest( $shard, $data );
+      header( 'X-Fatt-Data: live' );
       return $data;
     } );
   }
