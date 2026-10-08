@@ -115,13 +115,13 @@
   z-index: 10000;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   max-width: calc( 100% - 16px );
 }
 
 .tab-list
 {
   display: flex;
+  justify-content: flex-end;
   gap: 2px;
 }
 
@@ -174,8 +174,9 @@
 
 .tab-panel
 {
-  width: 300px;
-  max-width: 100%;
+  /* as wide as the row of tabs, and at least 300px; its content does not widen the tabs */
+  min-width: 300px;
+  contain: inline-size;
   box-sizing: border-box;
   max-height: calc( 100vh - 60px );
   overflow-y: auto;
