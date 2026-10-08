@@ -294,6 +294,9 @@ local `.api/` has no `.env`. Matomo itself is set up for privacy under Administr
 Privacy: anonymise IP addresses (2 bytes), force tracking without cookies, and support Do Not
 Track; under Websites, F.A.T.T. only accepts visits whose URL starts with
 `https://fatt.fali.se`, so a development server using the live API is not counted either.
+Both sites are behind Cloudflare, so Matomo needs `proxy_client_headers[] = HTTP_CF_CONNECTING_IP`
+under `[General]` in its `config/config.ini.php`; without it every visitor has a Cloudflare IP
+address, and visitors cannot be told apart or placed in a country.
 
 ### Server settings
 
