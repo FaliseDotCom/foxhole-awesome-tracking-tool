@@ -10,6 +10,7 @@ import { config } from './config';
 import { diffHex, teamKind } from '@lib/warlog-diff';
 import { pairRockets, isLaunch, isImpact, ROCKET } from '@lib/rockets';
 import { effects } from './effects';
+import { analytics } from './analytics';
 
 /**
  * War log. Normally the server records the changes and this store fetches them from
@@ -607,7 +608,9 @@ export const warlog = {
   async showAt( entry )
   {
     const shown = await world.showAt( entry.time );
-    if ( shown ) warlog.highlight( entry );
+    if ( !shown ) return false;
+    warlog.highlight( entry );
+    analytics.history( 'show' );
     return shown;
   },
 

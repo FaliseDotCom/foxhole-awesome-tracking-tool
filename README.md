@@ -87,6 +87,8 @@ F.A.T.T. can stand for any of the following:
   Dead Lands. Choosing a result fits a hex or region on screen, or zooms in on a location or
   structure, and marks it briefly. The last five choices show when the field is empty.
 - Shows a message when no shard is online or the war data cannot be loaded.
+- Counts visitors with its own Matomo, without cookies and never with Do Not Track; see
+  [Visitor statistics](#visitor-statistics).
 
 ## How it is built
 
@@ -160,6 +162,7 @@ adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
 | `settings.js` | The viewer's settings, saved in `localStorage`: styles from `config.styles` (icons, maps, shading, palette, side), switches (sound, hex names) and sliders (icon size, region colour strength). `components/appearance.svelte` applies the map look to the page. |
 | `link.js` | Reads and writes the shareable link in the URL hash. |
 | `war.js` | War state from `/api/war/<shard>`, the player count from `/api/players`, and victory towns and key structures per team counted from the world store. |
+| `analytics.js` | Visitor statistics with Matomo: the page view, a ping every minute while the page is visible, and events for tabs, searches, history and settings. See [Visitor statistics](#visitor-statistics). |
 
 **Components** (`src/components/`)
 
@@ -264,6 +267,28 @@ folder per day, one file per context and kind:
 Times are in Europe/Amsterdam for the website and cron alike. The error logs appear only once
 there is an error; `api-foxhole.log` is created as soon as the API runs, empty on a good day. No
 `cron-record.log` for today means cron did not start the script.
+
+### Visitor statistics
+
+Visits are counted by Matomo at <https://matomo.fali.se/>, installed there with Installatron
+and not part of this repository; only Sander can see the reports. `stores/analytics.js` loads
+`matomo.js` and sends:
+
+- one page view per visit, for `https://fatt.fali.se/` without the hash (the view is not
+  counted);
+- a ping every minute while the page is visible, so a map left open counts as active;
+- events: `Tab` with the tab opened, `History` with `show` or `live`, `Settings` with the setting
+  and its new value (once it stays the same for 1.5 seconds, so dragging a slider counts once);
+- site searches: the normalised search words, the kind of result chosen and the number of
+  suggestions, only when a result is chosen (searches without results, and choices from the
+  recent list, are not counted).
+
+Nothing is loaded or sent off `config.analytics.host` (so development and the tests are not
+counted) or when the browser sends Do Not Track or Global Privacy Control. The tracker runs
+without cookies (`disableCookies`) and also has `setDoNotTrack`. The Settings tab tells
+visitors this. Matomo itself is set up for privacy under Administration > Privacy: anonymise
+IP addresses (2 bytes), force tracking without cookies, and support Do Not Track. The site id
+of F.A.T.T. in Matomo is `config.analytics.site`.
 
 ### Monitoring
 

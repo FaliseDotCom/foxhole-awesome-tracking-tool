@@ -40,6 +40,17 @@ const styles = {
   side: [ 'right', 'left' ]
 }
 
+/**
+ * Visitor statistics (stores/analytics.js): the Matomo installation, the site id of F.A.T.T. in
+ * it, and the only host that is tracked, so development and tests are not counted.
+ * @type {{ url: string, site: number, host: string }}
+ */
+const analytics = {
+  url: 'https://matomo.fali.se/',
+  site: 1,
+  host: 'fatt.fali.se'
+}
+
 // enabled or disabled tools
 const tools = {
   points : false
@@ -66,6 +77,7 @@ export const config = {
   urls,
   assetsQuery: assets_query,
   styles,
+  analytics,
   log,
   tools,
   // update interval in seconds

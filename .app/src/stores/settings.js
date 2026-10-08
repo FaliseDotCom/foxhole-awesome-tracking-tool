@@ -1,5 +1,6 @@
 import { writable, get } from 'svelte/store';
 import { config } from './config';
+import { analytics } from './analytics';
 
 /**
  * localStorage key for the viewer's settings.
@@ -88,6 +89,7 @@ const store = writable( typeof window === 'undefined' ? { ...defaults } : read()
 const set = ( key, value ) =>
 {
   if ( !isValid( key, value ) ) return;
+  analytics.setting( key, value );
 
   store.update( settings => ( { ...settings, [ key ]: value } ) );
   try

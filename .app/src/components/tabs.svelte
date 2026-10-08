@@ -15,6 +15,7 @@
   import { warlog } from '@stores/warlog'
   import { shards } from '@stores/shards'
   import Icon from '@components/icon.svelte'
+  import { analytics } from '@stores/analytics'
 
   const unseen = warlog.unseen,
         available = shards.available;
@@ -42,7 +43,19 @@
   // newest major entry, read out by screen readers whichever tab is open
   $: announcement = $warlog.find( entry => entry.major );
 
-  const toggle = key => open = open === key ? '' : key;
+  /**
+   * Open a tab and count it.
+   *
+   * @param {string} key Tab key.
+   * @returns {void}
+   */
+  const show = key =>
+  {
+    open = key;
+    analytics.tab( key );
+  };
+
+  const toggle = key => open === key ? open = '' : show( key );
 
   /**
    * Arrow keys move between tabs, as in the ARIA tabs pattern.
@@ -56,7 +69,7 @@
     if ( e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' ) return;
     e.preventDefault();
     const next = ( index + ( e.key === 'ArrowRight' ? 1 : -1 ) + tabs.length ) % tabs.length;
-    open = tabs[ next ].key;
+    show( tabs[ next ].key );
     e.currentTarget.parentElement.children[ next ].focus();
   };
 

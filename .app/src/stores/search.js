@@ -3,6 +3,7 @@ import { grid } from './grid';
 import { world } from './world';
 import { icons } from './icons';
 import { view } from './view';
+import { analytics } from './analytics';
 
 /**
  * Map search: places from the static world data (hexes, regions, locations) and structures
@@ -461,6 +462,9 @@ export const search = {
     if ( entry.box ) target.box = entry.box;
     else target.scale = entry.kind === 'area' ? region_scale : point_scale;
     view.focus( target );
+
+    // only searches that found something are counted; a recent choice has no search words
+    analytics.search( normalise( get( query ) ), entry.kind, get( list ).entries.length );
 
     query.set( entry.name );
     open.set( false );

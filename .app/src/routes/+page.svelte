@@ -11,6 +11,10 @@
   import Tooltip from '@components/tooltip.svelte';
   import Flash from '@components/flash.svelte';
   import Clear from '@components/hotreload-clearconsole.svelte';
+  import { onMount } from 'svelte';
+  import { analytics } from '@stores/analytics';
+
+  onMount( () => analytics.start() );
 </script>
 
 <Clear/>

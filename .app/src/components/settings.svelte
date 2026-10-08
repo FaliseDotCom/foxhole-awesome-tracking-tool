@@ -84,3 +84,12 @@
     Alarm and impact sounds
   </label>
 </fieldset>
+
+<fieldset class="settings-group">
+  <legend>Privacy</legend>
+  <p class="legend-note">
+    F.A.T.T. counts visits, opened tabs, searches that found something, and changed settings on
+    its own statistics server, without cookies and without storing your IP address. When your
+    browser sends Do Not Track or Global Privacy Control, nothing is counted.
+  </p>
+</fieldset>

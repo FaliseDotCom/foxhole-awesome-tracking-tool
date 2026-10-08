@@ -1,6 +1,7 @@
 import { writable, derived, get } from 'svelte/store';
 import { shards } from './shards'
 import { config } from './config'
+import { analytics } from './analytics'
 
       // api urls
 const api_url = config.urls.api + 'data/',
@@ -149,6 +150,7 @@ export const world = {
    */
   showLive()
   {
+    if ( get( past ) ) analytics.history( 'live' );
     past.set( null );
   }
 }
