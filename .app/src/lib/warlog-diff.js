@@ -13,6 +13,36 @@
 const SCORCHED = 0x10;
 
 /**
+ * Flag bit for a build site: a structure under construction, as in the War API.
+ * @type {number}
+ */
+const BUILD_SITE = 0x04;
+
+/**
+ * Whether an item is a build site.
+ *
+ * @param {object} item Map item.
+ * @returns {boolean} True while under construction.
+ */
+const isSite = item => Boolean( item.f & BUILD_SITE );
+
+/**
+ * The kind of a change of team. A build site takes the team of whoever builds it and drops it
+ * when the site is cleared, so for build sites those are construction started and abandoned,
+ * not a capture or a loss.
+ *
+ * @param {object} before Previous item.
+ * @param {object} item   New item.
+ * @returns {string} captured, lost, construction or abandoned.
+ */
+export const teamKind = ( before, item ) =>
+{
+  if ( item.t && isSite( item ) && !isSite( before ) ) return 'construction';
+  if ( !item.t && isSite( before ) ) return 'abandoned';
+  return item.t ? 'captured' : 'lost';
+};
+
+/**
  * Key for matching an item between versions: its position.
  *
  * @param {object} item Map item.
@@ -57,8 +87,10 @@ const takeMatch = ( candidates, item ) =>
  * Changes between two versions of a hex's items.
  *
  * Kinds: built, destroyed, upgraded (type changed), captured (team gained, from neutral or the
- * other team), lost (team gone), scorched. Each change is { kind, item, previous } where item
- * is the new version (the old one for destroyed) and previous the old one (null for built).
+ * other team), lost (team gone), scorched, and for build sites construction (started),
+ * completed and abandoned (cleared before it was finished). Each change is { kind, item,
+ * previous } where item is the new version (the old one for destroyed) and previous the old one
+ * (null for built and for a new build site).
  *
  * @param {object[]} previous Items before.
  * @param {object[]} next     Items after.
@@ -79,7 +111,7 @@ export const diffHex = ( previous, next, options = {} ) =>
     const before = takeMatch( unmatched.get( positionKey( item ) ), item );
     if ( !before )
     {
-      changes.push( { kind: 'built', item, previous: null } );
+      changes.push( { kind: isSite( item ) ? 'construction' : 'built', item, previous: null } );
       continue;
     }
 
@@ -87,7 +119,11 @@ export const diffHex = ( previous, next, options = {} ) =>
 
     if ( before.t !== item.t )
     {
-      changes.push( { kind: item.t ? 'captured' : 'lost', item, previous: before } );
+      changes.push( { kind: teamKind( before, item ), item, previous: before } );
+    }
+    else if ( item.t && isSite( before ) && !isSite( item ) )
+    {
+      changes.push( { kind: 'completed', item, previous: before } );
     }
 
     if ( !( before.f & SCORCHED ) && ( item.f & SCORCHED ) )

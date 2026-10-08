@@ -7,7 +7,7 @@ import { icons } from './icons';
 import { search } from './search';
 import { view } from './view';
 import { config } from './config';
-import { diffHex } from '@lib/warlog-diff';
+import { diffHex, teamKind } from '@lib/warlog-diff';
 import { pairRockets, isLaunch, isImpact, ROCKET } from '@lib/rockets';
 import { effects } from './effects';
 
@@ -72,7 +72,15 @@ const major_types = [ 27, 37, 45, 46, 47, 70, 71, 72 ];
  * Kinds that read as "<team> <text>": "Wardens took …".
  * @type {string[]}
  */
-const team_first_kinds = [ 'captured', 'lost', 'built', 'victory', 'won', 'rocket' ];
+const team_first_kinds = [ 'captured', 'lost', 'built', 'construction', 'completed', 'victory', 'won', 'rocket' ];
+
+/**
+ * A build site that is started again within this time, in ms, is not logged again: some sites
+ * are placed and cleared over and over, every half minute. The same as REPEAT_WINDOW in
+ * .api/lib/warlog-recorder.php.
+ * @type {number}
+ */
+const repeat_window = 30 * 60 * 1000;
 
 const server_entries = writable( [] ),
       browser_entries = writable( [] ),
@@ -150,7 +158,7 @@ const toEntry = ( change, hex, time, extra ) =>
         type = icons.getName( item.i );
 
   // the team the sentence is about: the new owner, or the one that lost or owned it
-  const team = kind === 'lost' || kind === 'destroyed' ? previous.t : item.t;
+  const team = [ 'lost', 'destroyed', 'abandoned' ].includes( kind ) ? previous.t : item.t;
   const entry = { kind, item, iconFrom: previous ? previous.i : null };
 
   let text = '';
@@ -173,6 +181,15 @@ const toEntry = ( change, hex, time, extra ) =>
       break;
     case 'lost':
       text = `lost ${ type }`;
+      break;
+    case 'construction':
+      text = `started building ${ type }`;
+      break;
+    case 'completed':
+      text = `finished building ${ type }`;
+      break;
+    case 'abandoned':
+      text = `${ type } build site was cleared`;
       break;
     case 'scorched':
       text = `${ type } was scorched`;
@@ -233,7 +250,43 @@ const fromEvent = event =>
 
   const item = { x: event.x, y: event.y, t: event.team || '', i: event.icon, f: event.flags || 0 },
         previous = event.iconFrom === null ? null : { x: event.x, y: event.y, t: event.teamFrom || '', i: event.iconFrom, f: event.flagsFrom || 0 };
-  return toEntry( { kind: event.kind, item, previous }, hex, event.time, extra );
+  // events stored before build sites were told apart from captures say captured or lost
+  const kind = previous && [ 'captured', 'lost' ].includes( event.kind ) ? teamKind( previous, item ) : event.kind;
+  return toEntry( { kind, item, previous }, hex, event.time, extra );
+};
+
+/**
+ * Whether an entry is not worth logging: an abandoned build site (the site simply goes away),
+ * or construction that started at the same spot within repeat_window. As isNoise() in
+ * .api/lib/warlog-recorder.php.
+ *
+ * @param {object} entry Log entry.
+ * @param {object[]} entries Entries logged so far.
+ * @returns {boolean} True to leave the entry out.
+ */
+const isNoise = ( entry, entries ) =>
+{
+  if ( entry.kind === 'abandoned' ) return true;
+  if ( entry.kind !== 'construction' ) return false;
+  return entries.some( other => other.kind === 'construction' && other.x === entry.x && other.y === entry.y
+    && Math.abs( entry.time - other.time ) < repeat_window );
+};
+
+/**
+ * New entries without the noise (see isNoise), keeping the first of repeated ones.
+ *
+ * @param {object[]} added New entries.
+ * @param {object[]} existing Entries already in the list.
+ * @returns {object[]} The entries worth logging.
+ */
+const withoutNoise = ( added, existing ) =>
+{
+  const kept = [];
+  for ( const entry of [ ...added ].sort( ( a, b ) => a.time - b.time ) )
+  {
+    if ( !isNoise( entry, [ ...kept, ...existing ] ) ) kept.push( entry );
+  }
+  return kept;
 };
 
 /**
@@ -323,7 +376,8 @@ const loadServer = async () =>
     // after the fallback: the browser already showed those
     const live = newest_server_id > 0 && get( source ) === 'server';
     if ( events.length ) newest_server_id = Math.max( newest_server_id, ...events.map( event => event.id ) );
-    const added = events.map( fromEvent ).filter( Boolean );
+    // the server leaves the noise out, but not from events stored before it did
+    const added = withoutNoise( events.map( fromEvent ).filter( Boolean ), get( server_entries ) );
     add( server_entries, added, get( source ) === 'server' );
     if ( live ) dramatise( added );
     setSource( 'server' );
@@ -371,8 +425,9 @@ const onWorld = data =>
 
   snapshot = next;
   if ( get( source ) === 'browser' ) checked.set( Date.now() );
-  add( browser_entries, added, get( source ) === 'browser' );
-  if ( get( source ) === 'browser' ) dramatise( added );
+  const kept = withoutNoise( added, get( browser_entries ) );
+  add( browser_entries, kept, get( source ) === 'browser' );
+  if ( get( source ) === 'browser' ) dramatise( kept );
   loadServer();
 };
 

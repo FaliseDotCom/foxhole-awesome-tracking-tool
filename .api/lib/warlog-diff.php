@@ -17,12 +17,19 @@ class WarlogDiff
   public const SCORCHED = 0x10;
 
   /**
+   * Flag bit for a build site: a structure under construction, as in the War API.
+   * @var int
+   */
+  public const BUILD_SITE = 0x04;
+
+  /**
    * Changes between two versions of a hex's items.
    *
    * Kinds: built, destroyed, upgraded (type changed), captured (team gained, from neutral or
-   * the other team), lost (team gone), scorched. Each change is [ 'kind', 'item', 'previous' ]
-   * where item is the new version (the old one for destroyed) and previous the old one (null
-   * for built).
+   * the other team), lost (team gone), scorched, and for build sites construction (started),
+   * completed and abandoned (cleared before it was finished). Each change is [ 'kind', 'item',
+   * 'previous' ] where item is the new version (the old one for destroyed) and previous the old
+   * one (null for built and for a new build site).
    *
    * @param  array<int, array<string, mixed>> $previous Items before.
    * @param  array<int, array<string, mixed>> $next     Items after.
@@ -53,7 +60,7 @@ class WarlogDiff
       $before = self::takeMatch( $unmatched, $key, $item );
       if ( $before === null )
       {
-        $changes[] = [ 'kind' => 'built', 'item' => $item, 'previous' => null ];
+        $changes[] = [ 'kind' => self::isSite( $item ) ? 'construction' : 'built', 'item' => $item, 'previous' => null ];
         continue;
       }
 
@@ -64,7 +71,11 @@ class WarlogDiff
 
       if ( $before[ 't' ] !== $item[ 't' ] )
       {
-        $changes[] = [ 'kind' => $item[ 't' ] !== '' ? 'captured' : 'lost', 'item' => $item, 'previous' => $before ];
+        $changes[] = [ 'kind' => self::teamKind( $before, $item ), 'item' => $item, 'previous' => $before ];
+      }
+      elseif ( $item[ 't' ] !== '' && self::isSite( $before ) && !self::isSite( $item ) )
+      {
+        $changes[] = [ 'kind' => 'completed', 'item' => $item, 'previous' => $before ];
       }
 
       if ( !( $before[ 'f' ] & self::SCORCHED ) && ( $item[ 'f' ] & self::SCORCHED ) )
@@ -82,6 +93,39 @@ class WarlogDiff
     }
 
     return $changes;
+  }
+
+  /**
+   * Whether an item is a build site.
+   *
+   * @param  array<string, mixed> $item Map item.
+   * @return bool True while under construction.
+   */
+  private static function isSite( array $item ) : bool
+  {
+    return (bool) ( $item[ 'f' ] & self::BUILD_SITE );
+  }
+
+  /**
+   * The kind of a change of team. A build site takes the team of whoever builds it and drops
+   * it when the site is cleared, so for build sites those are construction started and
+   * abandoned, not a capture or a loss.
+   *
+   * @param  array<string, mixed> $before Previous item.
+   * @param  array<string, mixed> $item   New item.
+   * @return string captured, lost, construction or abandoned.
+   */
+  private static function teamKind( array $before, array $item ) : string
+  {
+    if ( $item[ 't' ] !== '' && self::isSite( $item ) && !self::isSite( $before ) )
+    {
+      return 'construction';
+    }
+    if ( $item[ 't' ] === '' && self::isSite( $before ) )
+    {
+      return 'abandoned';
+    }
+    return $item[ 't' ] !== '' ? 'captured' : 'lost';
   }
 
   /**

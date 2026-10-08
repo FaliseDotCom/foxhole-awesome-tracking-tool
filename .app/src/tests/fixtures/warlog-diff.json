@@ -78,6 +78,36 @@
         { "kind": "lost", "i": 45, "t": "", "from_i": 45, "from_t": "W" },
         { "kind": "scorched", "i": 45, "t": "", "from_i": 45, "from_t": "W" }
       ]
+    },
+    {
+      "name": "construction starts on a destroyed structure",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "", "i": 84, "f": 0 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "C", "i": 84, "f": 4 } ],
+      "expected": [ { "kind": "construction", "i": 84, "t": "C", "from_i": 84, "from_t": "" } ]
+    },
+    {
+      "name": "a build site is abandoned",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "C", "i": 84, "f": 4 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "", "i": 84, "f": 0 } ],
+      "expected": [ { "kind": "abandoned", "i": 84, "t": "", "from_i": 84, "from_t": "C" } ]
+    },
+    {
+      "name": "a build site is completed",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "W", "i": 84, "f": 4 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "W", "i": 84, "f": 0 } ],
+      "expected": [ { "kind": "completed", "i": 84, "t": "W", "from_i": 84, "from_t": "W" } ]
+    },
+    {
+      "name": "a new build site is placed",
+      "previous": [],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "W", "i": 84, "f": 4 } ],
+      "expected": [ { "kind": "construction", "i": 84, "t": "W", "from_i": null, "from_t": null } ]
+    },
+    {
+      "name": "the other team takes a build site",
+      "previous": [ { "x": 0.5, "y": 0.5, "t": "C", "i": 84, "f": 4 } ],
+      "next": [ { "x": 0.5, "y": 0.5, "t": "W", "i": 84, "f": 4 } ],
+      "expected": [ { "kind": "captured", "i": 84, "t": "W", "from_i": 84, "from_t": "C" } ]
     }
   ]
 }

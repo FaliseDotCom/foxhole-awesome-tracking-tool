@@ -237,6 +237,27 @@ class WarlogStore
   }
 
   /**
+   * Whether an event of a kind was stored for one spot since a time.
+   *
+   * @param  string $shard Shard name.
+   * @param  int    $war   War number.
+   * @param  string $hex   Hex name.
+   * @param  string $kind  Event kind.
+   * @param  float  $x     Position in the hex, 0–1.
+   * @param  float  $y     Position in the hex, 0–1.
+   * @param  int    $since Time in ms.
+   * @return bool True when there is one.
+   */
+  public function hasEvent( string $shard, int $war, string $hex, string $kind, float $x, float $y, int $since ) : bool
+  {
+    $query = $this->db->prepare( 'SELECT 1 FROM events
+      WHERE shard = :shard AND war = :war AND hex = :hex AND kind = :kind AND x = :x AND y = :y AND time >= :since
+      LIMIT 1' );
+    $query->execute( [ 'shard' => $shard, 'war' => $war, 'hex' => $hex, 'kind' => $kind, 'x' => $x, 'y' => $y, 'since' => $since ] );
+    return (bool) $query->fetchColumn();
+  }
+
+  /**
    * Events of a war, newest first.
    *
    * @param  string $shard  Shard name.

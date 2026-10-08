@@ -32,6 +32,14 @@ class WarlogRecorder
   public const SCORCHED = 0x10;
 
   /**
+   * A build site that is started again within this time, in seconds, is not logged again: some
+   * sites are placed and cleared over and over, every half minute. The same as `repeat_window`
+   * in .app/src/stores/warlog.js.
+   * @var int
+   */
+  public const REPEAT_WINDOW = 30 * 60;
+
+  /**
    * Requests record at most this often per shard, in seconds; the cron job always records.
    * @var int
    */
@@ -147,6 +155,10 @@ class WarlogRecorder
         {
           foreach ( WarlogDiff::diff( $before[ 'items' ], $hex_data[ 'd' ], self::RESOURCE_TYPES ) as $change )
           {
+            if ( $this->isNoise( $shard, $war_number, (string) $hex, $change, $now ) )
+            {
+              continue;
+            }
             $events[] = $this->toEvent( $shard, $war_number, (string) $hex, (int) ( $hex_data[ 'l' ] ?? $now ), $change );
           }
         }
@@ -271,6 +283,31 @@ class WarlogRecorder
       'x'          => $item[ 'x' ],
       'y'          => $item[ 'y' ]
     ];
+  }
+
+  /**
+   * Whether a change is not worth logging: an abandoned build site (the site simply goes away),
+   * or construction that started at the same spot within REPEAT_WINDOW.
+   *
+   * @param  string               $shard  Shard name.
+   * @param  int                  $war    War number.
+   * @param  string               $hex    Hex name as the API proxy sends it.
+   * @param  array<string, mixed> $change Change from WarlogDiff::diff().
+   * @param  int                  $now    Current time in ms.
+   * @return bool True to leave the change out of the log.
+   */
+  private function isNoise( string $shard, int $war, string $hex, array $change, int $now ) : bool
+  {
+    if ( $change[ 'kind' ] === 'abandoned' )
+    {
+      return true;
+    }
+    if ( $change[ 'kind' ] !== 'construction' )
+    {
+      return false;
+    }
+    $item = $change[ 'item' ];
+    return $this->store->hasEvent( $shard, $war, $hex, 'construction', (float) $item[ 'x' ], (float) $item[ 'y' ], $now - self::REPEAT_WINDOW * 1000 );
   }
 
   /**
