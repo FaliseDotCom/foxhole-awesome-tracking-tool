@@ -207,7 +207,7 @@ const getIcon = ( d, style = config.styles.icons[ 0 ] ) =>
       name += ucFirst( teams[ team.toLowerCase() ] )
     }
 
-    return `${ config.urls.icons }${ style }/${ name }.${ ext }`
+    return `${ config.urls.icons }${ style }/${ name }.${ ext }${ config.assetsQuery }`
   }
   else if ( !reported.has( id ) )
   {

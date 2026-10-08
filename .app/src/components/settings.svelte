@@ -7,10 +7,11 @@
   import { config } from '@stores/config'
   import { settings } from '@stores/settings'
 
+  // a style group shows only when there is something to choose
   const groups = [
     { key: 'icons', title: 'Icon brightness' },
     { key: 'maps', title: 'Map style' }
-  ];
+  ].filter( group => config.styles[ group.key ].length > 1 );
 
 </script>
 

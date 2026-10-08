@@ -15,12 +15,11 @@
         map = name.toLowerCase().replace( 'hex', '' ).replace( 'map', '' ),
         title = grid.title( name )
 
-  // the color set only covers the 37 hexes of 2022; others fall back to the complete set
-  // style whose image failed to load for this hex
+  // style whose image failed to load for this hex; it falls back to the first (complete) set
   let failed = '';
 
   $: style = failed === $settings.maps ? config.styles.maps[ 0 ] : $settings.maps
-  $: href = `${ config.urls.maps }${ style }/${ map }.${ ext }`
+  $: href = `${ config.urls.maps }${ style }/${ map }.${ ext }${ config.assetsQuery }`
 </script>
 
 <Hex name={ name } class={ `background ${$$props.class || ''}` } toggle={ false }>

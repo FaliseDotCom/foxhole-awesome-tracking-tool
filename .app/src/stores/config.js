@@ -6,6 +6,13 @@ const base = '/',
       assets = base + 'assets/',
       api = base + 'api/';
 
+/**
+ * Query added to map tile and icon urls, so browsers load them again when they change: a hash
+ * of their content, made at build time in vite.config.js.
+ * @type {string}
+ */
+const assets_query = import.meta.env.ASSETS_VERSION ? `?v=${ import.meta.env.ASSETS_VERSION }` : '';
+
 // icon and map folders; the style subfolder comes from the settings store
 const urls = {
   base,
@@ -17,11 +24,14 @@ const urls = {
 
 /**
  * Available styles per asset type, each a subfolder of its url above; the first is the default.
+ * The `color` map style (assets/maps/color) is left out: its tiles are from 2022, outdated for
+ * many hexes and missing for 16, so it mixed old and new terrain. A saved `color` setting is
+ * no longer valid and falls back to `classic`.
  * @type {{ icons: string[], maps: string[] }}
  */
 const styles = {
   icons: [ 'brighter', 'superbright', 'bright', 'default' ],
-  maps: [ 'classic', 'color' ]
+  maps: [ 'classic' ]
 }
 
 // enabled or disabled tools
@@ -48,6 +58,7 @@ if ( !dev ) tools.points = false
 
 export const config = {
   urls,
+  assetsQuery: assets_query,
   styles,
   log,
   tools,
