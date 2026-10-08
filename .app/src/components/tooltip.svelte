@@ -21,12 +21,15 @@
     ? Math.min( Math.max( $tooltip.x, width / 2 + edge ), window_width - width / 2 - edge )
     : $tooltip ? $tooltip.x : 0;
 
+  // below the pointer: to its left instead when it would run off the right edge
+  $: flip = Boolean( $tooltip && !$tooltip.above && width && $tooltip.x + 14 + width > window_width - edge );
+
 </script>
 
 <svelte:window bind:innerWidth={ window_width }/>
 
 {#if $tooltip}
-  <div class="tooltip" class:above={ $tooltip.above } bind:clientWidth={ width } style:left={ `${ left }px` } style:top={ `${ $tooltip.y }px` } aria-hidden="true">
+  <div class="tooltip" class:above={ $tooltip.above } class:flip bind:clientWidth={ width } style:left={ `${ left }px` } style:top={ `${ $tooltip.y }px` } aria-hidden="true">
     <div class="tooltip-title">{ $tooltip.title }</div>
     {#if Array.isArray( $tooltip.detail )}
       {#each $tooltip.detail as line, index ( index )}

@@ -37,7 +37,12 @@
   <section class="stats-section">
     <h3>Players</h3>
     <p class="stats-big">{ number( $stats.players ) } <span>in Foxhole now, all shards (Steam)</span></p>
-    <Chart lines={ [ { points: $stats.playerSeries, class: 'players' } ] } zero={ false } label="Players over the last 24 hours"/>
+    <Chart
+      lines={ [ { points: $stats.playerSeries, class: 'players', title: '' } ] }
+      unit="players"
+      zero={ false }
+      label="Players over the last 24 hours"
+    />
   </section>
 
   <section class="stats-section">
@@ -47,7 +52,11 @@
       <span class="stats-key colonials"></span>Colonials { number( latest( $stats.casualties.colonials ) ) }
     </p>
     <Chart
-      lines={ [ { points: $stats.casualties.wardens, class: 'wardens' }, { points: $stats.casualties.colonials, class: 'colonials' } ] }
+      lines={ [
+        { points: $stats.casualties.wardens, class: 'wardens', title: 'Wardens' },
+        { points: $stats.casualties.colonials, class: 'colonials', title: 'Colonials' }
+      ] }
+      unit="per hour"
       label="Casualties per hour over the last 24 hours, per team"
     />
     {#if $stats.totals}

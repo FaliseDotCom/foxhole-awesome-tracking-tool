@@ -676,3 +676,21 @@ test( 'zoomed out, hovering a hex shows its structures and latest changes', asyn
   await expect( tip.locator( '.tooltip-title' ) ).toHaveText( 'Dead Lands' );
   await expect( tip.locator( '.tooltip-detail' ).first() ).toContainText( /\d+ structures/ );
 } );
+
+test( 'the stats charts show their units and the values under the pointer', async ( { page } ) =>
+{
+  await page.route( '**/api/stats/able**', route => route.fulfill( { json: sampleStats() } ) );
+  await page.goto( '/' );
+  await page.getByRole( 'tab', { name: 'Stats' } ).click();
+  const panel = page.getByRole( 'tabpanel', { name: 'Stats' } );
+  await expect( panel.locator( '.chart-scale' ).first() ).toContainText( 'players' );
+  await expect( panel.locator( '.chart-scale' ).nth( 1 ) ).toContainText( 'per hour' );
+
+  const chart = panel.locator( 'svg.chart' ).nth( 1 );
+  const box = await chart.boundingBox();
+  await page.mouse.move( box.x + box.width - 2, box.y + box.height / 2 );
+  const tip = page.locator( '.tooltip' );
+  await expect( tip.locator( '.tooltip-detail' ).first() ).toHaveText( 'Wardens: 400 per hour' );
+  await expect( tip.locator( '.tooltip-detail' ).nth( 1 ) ).toHaveText( 'Colonials: 500 per hour' );
+  await expect( panel.locator( '.chart-hover' ) ).toHaveCount( 1 );
+} );

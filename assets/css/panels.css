@@ -656,6 +656,12 @@
   transform: translate( -50%, calc( -100% - 14px ) );
 }
 
+/* to the left of the pointer near the right edge of the window */
+.tooltip.flip
+{
+  transform: translate( calc( -100% - 14px ), 14px );
+}
+
 .tooltip-detail
 {
   font-size: 12px;
