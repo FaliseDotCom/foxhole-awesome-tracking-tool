@@ -112,7 +112,7 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 
 | File | Purpose |
 | --- | --- |
-| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (the war log and hex history of every live shard as the cron job, the latest map data for `/api/data`, and every 5 minutes the war report of every hex and the player count), at most every 10 seconds; `GET /api/players` returns the last player count `{ time, count }`; `GET /api/stats/<shard>?hours=24` returns casualties over time and per hex (last hour and day), when each hex last changed, and players over time; `GET /api/history/<shard>?at=<ms>` returns the map data of every hex as it was at that moment, like `/api/data` (the log's `historySince` says from when). `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
+| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (the war log and hex history of every live shard as the cron job, the latest map data for `/api/data`, and every 5 minutes the war report of every hex and the player count), at most every 10 seconds; `GET /api/players` returns the last player count `{ time, count }`; `GET /api/health` returns whether the cron job runs and the War API changes of the last 30 days; `GET /api/stats/<shard>?hours=24` returns casualties over time and per hex (last hour and day), when each hex last changed, and players over time; `GET /api/history/<shard>?at=<ms>` returns the map data of every hex as it was at that moment, like `/api/data` (the log's `historySince` says from when). `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
 | `router.php` | Router for `php -S`, mirroring `.htaccess`. |
 | `bootstrap.php` | Error logging (never to the response), Composer autoloader, library includes. |
 | `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`, `DATA_DIR`) and the time zone. |
@@ -124,6 +124,7 @@ dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewr
 | `lib/warlog-*.php`, `lib/warlog.php` | Server-side war log: the comparison (a port of `.app/src/lib/warlog-diff.js`, tested with the same fixtures by `tests/warlog-diff-test.php`), the SQLite storage, and the recorder. |
 | `lib/cron.php` | Scheduled tasks, run every 15 seconds by `/api/cron` or `cron/record.php`; new tasks go in `cron_tasks()`. |
 | `lib/stats.php` | Statistics over time: the war report of every hex and the Steam player count, sampled every 5 minutes. See `.docs/plans/2026-10-08-history-and-stats.md`. |
+| `lib/watch.php` | Watches the War API for new hexes, icon types and map flags, and hexes that are gone; `/api/health` lists them. See [Monitoring](#monitoring). |
 | `cron/record.php` | Runs the scheduled tasks from the command line, like `/api/cron` does by URL. |
 | `cache/`, `data/` | Runtime output, created on first use and not committed. `data/` holds the war log database: never overwrite or delete it when deploying. |
 
@@ -258,10 +259,25 @@ folder per day, one file per context and kind:
 | `.logs/YYYY-MM-DD/api-foxhole.log` | War API client problems: shards that do not answer, cache failures. |
 | `.logs/YYYY-MM-DD/cron-record.log` | Every cron run: the PHP version, then per shard the events stored and the hexes received. |
 | `.logs/YYYY-MM-DD/cron-error.log` | PHP errors from the cron job. |
+| `.logs/YYYY-MM-DD/api-changes.log` | War API changes the cron job noticed: new hexes, icon types or map flags, hexes gone. |
 
 Times are in Europe/Amsterdam for the website and cron alike. The error logs appear only once
 there is an error; `api-foxhole.log` is created as soon as the API runs, empty on a good day. No
 `cron-record.log` for today means cron did not start the script.
+
+### Monitoring
+
+- **War API changes.** Every cron run compares the live map data with what it saw before
+  (`lib/watch.php`): hexes, icon types and map flag bits it has not seen, and hexes that are
+  gone. The first run only notes what exists. `/api/health` lists the changes of the last 30
+  days and whether the cron job runs.
+- **Daily watch** (`.github/workflows/watch.yml`): opens an issue, which GitHub emails, for a
+  new commit in the War API documentation (clapfoot/warapi), for each change in
+  `/api/health`, and when the cron job stopped.
+- **Dependencies.** Dependabot opens a pull request per ecosystem (npm, Composer, GitHub
+  Actions) when updates are out (`.github/dependabot.yml`), and the deploy stops when
+  `npm audit` or `composer audit` finds a known vulnerability. Dependabot alerts and security
+  updates are switched on under Settings > Code security.
 
 For the war log, request `/api/cron` every 15 seconds. It runs the scheduled tasks (now only
 the war log of every live shard) and stores the latest map data, which `/api/data` then serves:

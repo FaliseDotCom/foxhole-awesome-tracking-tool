@@ -14,6 +14,8 @@
    *   GET /api/cron          the scheduled tasks (lib/cron.php), for cron jobs that can only
    *                          request a URL; at most every 10 seconds
    *   GET /api/players       players in the game (all shards, from Steam): { time, count }
+   *   GET /api/health        whether the cron job runs, and War API changes found in the last
+   *                          30 days (lib/watch.php), for the daily watch workflow
    *   GET /api/stats/<shard>?hours=24  casualties over time and per hex (last hour and day),
    *                          when each hex last changed, and players over time
    *   GET /api/history/<shard>?at=<ms>  the map data of every hex as it was at that moment of
@@ -73,6 +75,12 @@
     // every request must reach PHP, never a cached answer
     header( 'Cache-Control: no-store' );
     json( cron_run( $api, 'url' ) );
+  }
+
+  if ( $route[ 0 ] === 'health' && count( $route ) === 1 )
+  {
+    header( 'Cache-Control: no-store' );
+    json( watch_health( $api ) );
   }
 
   if ( $route[ 0 ] === 'players' && count( $route ) === 1 )

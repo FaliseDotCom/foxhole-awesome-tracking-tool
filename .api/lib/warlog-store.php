@@ -98,6 +98,15 @@ class WarlogStore
       time  INTEGER PRIMARY KEY,
       count INTEGER NOT NULL
     )' );
+    // what the War API watch (watch.php) has seen: hexes, icon types, flag bits, gone hexes;
+    // baseline rows were there when watching started
+    $this->db->exec( 'CREATE TABLE IF NOT EXISTS seen (
+      kind       TEXT    NOT NULL,
+      value      TEXT    NOT NULL,
+      first_seen INTEGER NOT NULL,
+      baseline   INTEGER NOT NULL,
+      PRIMARY KEY ( kind, value )
+    )' );
     // the latest map data of each shard, as /api/data sends it
     $this->db->exec( 'CREATE TABLE IF NOT EXISTS latest (
       shard    TEXT    PRIMARY KEY,
@@ -470,6 +479,47 @@ class WarlogStore
   public function savePlayers( int $time, int $count ) : void
   {
     $this->db->prepare( 'INSERT OR REPLACE INTO players ( time, count ) VALUES ( ?, ? )' )->execute( [ $time, $count ] );
+  }
+
+  /**
+   * Values of a kind the War API watch has seen.
+   *
+   * @param  string $kind hex, icon, flag or gone-hex.
+   * @return array<string, int> Per value, when it was first seen in ms.
+   */
+  public function getSeen( string $kind ) : array
+  {
+    $query = $this->db->prepare( 'SELECT value, first_seen FROM seen WHERE kind = ?' );
+    $query->execute( [ $kind ] );
+    return array_map( 'intval', $query->fetchAll( PDO::FETCH_KEY_PAIR ) );
+  }
+
+  /**
+   * Note a value the War API watch sees for the first time.
+   *
+   * @param  string $kind     hex, icon, flag or gone-hex.
+   * @param  string $value    The value.
+   * @param  bool   $baseline Whether it was there when watching started.
+   * @return bool True when it was new.
+   */
+  public function addSeen( string $kind, string $value, bool $baseline ) : bool
+  {
+    $query = $this->db->prepare( 'INSERT OR IGNORE INTO seen ( kind, value, first_seen, baseline ) VALUES ( ?, ?, ?, ? )' );
+    $query->execute( [ $kind, $value, (int) round( microtime( true ) * 1000 ), $baseline ? 1 : 0 ] );
+    return $query->rowCount() > 0;
+  }
+
+  /**
+   * Changes the War API watch found since a time, newest first.
+   *
+   * @param  int $since Time in ms.
+   * @return array<int, array{kind: string, value: string, firstSeen: int}> Changes.
+   */
+  public function getChanges( int $since ) : array
+  {
+    $query = $this->db->prepare( 'SELECT kind, value, first_seen FROM seen WHERE baseline = 0 AND first_seen >= ? ORDER BY first_seen DESC' );
+    $query->execute( [ $since ] );
+    return array_map( fn( array $row ) : array => [ 'kind' => $row[ 'kind' ], 'value' => $row[ 'value' ], 'firstSeen' => (int) $row[ 'first_seen' ] ], $query->fetchAll( PDO::FETCH_ASSOC ) );
   }
 
   /**
