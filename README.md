@@ -23,120 +23,103 @@ F.A.T.T. can stand for any of the following:
 
 ## What it does
 
-- Renders the whole world, all 53 hexes, as one large SVG of hexagons, each with its
-  background map image, border, and region polygons.
-- Polls the War API (through a small PHP proxy) every 10 seconds and draws all public map
-  items — town halls, relic bases, keeps, factories, mines, rocket sites, and so on — with
-  a Warden, Colonial, neutral, or scorched icon.
+- Renders the whole world, all 53 hexes, with their background maps, borders, and regions.
+- Refreshes every 10 seconds and draws all public map items — town halls, relic bases, keeps,
+  factories, mines, rocket sites, and so on — with a Warden, Colonial, neutral, or scorched
+  icon.
 - Colours each region by the team that holds its town or relic base, and marks scorched
   regions.
-- Flashes a hex or region when its data changes between polls.
-- Changes the level of detail with zoom:
-  - below 0.4× — a summary layer with only victory bases, rocket sites, and scorched items;
-  - 0.4× and up — every map item;
-  - 0.6× and up — major (region) labels;
-  - 0.8× and up — minor labels.
-- Only renders hexes that are on screen.
+- Flashes a hex or region when it changes.
+- Shows more detail the further you zoom in: victory bases, rocket sites, and scorched items
+  when zoomed out, then every map item, then region labels, then minor labels.
 - Supports mouse, touch, and keyboard pan and zoom (arrows / WASD / numpad to pan, `+` / `-`
   to zoom, numpad 5 to recentre), and remembers the last view. Buttons at the bottom on the
-  logo's side do the same: arrows, a zoom slider with zoom out and in, and one that shows the
-  whole map (hidden on narrow screens, which pan and zoom by touch).
+  logo's side do the same: arrows, a zoom slider, and one that shows the whole map (hidden on
+  narrow screens, which pan and zoom by touch).
 - Zoomed out, hovering a hex shows its structures per team, its casualties in the last hour
   and day, and its three latest war log entries.
-- Lets you switch between live shards in the Shard tab at the top right. Since May 2026 Foxhole runs a
-  single shard, so the picker is hidden until there is more than one.
 - Shows, bottom centre, the war number, the day of the war, the players in the game
-  (from Steam), rocket sites (armed ones in red), storm cannons and intel centres per
-  team, and one bar of the victory towns held per team against the number needed (lowered by
-  one for every scorched victory town), between the faction emblems. Hover a counter for where
-  they are.
+  (from Steam), rocket sites (armed ones in red), storm cannons and intel centres per team,
+  and the victory towns held per team against the number needed (lowered by one for every
+  scorched victory town). Hover a counter for where they are.
 - Shows a tooltip when you hover over a structure: type, team, state, and the nearest named
   place, such as "Town Base Tier 3 · Wardens · Victory town / The Spine, Dead Lands".
-- Has a legend (region colours, team colours, and every structure type on the map with its
-  in-game name) and settings in tabs at the top right, remembered in the browser: icon
-  brightness, hex shading (fighting in the last hour, or changes in the last 6 hours),
-  colour-blind team colours (blue and orange), region colour strength, icon size, hex names,
-  the tabs on the right or the left (the logo on the other side), and rocket sounds.
-- Has a Stats tab: players in the game, viewers of F.A.T.T. with how many are watching now,
-  casualties per hour, and the hexes with the most fighting in the last hour (click one to go
-  there), from what the server records every 5 minutes. The charts show the whole war, the
-  last 7 days, 24 hours (the default), 8 or 4 hours, remembered in the browser, as smooth
-  curves; casualties per hour are over the hour before each sample, because the War API updates
-  the hexes' reports at uneven moments. They share one
-  time axis: hovering one marks that moment in all of them, each with its values. The tabs have icons, and show only the icons on
-  phones.
-- Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
-  point at the screen centre, zoom), so a link opens the same view. Without a link it
-  restores the last view from `localStorage`.
-- Keeps a war log (the Log tab, first at the top right, open by default on wide screens): captures, losses, upgrades, scorched towns, structures built
-  or destroyed, construction started and finished, and victory town totals; click an entry to go there. Its own search field
-  filters the entries as you type (every word must appear in the team, text, or place). A status line ("Live · checked
-  5 s ago · last change 12 min ago") shows the log is working during quiet spells. The server records it
-  (`.api/data/warlog.sqlite`), so it is the same for everyone and has history; when the server
-  log does not answer, the browser shows the changes it sees itself. Major events (victory
-  towns, relics, rockets) from the whole war are loaded too, not only the latest 100, and
-  older entries load as you scroll down. Each entry has a button to go there and one to show
-  the map as it was right after it happened (from when history recording started), with a
-  bar to go back to live. See `.docs/plans/2026-10-07-war-log.md` and
-  `.docs/plans/2026-10-08-history-and-stats.md`.
-- Draws rocket launches as an arc from the launch site to the impact, with one war log entry
-  ("Wardens fired a rocket from … hit …"); see `.docs/plans/2026-10-07-rocket-arcs.md`. A
-  launch seen live sets off an air raid siren, a flashing beacon on the launch site and a
-  rumble; the impact a screen flash, a shockwave, an explosion and a quake (`stores/effects.js`,
-  sounds made with Web Audio in `lib/sound.js`). Sound can be turned off in Settings;
-  "reduce motion" turns off the shaking and flashing.
-- Keeps the map point at the screen centre in place when the window is resized.
 - Searches hexes, regions, locations, and structures from the field at the top (`/` jumps to
   it). Structures are listed as "type – nearest place", so "hosp dead" finds the hospitals in
-  Dead Lands. Choosing a result fits a hex or region on screen, or zooms in on a location or
-  structure, and marks it briefly. The last five choices show when the field is empty.
+  Dead Lands. Choosing a result brings it on screen and marks it briefly. The last five choices
+  show when the field is empty.
+- Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
+  point at the screen centre, zoom), so a link opens the same view.
+- Has tabs at the top right, with only their icons on phones:
+  - **Log** — the war log, open by default on wide screens: captures, losses, upgrades,
+    scorched towns, structures built or destroyed, construction started and finished, and
+    victory town totals. The server records it, so it is the same for everyone and goes back
+    to the start of the war for major events (victory towns, relics, rockets). Filter it as
+    you type, click an entry to go there, or show the map as it was right after it happened.
+    A status line ("Live · checked 5 s ago · last change 12 min ago") shows it is working
+    during quiet spells.
+  - **Stats** — players in the game, viewers of F.A.T.T., casualties per hour, and the hexes
+    with the most fighting in the last hour, over the whole war, the last 7 days, 24 hours,
+    8 or 4 hours. The charts share one time axis: hovering one marks that moment in all of
+    them.
+  - **Legend** — region colours, team colours, and every structure type on the map with its
+    in-game name.
+  - **Settings** — icon brightness, hex shading (fighting in the last hour, or changes in the
+    last 6 hours), colour-blind team colours (blue and orange), region colour strength, icon
+    size, hex names, the tabs on the right or the left, sound, and whether your visits are
+    counted. Remembered in the browser.
+  - **Shard** — switch between live shards. Since May 2026 Foxhole runs a single shard, so
+    this tab is hidden until there is more than one.
+- Draws rocket launches as an arc from the launch site to the impact. A launch seen live sets
+  off an air raid siren, a flashing beacon and a rumble; the impact a flash, a shockwave, an
+  explosion and a quake. Sound can be turned off in Settings; "reduce motion" turns off the
+  shaking and flashing.
 - Shows a message when no shard is online or the war data cannot be loaded.
-- Counts visitors with its own Matomo, without cookies and never with Do Not Track; see
+- Counts visitors without cookies and never with Do Not Track; see
   [Visitor statistics](#visitor-statistics).
 
 ## How it is built
 
 ```
-Browser (SvelteKit static SPA)
-   │  GET /api/shards once, then every 10 s: GET /api/data/<shard>
+Browser (SvelteKit single-page app)
+   │  /api/…
    ▼
-.htaccess → .api/index.php → .api/lib/api-foxhole.php (FoxholeApi)
-   │  parallel Guzzle requests, file cache (3 s per map, 24 h for the map list)
+PHP API ── scheduled every 15 s: war log, history, statistics (SQLite)
+   │  parallel requests, short file cache
    ▼
-Foxhole War API  https://war-service-live*.foxholeservices.com/api/
+Foxhole War API
 ```
 
-### Web root and routing
+- **The app** (`.app/`) is a SvelteKit single-page app, built with `adapter-static`. The map
+  is one large SVG of hexagons; only the hexes on screen are rendered.
+- **The API** (`.api/`) is a small PHP application served at `/api/`. It fetches the War API
+  for all hexes in parallel, compresses the result, and caches it. A scheduled task records
+  the war log, the map history and the statistics in SQLite, so visitors cause no War API
+  requests of their own.
+- **Assets** (`assets/`) — map images, icons, fonts, and stylesheets — are served as they are
+  and are not part of the app build.
 
-The repository root is the web root. Source,
-configuration, and runtime data live in dot folders, and `.htaccess` answers 404 for every
-dot path (except `.well-known/`) and for `README.md` and `LICENSE`. It also rewrites
-`/api/<route>` to `.api/index.php` and sends every other unknown path to `index.html`.
-`.api/router.php` applies the same rules for the PHP development server; keep the two in step.
+The repository root is the web root. Source, configuration, and runtime data live in dot
+folders, which `.htaccess` keeps from being served.
 
-### Backend (`.api/`, PHP)
+### API
 
-| File | Purpose |
+Every route answers JSON. A shard that is down or unknown answers `502` with an error.
+
+| Route | Returns |
 | --- | --- |
-| `index.php` | Front controller. `GET /api/shards` lists the live shards; `GET /api/data/<shard>` returns compressed dynamic data for every hex; `GET /api/war/<shard>` returns the war number, start time, winner, and victory towns needed (cached for a minute); `GET /api/log/<shard>` returns war log events (`?limit=`, `?since=<id>`, `?before=<id>`; `&major=1` adds older major events); `GET /api/cron` runs the scheduled tasks of `lib/cron.php` (the war log and hex history of every live shard as the cron job, the latest map data for `/api/data`, and every 5 minutes the war report of every hex and the player count), at most every 10 seconds; `GET /api/players` returns the last player count `{ time, count }`; `GET /api/analytics` returns the Matomo address and site id from the server settings (`[]` when tracking is off); `GET /api/health` returns whether the cron job runs and the War API changes of the last 30 days; `GET /api/stats/<shard>?hours=24` returns casualties over time and per hex (last hour and day), when each hex last changed, and players and viewers over time (`?hours=war` for the whole war since recording started; at most 300 samples per series, longer spans keep the last sample of each stretch); `GET /api/history/<shard>?at=<ms>` returns the map data of every hex as it was at that moment, like `/api/data` (the log's `historySince` says from when). `/api/data` answers from the map data the cron job stored while that is under 30 seconds old; otherwise it fetches, hands the data to the war log recorder, and stores it. A shard that is down or unknown answers `502` with a JSON error. |
-| `router.php` | Router for `php -S`, mirroring `.htaccess`. |
-| `bootstrap.php` | Error logging (never to the response), Composer autoloader, library includes. |
-| `config.php` | Directory constants (`LOG_DIR`, `CACHE_DIR`, `DATA_DIR`) and the time zone. |
-| `lib/log.php` | Log files: `log_path()` and `log_line()` for today's log of a context, see [Logs](#logs). |
-| `lib/api-foxhole.php` | `FoxholeApi`: War API client. `get_shards()` checks which documented shard roots answer `worldconquest/war` (the API has no endpoint that lists shards) and caches the result for 5 minutes. `async_dynamics()` fetches `worldconquest/maps/{hex}/dynamic/public` for all hexes in parallel and compresses each item to `{ x, y, t, i, f }` (coordinates rounded to 5 decimals, team as one letter, icon type, flags). |
-| `lib/cache.php` | `Cache`: thin wrapper around `inouet/file-cache` writing to `cache/`. |
-| `lib/grid.php`, `lib/icons.php`, `lib/point-location.php` | Leftovers from the earlier server-rendered version; not used. |
-| `composer.json`, `vendor/` | PHP dependencies; `vendor/` is not committed. |
-| `lib/warlog-*.php`, `lib/warlog.php` | Server-side war log: the comparison (a port of `.app/src/lib/warlog-diff.js`, tested with the same fixtures by `tests/warlog-diff-test.php`), the SQLite storage, and the recorder. |
-| `lib/cron.php` | Scheduled tasks, run every 15 seconds by `/api/cron` or `cron/record.php`; new tasks go in `cron_tasks()`. |
-| `lib/stats.php` | Statistics over time: the war report of every hex, the Steam player count and the viewers from Matomo, sampled every 5 minutes. See `.docs/plans/2026-10-08-history-and-stats.md`. |
-| `lib/env.php`, `.env` | Server settings from `.env`, which exists only on the server; see [Server settings](#server-settings). |
-| `lib/analytics.php` | Where the browser sends visitor statistics (`/api/analytics`), from the server settings, and the viewers in the last 5 minutes from the Matomo API. |
-| `lib/watch.php` | Watches the War API for new hexes, icon types and map flags, and hexes that are gone; `/api/health` lists them. See [Monitoring](#monitoring). |
-| `cron/record.php` | Runs the scheduled tasks from the command line, like `/api/cron` does by URL. |
-| `cache/`, `data/` | Runtime output, created on first use and not committed. `data/` holds the war log database: never overwrite or delete it when deploying. |
+| `GET /api/shards` | The live shards. |
+| `GET /api/data/<shard>` | The current map items of every hex, compressed (see below). |
+| `GET /api/war/<shard>` | The war number, start time, winner, and victory towns needed. |
+| `GET /api/log/<shard>` | War log events. `?limit=`, `?since=<id>` and `?before=<id>` page through them; `&major=1` adds older major events. Also says when the scheduled task last ran. |
+| `GET /api/history/<shard>?at=<ms>` | The map items of every hex as they were at that moment, like `/api/data`. |
+| `GET /api/stats/<shard>?hours=24` | Casualties over time and per hex, when each hex last changed, and players and viewers over time. `?hours=war` covers the whole war. |
+| `GET /api/players` | The last player count from Steam. |
+| `GET /api/analytics` | Where the browser sends visitor statistics; `[]` when that is off. |
+| `GET /api/health` | Whether the scheduled task runs, and the War API changes of the last 30 days (new hexes, icon types or map flags, hexes gone). |
+| `GET /api/cron` | Runs the scheduled tasks; see [Scheduled tasks](#scheduled-tasks). |
 
-The compressed response per hex looks like:
+The compressed map data per hex looks like:
 
 ```json
 {
@@ -145,82 +128,37 @@ The compressed response per hex looks like:
 }
 ```
 
-### Frontend (`.app/`, SvelteKit + `adapter-static`)
-
-Svelte 5 (components still use the legacy, non-runes syntax), SvelteKit 3, and Vite 8. Built
-as a single-page app (`fallback: index.html`). SvelteKit 3 has no `svelte.config.js`: the
-adapter and the path aliases `@components`, `@stores`, and `@lib` are all set in
-`vite.config.js`.
-
-**Stores** (`src/stores/`)
-
-| Store | Purpose |
-| --- | --- |
-| `config.js` | Site-relative URLs for `/assets/` and `/api/`, the available icon and map styles, per-topic console logging switches, the dev-only points tool, update interval. |
-| `shards.js` | The live shards, loaded from `/api/shards`, and the selected one (the first live shard by default). |
-| `world.js` | Polls `/api/data/<shard>` and publishes the dynamic data, adding a stable `key` to each item. Restarts on shard change. While a past moment is chosen (`showAt()`, from `/api/history`), it publishes that instead; `world.live` is always the live data. |
-| `stats.js` | Statistics from `/api/stats/<shard>` for the Stats tab and the hex shading, fetched only while something uses them; the time span all charts share (chosen with the buttons, remembered as `fatt-stats-span`) and the moment hovered in them. |
-| `world_data.json` | Static, hand-built geometry for every hex: grid column/row, named points, region polygons built from those points, and label positions. |
-| `grid.js` | Hex layout maths (1024 × 888 px hexes on a staggered grid), polygon helpers, and cached point-in-polygon tests that assign map items to regions. |
-| `icons.js` | War API icon type IDs, resource types, flag bits, and the icon file name and CSS class for an item. |
-| `visible.js` | Which grid rows and columns are on screen for the current pan/zoom. |
-| `zoom.js` | Current zoom level and its limits. |
-| `settings.js` | The viewer's settings, saved in `localStorage`: styles from `config.styles` (icons, maps, shading, palette, side), switches (sound, hex names) and sliders (icon size, region colour strength). `components/appearance.svelte` applies the map look to the page. |
-| `link.js` | Reads and writes the shareable link in the URL hash. |
-| `war.js` | War state from `/api/war/<shard>`, the player count from `/api/players`, and victory towns and key structures per team counted from the world store. |
-| `analytics.js` | Visitor statistics with Matomo, set up from `/api/analytics`: the page view, a ping every minute while the page is visible, and events for tabs, searches, history and settings; the viewer's choice to turn counting off. See [Visitor statistics](#visitor-statistics). |
-
-**Components** (`src/components/`)
-
-- `map/layer-map.svelte` composes the map: `Scaler` → `PanZoom` → `SvgMap` → a stack of
-  `Layer`s (backgrounds, areas, borders, summaries, dynamics, major and minor labels, and the
-  dev points tool). Each `Layer` renders one hex component per hex.
-- `map/hex/*.svelte` are the per-hex layers. `base.svelte` positions a hex and hides it when
-  off screen; `data.svelte` subscribes it to the world store; `areas.svelte`,
-  `dynamic.svelte`, and `summary.svelte` build on that.
-- `panzoom.svelte` wraps the `panzoom` library and adds keyboard controls and view
-  persistence.
-- `icon.svelte` draws the line icons of the tabs and buttons, `chart.svelte` the line charts of the Stats tab (smooth curves from `lib/curve.js`; casualties per hour from `lib/rates.js`), and `filter-field.svelte` the search fields of the war log and legend.
-- `map-controls.svelte` holds the pan and zoom buttons (they send commands through `stores/view.js` to `panzoom.svelte`); `stores/hex-info.js` builds the hex details shown zoomed out.
-- `history-bar.svelte` shows which past moment the map shows, with a way back to live; `appearance.svelte` applies the map look settings.
-- `logo.svelte`, `search.svelte`, `war.svelte`, and `status.svelte` are the panels over the map, and `tabs.svelte` holds the tabs at the top right: `warlog.svelte`, `stats.svelte`, `legend.svelte`, `settings.svelte`, and `shard.svelte` (only with more than one live shard). Their styles are in `assets/css/panels.css` and the per-feature files next to it.
-
-### Assets
-
-`assets/` holds the map backgrounds (`maps/classic`: the official War API images of all 53 hexes, the default; `maps/color`: a recoloured 2022 set of the original 37, no longer offered because its terrain is outdated; kept for a possible recolour of the current images). Tile and icon urls get `?v=<content hash>` (made in `vite.config.js`), so browsers load them again when they change,
-icon sets in four brightness levels (`icons/default`, `bright`, `brighter`, `superbright`),
-fonts, stylesheets (`css/`), and the page background. They are served as they are and are
-not part of the app build.
-
-The map images and icons come from Foxhole and belong to Siege Camp; the fonts belong to
-their designers. They are not covered by this project's licence (see [Licence](#licence)).
+Each item has its position in the hex (`x`, `y`), its team as one letter (`t`), its War API
+icon type (`i`), and its War API flags (`f`).
 
 ### Adding or fixing a hex
 
-`node scripts/build-hexes.js` (in `.app/`, add `--dry-run` to only report) rebuilds
-`world_data.json` and `assets/maps/classic/` from the War API: region ids, region names, label
-positions, and the official background images. Grid positions are in the script's `LAYOUT`
-table; add a row when Foxhole adds a hex. Region outlines are not in the API: the script keeps
-an outline when a hex still has exactly the same regions, and otherwise generates outlines (a
-Voronoi diagram of the region labels). Generated outlines are approximate; correct them with
-the points tool: enable `tools.points` in `src/stores/config.js` (dev mode only), click on a
-hex to place lettered points, and copy the result into the hex's `points` and `areas`. The
-script keeps corrected outlines on later runs.
+`node scripts/build-hexes.js` (in `.app/`, add `--dry-run` to only report) rebuilds the hex
+geometry and the background images from the War API: region ids, region names, label
+positions, and the official images. Grid positions are in the script's `LAYOUT` table; add a
+row when Foxhole adds a hex.
+
+Region outlines are not in the API. The script keeps an outline when a hex still has exactly
+the same regions, and otherwise generates approximate ones from the region labels. Correct
+them with the points tool: enable `tools.points` in `src/stores/config.js` (development
+only), click on a hex to place lettered points, and copy the result into the hex's `points`
+and `areas` in `src/stores/world_data.json`. The script keeps corrected outlines on later
+runs.
 
 ### Adding map icons
 
-`assets/icons/{default,bright,brighter,superbright}/` hold every icon in a neutral, `Warden`,
-`Colonial`, and `Scorched` version, named after the icon's name in `icons.js` without spaces.
-The official source images are the `.TGA` files in the War API repository
-(`Images/MapIcons`). The icons for types 70–92 were generated from those by matching the
-colours of the existing icon sets.
+`assets/icons/` holds every icon in four brightness levels, each in a neutral, `Warden`,
+`Colonial`, and `Scorched` version, named after the icon's name in `src/stores/icons.js`
+without spaces. The official source images are the `.TGA` files in the War API repository
+(`Images/MapIcons`).
 
 ## Running it
 
-Requirements: PHP 8.4 with Composer, and Node.js 22.17 or newer with npm.
+Requirements: PHP 8.4 with Composer and the curl and pdo_sqlite extensions, and Node.js 22.17
+or newer with npm.
 
 ```bash
-# backend dependencies (vendor/ is not committed)
+# backend dependencies
 cd .api
 composer install
 
@@ -230,164 +168,66 @@ npm install
 npm run api       # PHP development server on 127.0.0.1:8090: the site, /api, and /assets
 npm run dev       # Vite dev server; forwards /api and /assets to the PHP server
 npm run build     # build, then publish index.html and _app/ to the web root
-npm run lint      # ESLint (flat config in eslint.config.js)
-npm test          # unit tests (node --test, src/tests/*.unit.js), then Playwright tests against the PHP server
+npm run lint      # ESLint
+npm test          # unit tests, then browser tests against the PHP server
 ```
 
 Set `FATT_SERVER=https://fatt.fali.se` to develop against the live site instead of a local
 PHP server. The browser tests need a browser once (`npx playwright install chromium`) and
-load live War API data, so they fail when the War API is down. They only run locally: run
-`npm test` before every push. The deploy runs only the unit tests. PHP needs a CA bundle
+load live War API data, so they fail when the War API is down. PHP needs a CA bundle
 (`curl.cainfo` in `php.ini`) to reach the War API over HTTPS.
 
-## Deploying
+## Hosting it
 
-The server (DirectAdmin) has no git or SSH, so GitHub Actions deploys over FTP:
-[.github/workflows/deploy.yml](.github/workflows/deploy.yml) runs on every push to `master`
-(or by hand from the Actions tab). It lints and builds the app, runs `composer install
---no-dev` for `.api/`, runs the unit tests (JavaScript and the PHP war log diff), and uploads
-the served files; a failing step stops the upload. The browser tests are not part of it. Source and tooling (`.app/`, `.docs/`,
-`.scripts/`, `README.md`, `LICENSE`) stay off the server. The first run uploads everything;
-later runs upload only changed files, tracked in `.ftp-deploy-sync-state.json` on the server.
+The site needs Apache with `mod_rewrite` and `.htaccess` overrides allowed, PHP 8.4 with the
+curl and pdo_sqlite extensions, and write access for PHP to `.api/`, where it creates its
+cache and database, and to the web root, where it creates `.logs/`. Upload the web root
+without the source and tooling (`.app/`, `.docs/`, `.scripts/`), after `npm run build` and
+`composer install --no-dev`. Never overwrite or delete `.api/data/` when updating: it holds the
+war log and the history.
 
-It needs four repository secrets: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, and
-`FTP_SERVER_DIR` (the web root of fatt.fali.se as the FTP account sees it, ending in `/`).
+### Scheduled tasks
 
-The server needs Apache with `mod_rewrite` and `.htaccess` overrides allowed, PHP with the
-curl and pdo_sqlite extensions, and write access for PHP to `.api/`, where it creates
-`cache/` and `data/`, and to the web root, where it creates `.logs/`.
-
-### Logs
-
-All logs are in `.logs/` in the web root (hidden from the web like every dot folder), one
-folder per day, one file per context and kind:
-
-| File | Contents |
-| --- | --- |
-| `.logs/YYYY-MM-DD/api-error.log` | PHP errors and failed War API requests from the API. |
-| `.logs/YYYY-MM-DD/api-foxhole.log` | War API client problems: shards that do not answer, cache failures. |
-| `.logs/YYYY-MM-DD/cron-record.log` | Every cron run: the PHP version, then per shard the events stored and the hexes received. |
-| `.logs/YYYY-MM-DD/cron-error.log` | PHP errors from the cron job. |
-| `.logs/YYYY-MM-DD/api-changes.log` | War API changes the cron job noticed: new hexes, icon types or map flags, hexes gone. |
-
-Times are in Europe/Amsterdam for the website and cron alike. The error logs appear only once
-there is an error; `api-foxhole.log` is created as soon as the API runs, empty on a good day. No
-`cron-record.log` for today means cron did not start the script.
-
-### Visitor statistics
-
-Visits are counted by Matomo at <https://matomo.fali.se/>, installed there with Installatron
-and not part of this repository; only Sander can see the reports. Where to send them is set
-only on the server, in `.api/.env` (see [Server settings](#server-settings)):
-`/api/analytics` hands the Matomo address and site id to the browser, and without them nothing
-is tracked. `stores/analytics.js` then loads `matomo.js` and sends:
-
-- one page view per visit, for `https://fatt.fali.se/` without the hash (the view is not
-  counted);
-- a ping every minute while the page is visible, so a map left open counts as active;
-- events: `Tab` with the tab opened, `History` with `show` or `live`, `Settings` with the setting
-  and its new value (once it stays the same for 1.5 seconds, so dragging a slider counts once);
-- every other click on a control (button, link, field, checkbox, radio button, slider) as an
-  event: the category is the area it is in (the closest `data-track` attribute: the tab panel's
-  title, `Map controls`, `Search`, `War`, else `Page`), the action its `data-track-action`,
-  accessible name, title or label, and the name its `data-track-name`, the new state of a
-  checkbox, or the value of a radio button or slider. Controls inside `data-track-skip` (the
-  tabs, the Settings tab, the history buttons) are counted by the events above instead;
-- site searches: the normalised search words, the kind of result chosen and the number of
-  suggestions, only when a result is chosen (searches without results, and choices from the
-  recent list, are not counted).
-
-When the browser sends Do Not Track or Global Privacy Control, or the visitor unticked "Count
-my visits" in the Settings tab (remembered in `localStorage` as `fatt-tracking`), not even
-`/api/analytics` is requested; unticking it later stops sending at once. With Do Not Track or
-Global Privacy Control the box is unticked and cannot be changed. The tracker runs without
-cookies (`disableCookies`) and also has `setDoNotTrack`. The Settings tab explains this. Development and the tests are not counted, because a
-local `.api/` has no `.env`. Matomo itself is set up for privacy under Administration >
-Privacy: anonymise IP addresses (2 bytes), force tracking without cookies, and support Do Not
-Track; under Websites, F.A.T.T. only accepts visits whose URL starts with
-`https://fatt.fali.se`, so a development server using the live API is not counted either.
-
-The Stats tab shows the viewers: every 5 minutes the cron job asks Matomo (`Live.getCounters`)
-how many visitors it saw in the last 5 minutes. The pings keep a map left open counted. This
-needs `MATOMO_TOKEN`, the token of a Matomo user with view access, sent in the request body;
-without it the chart is not shown.
-Both sites are behind Cloudflare, so Matomo needs `proxy_client_headers[] = HTTP_CF_CONNECTING_IP`
-under `[General]` in its `config/config.ini.php`; without it every visitor has a Cloudflare IP
-address, and visitors cannot be told apart or placed in a country.
+Request `/api/cron` every 15 seconds to record the war log, the map history, and the
+statistics. Without it the war log is still recorded, but only while someone has the page open.
 
 ### Server settings
 
-Settings that differ per server or must stay out of the repository are in `.api/.env`
-(`KEY=value`, `#` for comments; read by `lib/env.php`, with the process environment as a
-fallback). It is not committed and the deploy never uploads or overwrites it: copy
-`.api/.env.example` to `.api/.env` on the server by FTP and fill it in. Like every dot path it
-is never served.
+Settings that differ per server or must stay out of the repository go in `.api/.env`
+(`KEY=value`, `#` for comments, with the process environment as a fallback). Copy
+`.api/.env.example` to start. It is not committed and never served.
 
 | Setting | Purpose |
 | --- | --- |
 | `MATOMO_URL` | Matomo address for visitor statistics, `https://` and ending in a slash. |
-| `MATOMO_SITE_ID` | Site id of F.A.T.T. in that Matomo. Empty or missing: no tracking. |
-| `MATOMO_TOKEN` | Token of a Matomo user with view access to F.A.T.T., for the viewers in the Stats tab. Never sent to the browser. Empty or missing: no viewers. |
+| `MATOMO_SITE_ID` | Site id in that Matomo. Empty or missing: no tracking. |
+| `MATOMO_TOKEN` | Token of a Matomo user with view access to the site, for the viewers in the Stats tab. Never sent to the browser. Empty or missing: no viewers. |
 
-### Monitoring
+### Logs
 
-- **War API changes.** Every cron run compares the live map data with what it saw before
-  (`lib/watch.php`): hexes, icon types and map flag bits it has not seen, and hexes that are
-  gone. The first run only notes what exists. `/api/health` lists the changes of the last 30
-  days and whether the cron job runs.
-- **Daily watch** (`.github/workflows/watch.yml`): opens an issue, which GitHub emails, for a
-  new commit in the War API documentation (clapfoot/warapi), for each change in
-  `/api/health`, and when the cron job stopped.
-- **Dependencies.** Dependabot opens a pull request per ecosystem (npm, Composer, GitHub
-  Actions) when updates are out (`.github/dependabot.yml`), and the deploy stops when
-  `npm audit` or `composer audit` finds a known vulnerability. Dependabot alerts and security
-  updates are switched on under Settings > Code security.
+Logs are in `.logs/` in the web root, one folder per day and one file per context: API and
+cron errors, War API client problems, every scheduled run, and War API changes.
 
-For the war log, request `/api/cron` every 15 seconds. It runs the scheduled tasks (now only
-the war log of every live shard) and stores the latest map data, which `/api/data` then serves:
-visitors cause no War API requests while it runs. Cron runs at most once a minute, so add four
-DirectAdmin cron jobs, each every minute (`*` in all five time fields), that wait 0, 15, 30 and
-45 seconds first. DirectAdmin refuses a command with a line break, so paste each one on its own
-and check that no line break came along at the end:
+## Visitor statistics
 
-`/usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1`
+F.A.T.T. counts visits with its own [Matomo](https://matomo.org/), when the server settings
+name one; without them nothing is tracked, so development and the tests are not counted. It
+sends:
 
-`sleep 15; /usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1`
+- one page view per visit, without the view in the address;
+- a ping every minute while the page is visible, so a map left open counts as active;
+- the tabs opened, the settings changed, the history shown, and the controls clicked;
+- the words of a search, only when a result is chosen.
 
-`sleep 30; /usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1`
+The tracker runs without cookies. When the browser sends Do Not Track or Global Privacy
+Control, or the visitor unticks "Count my visits" in the Settings tab, nothing is sent; with
+Do Not Track or Global Privacy Control the box cannot be ticked. The Settings tab explains
+this.
 
-`sleep 45; /usr/bin/wget -O /dev/null 'https://fatt.fali.se/api/cron' >/dev/null 2>&1`
-
-It answers with what each task did, e.g. `{"warlog":{"able":{"events":2,"hexes":53}}}`. The URL is
-public, so runs less than 10 seconds apart are skipped (`{"skipped":"..."}`): nobody can make the
-server record more often than cron would. When the stored map data is older than 30 seconds (the
-cron jobs stopped), `/api/data` fetches from the War API again and records as before; its
-`X-Fatt-Data` response header says `stored` or `live`.
-
-The same run from the command line, without a web request (`~` is the account's home folder):
-
-```
-/usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php >/dev/null 2>&1
-```
-
-Use the PHP version the site runs on, not the system PHP: on this server `/usr/bin/php` is PHP
-7.2, which cannot load the dependencies (the error log then shows "Composer detected issues in
-your platform"). DirectAdmin installs each PHP version it offers in `/usr/local/phpXY/bin/`,
-named `php` or `phpXY` depending on the server (`/usr/local/php84/bin/php` did not run here);
-`/usr/local/bin/php` is its default version, which may differ from the site's. A test cron job
-such as `ls /usr/local/php*/bin/ > ~/domains/fatt.fali.se/public_html/.cron-test.txt 2>&1` lists
-them. The script refuses web requests: opening it in a browser gives a 404.
-
-Both log each run in `cron-record.log` (see [Logs](#logs)), marked `url` or `cli`.
-
-Without any cron job the log is still recorded, but only while someone has the page open.
-
-To check the cron job runs: `/api/log/<shard>` returns `cronAt` (when the cron job last ran,
-0 if never) and `recordedBy` (`cron` or `request`, who made the last recording), and every
-event has a `recordedBy` too. Hovering the war log status line shows the same in words.
-
-Commit the published `index.html` and `_app/` after `npm run build` too; the workflow
-rebuilds them anyway, but the committed copy keeps the repository a complete site.
+For privacy, set Matomo to anonymise IP addresses, force tracking without cookies, and support
+Do Not Track, and let it accept only visits from the site's own address. Behind a proxy such
+as Cloudflare, Matomo also needs the proxy's client IP header (`proxy_client_headers[]`) to
+tell visitors apart.
 
 ## Repository layout
 
@@ -395,14 +235,10 @@ rebuilds them anyway, but the committed copy keeps the repository a complete sit
 | --- | --- |
 | `index.html`, `_app/` | The built app, published by `npm run build`. Do not edit by hand. |
 | `assets/` | Map images, icons, fonts, and stylesheets. |
-| `favicon.png`, `.htaccess` | Served as they are. |
-| `.app/` | The SvelteKit source. |
-| `.api/` | The PHP API. |
-| `.logs/` | Logs, one folder per day (not committed). |
+| `.app/` | The app source (SvelteKit). |
+| `.api/` | The API (PHP). |
 | `.docs/` | Project notes; reference links are in [.docs/links.md](.docs/links.md). |
-| `.scripts/` | Development tooling (PHPStan wrapper). |
-| `.github/workflows/` | GitHub Actions: build and FTP deploy. |
-| `.org/` | Original source material (ignored by git). |
+| `.scripts/` | Development tooling. |
 
 ## Contributing
 
