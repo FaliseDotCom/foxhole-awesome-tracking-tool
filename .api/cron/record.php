@@ -2,8 +2,8 @@
 
 /**
  * Runs the scheduled tasks (lib/cron.php), such as recording the war log, and reports each run in
- * .logs/<date>/cron-record.log. Run every minute by a cron job, either this script or by
- * requesting /api/cron (see the README):
+ * .logs/<date>/cron-record.log. Run every 15 seconds, either this script or by requesting
+ * /api/cron:
  *
  *   /usr/local/php84/bin/php ~/domains/fatt.fali.se/public_html/.api/cron/record.php
  *

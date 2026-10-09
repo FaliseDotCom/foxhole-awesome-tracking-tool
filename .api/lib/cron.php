@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Scheduled work, run every 15 seconds by four cron jobs a minute (see the README): from the
- * command line (cron/record.php) or by requesting /api/cron. Each run does every task in cron_tasks(); add new tasks there.
+ * Scheduled work, run every 15 seconds from the command line (cron/record.php) or by requesting
+ * /api/cron. Each run does every task in cron_tasks(); add new tasks there.
  */
 
 /**
