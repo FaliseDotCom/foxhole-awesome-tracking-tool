@@ -129,6 +129,8 @@ const summary = derived( data, $data =>
   const series = $data.series || [],
         players = $data.players || [],
         viewers = $data.viewers || [],
+        // the server may not have seen this map yet, but it is watching
+        watching = Math.max( 1, $data.watching || 0 ),
         from = $data.from || $data.now - 86400000;
 
   // the most active hexes in the last hour, by casualties of both teams
@@ -154,9 +156,10 @@ const summary = derived( data, $data =>
     to: $data.now,
     players: players.length ? players[ players.length - 1 ][ 1 ] : 0,
     playerSeries: players,
-    // viewers of F.A.T.T. (open maps) over time, and now: at least this one
-    viewerSeries: viewers,
-    watching: Math.max( 1, $data.watching || 0 ),
+    // viewers of F.A.T.T. (open maps) over time, ending with now, and since when they are counted
+    viewerSeries: [ ...viewers, [ $data.now, watching ] ],
+    viewersSince: viewers.length ? viewers[ 0 ][ 0 ] : $data.now,
+    watching,
     casualties: {
       wardens: perHour( series, 1, from ),
       colonials: perHour( series, 2, from )

@@ -619,14 +619,19 @@ test( 'the stats tab shows players, casualties and the busiest hexes', async ( {
 
 test( 'an open map counts as a viewer, with an id of this page load', async ( { page } ) =>
 {
-  await page.route( '**/api/stats/able**', route => route.fulfill( { json: { ...sampleStats(), watching: 0 } } ) );
+  // counting started 5 minutes ago: one sample so far
+  await page.route( '**/api/stats/able**', route => route.fulfill( { json: { ...sampleStats(), viewers: [ [ Date.now() - 300000, 0 ] ], watching: 0 } } ) );
   const request = page.waitForRequest( '**/api/data/able' );
   await page.goto( '/' );
   expect( ( await request ).headers()[ 'x-fatt-viewer' ] ).toMatch( /^[0-9a-f]{32}$/ );
 
   // the server may not have seen this map yet, but it is watching
   await page.getByRole( 'tab', { name: 'Stats' } ).click();
-  await expect( page.getByRole( 'tabpanel', { name: 'Stats' } ) ).toContainText( '1 on F.A.T.T. in the past 5 minutes' );
+  const panel = page.getByRole( 'tabpanel', { name: 'Stats' } );
+  await expect( panel ).toContainText( '1 on F.A.T.T. in the past 5 minutes' );
+  // the line runs from that sample to now
+  await expect( panel.locator( '.chart-line.viewers' ) ).toHaveAttribute( 'd', /^M.+C/ );
+  await expect( panel ).toContainText( 'Counting viewers started 5 min ago' );
 } );
 
 test( 'map look settings shade hexes and change colours, names and sizes', async ( { page } ) =>

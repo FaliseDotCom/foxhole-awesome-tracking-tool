@@ -8,6 +8,7 @@
 
   import { stats } from '@stores/stats'
   import Chart from '@components/chart.svelte'
+  import { ago } from '@lib/time'
 
   import { onDestroy } from 'svelte'
 
@@ -35,6 +36,10 @@
 
   // props every chart shares: the time span and the hovered moment
   $: shared = $stats ? { from: $stats.from, to: $stats.to, hover: $hover } : {};
+
+  // viewers are counted since recently, so their line covers only the end of the chart
+  $: viewersNew = $stats && $stats.now - $stats.viewersSince < 86400000
+    && $stats.viewersSince - $stats.from > ( $stats.to - $stats.from ) / 10;
 
   // less than an hour of samples: the numbers are still building up
   $: young = $stats && ( !$stats.since || $stats.now - $stats.since < 3600000 );
@@ -73,19 +78,20 @@
     />
   </section>
 
-  {#if $stats.viewerSeries.length}
-    <section class="stats-section">
-      <h3>Viewers</h3>
-      <Chart
-        lines={ [ { points: $stats.viewerSeries, class: 'viewers', title: '' } ] }
-        unit="viewers"
-        label={ `Viewers of F.A.T.T. over ${ spanLabel }` }
-        { ...shared }
-        on:hover={ e => stats.setHover( e.detail ) }
-      />
-      <p class="stats-big stats-below">{ number( $stats.watching ) } <span>on F.A.T.T. in the past 5 minutes</span></p>
-    </section>
-  {/if}
+  <section class="stats-section">
+    <h3>Viewers</h3>
+    <Chart
+      lines={ [ { points: $stats.viewerSeries, class: 'viewers', title: '' } ] }
+      unit="viewers"
+      label={ `Viewers of F.A.T.T. over ${ spanLabel }` }
+      { ...shared }
+      on:hover={ e => stats.setHover( e.detail ) }
+    />
+    <p class="stats-big stats-below">{ number( $stats.watching ) } <span>on F.A.T.T. in the past 5 minutes</span></p>
+    {#if viewersNew}
+      <p class="stats-note">Counting viewers started { ago( $stats.viewersSince, $stats.now ) }; the chart fills up over time.</p>
+    {/if}
+  </section>
 
   <section class="stats-section">
     <h3>Casualties per hour</h3>
