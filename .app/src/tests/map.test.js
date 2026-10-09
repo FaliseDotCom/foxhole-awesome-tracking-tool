@@ -814,3 +814,26 @@ test( 'clicks on controls are counted by area, without counting tabs and history
   expect( events.filter( event => event.startsWith( 'Tab / warlog' ) ) ).toHaveLength( 1 );
   expect( events.filter( event => event.includes( 'Log' ) && event.startsWith( 'Page' ) ) ).toHaveLength( 0 );
 } );
+
+test( 'a new version online reloads the page once', async ( { page } ) =>
+{
+  await page.clock.install();
+  await page.route( '**/_app/version.json', route => route.fulfill( { json: { version: 'newer' } } ) );
+  let loads = 0;
+  page.on( 'load', () => loads++ );
+  await page.goto( '/' );
+  await expect.poll( () => loads ).toBe( 1 );
+
+  // found on the next check, reloaded after a moment; the check itself is a real request, so
+  // the clock moves on in steps
+  await expect.poll( async () =>
+  {
+    await page.clock.runFor( 30 * 1000 );
+    return loads;
+  } ).toBe( 2 );
+
+  // the reload brought the same version again: no reload loop
+  await page.clock.runFor( 3 * 60 * 1000 );
+  await page.waitForTimeout( 500 );
+  expect( loads ).toBe( 2 );
+} );

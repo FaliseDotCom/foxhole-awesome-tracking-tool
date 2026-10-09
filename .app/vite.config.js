@@ -66,7 +66,9 @@ export default defineConfig( {
       adapter: adapter( {
         fallback: 'index.html'
       } ),
-      prerender: { entries: [] }
+      prerender: { entries: [] },
+      // lib/version-check.js checks for new versions itself and reloads
+      version: { pollInterval: 0 }
     } )
   ],
   server: { proxy },

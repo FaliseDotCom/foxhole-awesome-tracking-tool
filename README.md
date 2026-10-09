@@ -75,6 +75,7 @@ F.A.T.T. can stand for any of the following:
   explosion and a quake. Sound can be turned off in Settings; "reduce motion" turns off the
   shaking and flashing.
 - Shows a message when no shard is online or the war data cannot be loaded.
+- Reloads itself shortly after a new version goes online, keeping the view and settings.
 - Counts visitors without cookies and never with Do Not Track; see
   [Visitor statistics](#visitor-statistics).
 

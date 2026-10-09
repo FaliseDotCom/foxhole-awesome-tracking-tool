@@ -13,8 +13,13 @@
   import Clear from '@components/hotreload-clearconsole.svelte';
   import { onMount } from 'svelte';
   import { analytics } from '@stores/analytics';
+  import { watchVersion } from '@lib/version-check';
 
-  onMount( () => analytics.start() );
+  onMount( () =>
+  {
+    analytics.start();
+    watchVersion();
+  } );
 </script>
 
 <Clear/>
