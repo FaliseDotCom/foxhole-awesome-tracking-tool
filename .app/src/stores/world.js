@@ -2,6 +2,7 @@ import { writable, derived, get } from 'svelte/store';
 import { shards } from './shards'
 import { config } from './config'
 import { analytics } from './analytics'
+import { viewerId } from '@lib/viewer-id'
 
       // api urls
 const api_url = config.urls.api + 'data/',
@@ -25,19 +26,12 @@ const api_url = config.urls.api + 'data/',
 const viewer_header = 'X-Fatt-Viewer';
 
 /**
- * Random id of this page load, sent while the page is visible. Made fresh on every load and
- * never stored, so it says nothing about who is watching.
- * @type {string}
- */
-const viewer_id = Array.from( crypto.getRandomValues( new Uint8Array( 16 ) ), byte => byte.toString( 16 ).padStart( 2, '0' ) ).join( '' );
-
-/**
- * Headers of a data request: the viewer id while the page is visible.
+ * Headers of a data request: the viewer id (lib/viewer-id.js) while the page is visible.
  *
  * @returns {Record<string, string>} Request headers.
  */
 const viewerHeaders = () => typeof document !== 'undefined' && document.visibilityState === 'visible'
-  ? { [ viewer_header ]: viewer_id }
+  ? { [ viewer_header ]: viewerId() }
   : {};
 
 /**

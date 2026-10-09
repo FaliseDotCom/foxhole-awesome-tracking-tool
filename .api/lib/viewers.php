@@ -2,9 +2,9 @@
 
 /**
  * Viewers of F.A.T.T.: while a map is open and visible, its requests for map data carry a random
- * id made fresh on every page load (X-Fatt-Viewer). The server keeps only when it last saw each
- * id, counts the ids seen in the last VIEWERS_ACTIVE_MINUTES, and forgets older ones when the
- * cron job samples the count (stats.php).
+ * id (X-Fatt-Viewer), one per browser while it is in use (.app/src/lib/viewer-id.js). The server
+ * keeps only when it last saw each id, counts the ids seen in the last VIEWERS_ACTIVE_MINUTES,
+ * and forgets older ones when the cron job samples the count (stats.php).
  */
 
 /**

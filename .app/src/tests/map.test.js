@@ -617,7 +617,52 @@ test( 'the stats tab shows players, casualties and the busiest hexes', async ( {
   await expect( page ).toHaveURL( /#able\/\d+\/\d+\// );
 } );
 
-test( 'an open map counts as a viewer, with an id of this page load', async ( { page } ) =>
+/**
+ * The viewer id a page sends with its next request for map data.
+ *
+ * @param {import('@playwright/test').Page} page Page.
+ * @param {() => Promise<*>} action What makes the page ask: opening or reloading it, or nothing.
+ * @returns {Promise<string>} The id.
+ */
+const nextViewerId = async ( page, action ) =>
+{
+  const request = page.waitForRequest( '**/api/data/able' );
+  await action();
+  return ( await request ).headers()[ 'x-fatt-viewer' ];
+};
+
+test( 'a browser counts as one viewer, also after a reload and in a second tab', async ( { page, browser } ) =>
+{
+  const id = await nextViewerId( page, () => page.goto( '/' ) );
+  expect( id ).toMatch( /^[0-9a-f]{32}$/ );
+  expect( await nextViewerId( page, () => page.reload() ) ).toBe( id );
+
+  // a second tab of the same browser
+  const tab = await page.context().newPage();
+  expect( await nextViewerId( tab, () => tab.goto( '/' ) ) ).toBe( id );
+
+  // another browser is another viewer
+  const other = await browser.newContext();
+  const elsewhere = await other.newPage();
+  expect( await nextViewerId( elsewhere, () => elsewhere.goto( '/' ) ) ).not.toBe( id );
+  await other.close();
+} );
+
+test( 'a viewer id unused for 5 minutes is renewed', async ( { page } ) =>
+{
+  const id = await nextViewerId( page, () => page.goto( '/' ) );
+  // as if the map was last open 6 minutes ago
+  await page.evaluate( () =>
+  {
+    const saved = JSON.parse( localStorage.getItem( 'fatt-viewer' ) );
+    localStorage.setItem( 'fatt-viewer', JSON.stringify( { ...saved, used: Date.now() - 6 * 60 * 1000 } ) );
+  } );
+  const renewed = await nextViewerId( page, () => page.reload() );
+  expect( renewed ).toMatch( /^[0-9a-f]{32}$/ );
+  expect( renewed ).not.toBe( id );
+} );
+
+test( 'an open map counts as a viewer', async ( { page } ) =>
 {
   // counting started 5 minutes ago: one sample so far
   await page.route( '**/api/stats/able**', route => route.fulfill( { json: { ...sampleStats(), viewers: [ [ Date.now() - 300000, 0 ] ], watching: 0 } } ) );

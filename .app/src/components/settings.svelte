@@ -110,7 +110,7 @@
       without cookies and without storing your IP address. When your browser sends Do Not Track
       or Global Privacy Control, your visits are not counted.
     {/if}
-    The viewers in the Stats tab count everyone: an open map sends a random number that is new
-    on every visit, and the server forgets it after 5 minutes.
+    The viewers in the Stats tab count everyone: an open map sends a random number, kept in this
+    browser while you watch and replaced after 5 minutes away; the server forgets it then too.
   </p>
 </fieldset>

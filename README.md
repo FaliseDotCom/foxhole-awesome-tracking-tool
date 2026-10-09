@@ -204,8 +204,9 @@ Do Not Track or Global Privacy Control the box cannot be ticked. The Settings ta
 this.
 
 The viewers in the Stats tab do not come from Matomo. While a map is open and visible, its
-requests for map data carry a random id that is new on every page load; the server counts the
-ids it saw in the last 5 minutes and then forgets them.
+requests for map data carry a random id, kept in the browser so that reloads and other tabs
+count once, and replaced after 5 minutes unused. The server counts the ids it saw in the last
+5 minutes and then forgets them.
 
 ## Repository layout
 
