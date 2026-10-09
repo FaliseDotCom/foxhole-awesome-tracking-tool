@@ -99,8 +99,7 @@ Foxhole War API
 - **Assets** (`assets/`) — map images, icons, fonts, and stylesheets — are served as they are
   and are not part of the app build.
 
-The repository root is the web root. Source, configuration, and runtime data live in dot
-folders, which `.htaccess` keeps from being served.
+Source, configuration, and runtime data live in dot folders, which are never served.
 
 ### API
 
@@ -117,7 +116,7 @@ Every route answers JSON. A shard that is down or unknown answers `502` with an 
 | `GET /api/players` | The last player count from Steam. |
 | `GET /api/analytics` | Where the browser sends visitor statistics; `[]` when that is off. |
 | `GET /api/health` | Whether the scheduled task runs, and the War API changes of the last 30 days (new hexes, icon types or map flags, hexes gone). |
-| `GET /api/cron` | Runs the scheduled tasks; see [Scheduled tasks](#scheduled-tasks). |
+| `GET /api/cron` | Runs the scheduled tasks; see [Hosting it](#hosting-it). |
 
 The compressed map data per hex looks like:
 
@@ -165,54 +164,33 @@ composer install
 # frontend, from .app/
 cd ../.app
 npm install
-npm run api       # PHP development server on 127.0.0.1:8090: the site, /api, and /assets
-npm run dev       # Vite dev server; forwards /api and /assets to the PHP server
+npm run api       # PHP development server: the site, /api, and /assets
+npm run dev       # Vite dev server, using the PHP development server for /api and /assets
 npm run build     # build, then publish index.html and _app/ to the web root
 npm run lint      # ESLint
 npm test          # unit tests, then browser tests against the PHP server
 ```
 
-Set `FATT_SERVER=https://fatt.fali.se` to develop against the live site instead of a local
-PHP server. The browser tests need a browser once (`npx playwright install chromium`) and
-load live War API data, so they fail when the War API is down. PHP needs a CA bundle
-(`curl.cainfo` in `php.ini`) to reach the War API over HTTPS.
+Set `FATT_SERVER` to the address of a running F.A.T.T. to develop against it instead of a
+local PHP server. The browser tests need a browser once (`npx playwright install chromium`)
+and load live War API data, so they fail when the War API is down.
 
 ## Hosting it
 
-The site needs Apache with `mod_rewrite` and `.htaccess` overrides allowed, PHP 8.4 with the
-curl and pdo_sqlite extensions, and write access for PHP to `.api/`, where it creates its
-cache and database, and to the web root, where it creates `.logs/`. Upload the web root
-without the source and tooling (`.app/`, `.docs/`, `.scripts/`), after `npm run build` and
-`composer install --no-dev`. Never overwrite or delete `.api/data/` when updating: it holds the
-war log and the history.
-
-### Scheduled tasks
+F.A.T.T. needs a web server that applies the rewrite rules in `.htaccess`, and PHP 8.4 with
+the curl and pdo_sqlite extensions and write access to `.api/` and the web root. Build the app
+with `npm run build` and serve the repository root without the source and tooling folders.
 
 Request `/api/cron` every 15 seconds to record the war log, the map history, and the
 statistics. Without it the war log is still recorded, but only while someone has the page open.
 
-### Server settings
-
-Settings that differ per server or must stay out of the repository go in `.api/.env`
-(`KEY=value`, `#` for comments, with the process environment as a fallback). Copy
-`.api/.env.example` to start. It is not committed and never served.
-
-| Setting | Purpose |
-| --- | --- |
-| `MATOMO_URL` | Matomo address for visitor statistics, `https://` and ending in a slash. |
-| `MATOMO_SITE_ID` | Site id in that Matomo. Empty or missing: no tracking. |
-| `MATOMO_TOKEN` | Token of a Matomo user with view access to the site, for the viewers in the Stats tab. Never sent to the browser. Empty or missing: no viewers. |
-
-### Logs
-
-Logs are in `.logs/` in the web root, one folder per day and one file per context: API and
-cron errors, War API client problems, every scheduled run, and War API changes.
+Server settings go in `.api/.env`; `.api/.env.example` lists them. They are only needed for
+visitor statistics.
 
 ## Visitor statistics
 
-F.A.T.T. counts visits with its own [Matomo](https://matomo.org/), when the server settings
-name one; without them nothing is tracked, so development and the tests are not counted. It
-sends:
+F.A.T.T. can count visits with [Matomo](https://matomo.org/), when the server settings name
+one; without them nothing is tracked. It sends:
 
 - one page view per visit, without the view in the address;
 - a ping every minute while the page is visible, so a map left open counts as active;
@@ -223,11 +201,6 @@ The tracker runs without cookies. When the browser sends Do Not Track or Global 
 Control, or the visitor unticks "Count my visits" in the Settings tab, nothing is sent; with
 Do Not Track or Global Privacy Control the box cannot be ticked. The Settings tab explains
 this.
-
-For privacy, set Matomo to anonymise IP addresses, force tracking without cookies, and support
-Do Not Track, and let it accept only visits from the site's own address. Behind a proxy such
-as Cloudflare, Matomo also needs the proxy's client IP header (`proxy_client_headers[]`) to
-tell visitors apart.
 
 ## Repository layout
 
