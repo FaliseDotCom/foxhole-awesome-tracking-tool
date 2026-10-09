@@ -103,12 +103,14 @@
   <p class="legend-note">
     {#if $choice.blocked}
       Your browser asks websites not to track you (Do Not Track or Global Privacy Control), so
-      nothing is counted.
+      your visits are not counted.
     {:else}
       F.A.T.T. counts visits and which features are used (clicked buttons and options, opened
       tabs, searches that found something, changed settings) on its own statistics server,
       without cookies and without storing your IP address. When your browser sends Do Not Track
-      or Global Privacy Control, nothing is counted either.
+      or Global Privacy Control, your visits are not counted.
     {/if}
+    The viewers in the Stats tab count everyone: an open map sends a random number that is new
+    on every visit, and the server forgets it after 5 minutes.
   </p>
 </fieldset>

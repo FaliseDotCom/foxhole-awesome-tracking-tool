@@ -20,7 +20,8 @@
    *                          30 days (lib/watch.php), for the daily watch workflow
    *   GET /api/stats/<shard>?hours=24  casualties over time and per hex (last hour and day),
    *                          ?hours=war for the whole war, at most 300 samples per series,
-   *                          when each hex last changed, and players and viewers over time
+   *                          when each hex last changed, players and viewers over time, and
+   *                          the viewers watching now
    *   GET /api/history/<shard>?at=<ms>  the map data of every hex as it was at that moment of
    *                          the current war, like /api/data; 404 before historySince
    */
@@ -103,6 +104,8 @@
 
   if ( $route[ 0 ] === 'data' && count( $route ) === 2 )
   {
+    // open maps ask for data every few seconds; count them as viewers (lib/viewers.php)
+    viewers_seen();
     $shard = $route[ 1 ];
     shard_response( $api, $shard, function () use ( $api, $shard ) : array
     {

@@ -585,7 +585,7 @@ const sampleStats = () =>
     players.push( [ time, 1400 + i * 10 ] );
   }
   return {
-    war: 141, now, series, players, viewers,
+    war: 141, now, series, players, viewers, watching: 25,
     hexes: {
       DeadLands: { hour: { wardens: 210, colonials: 260, from: now - 3600000 }, day: { wardens: 3000, colonials: 3300, from: 0 } },
       Westgate: { hour: { wardens: 120, colonials: 60, from: now - 3600000 }, day: { wardens: 900, colonials: 700, from: 0 } }
@@ -615,6 +615,18 @@ test( 'the stats tab shows players, casualties and the busiest hexes', async ( {
   await expect( hexes.first() ).toContainText( '210 / 260' );
   await hexes.first().click();
   await expect( page ).toHaveURL( /#able\/\d+\/\d+\// );
+} );
+
+test( 'an open map counts as a viewer, with an id of this page load', async ( { page } ) =>
+{
+  await page.route( '**/api/stats/able**', route => route.fulfill( { json: { ...sampleStats(), watching: 0 } } ) );
+  const request = page.waitForRequest( '**/api/data/able' );
+  await page.goto( '/' );
+  expect( ( await request ).headers()[ 'x-fatt-viewer' ] ).toMatch( /^[0-9a-f]{32}$/ );
+
+  // the server may not have seen this map yet, but it is watching
+  await page.getByRole( 'tab', { name: 'Stats' } ).click();
+  await expect( page.getByRole( 'tabpanel', { name: 'Stats' } ) ).toContainText( '1 on F.A.T.T. in the past 5 minutes' );
 } );
 
 test( 'map look settings shade hexes and change colours, names and sizes', async ( { page } ) =>

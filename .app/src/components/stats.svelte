@@ -83,9 +83,7 @@
         { ...shared }
         on:hover={ e => stats.setHover( e.detail ) }
       />
-      {#if $stats.watching >= 0}
-        <p class="stats-big stats-below">{ number( $stats.watching ) } <span>on F.A.T.T. in the past 5 minutes</span></p>
-      {/if}
+      <p class="stats-big stats-below">{ number( $stats.watching ) } <span>on F.A.T.T. in the past 5 minutes</span></p>
     </section>
   {/if}
 

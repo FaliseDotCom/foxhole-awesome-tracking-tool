@@ -18,6 +18,29 @@ const api_url = config.urls.api + 'data/',
       log = config.log.api;
 
 /**
+ * Request header with this page's viewer id, so the server can count open maps (the viewers in
+ * the Stats tab, .api/lib/viewers.php).
+ * @type {string}
+ */
+const viewer_header = 'X-Fatt-Viewer';
+
+/**
+ * Random id of this page load, sent while the page is visible. Made fresh on every load and
+ * never stored, so it says nothing about who is watching.
+ * @type {string}
+ */
+const viewer_id = Array.from( crypto.getRandomValues( new Uint8Array( 16 ) ), byte => byte.toString( 16 ).padStart( 2, '0' ) ).join( '' );
+
+/**
+ * Headers of a data request: the viewer id while the page is visible.
+ *
+ * @returns {Record<string, string>} Request headers.
+ */
+const viewerHeaders = () => typeof document !== 'undefined' && document.visibilityState === 'visible'
+  ? { [ viewer_header ]: viewer_id }
+  : {};
+
+/**
  * State of the last data request: loading (none finished yet), ok, or error.
  * @type {import('svelte/store').Writable<string>}
  */
@@ -33,7 +56,7 @@ const update = () =>
   // wait until a live shard is known; selecting one triggers the next update
   if ( !shard ) return;
   if ( log ) console.log( 'API update', api_url + shard )
-  fetch( api_url + shard )
+  fetch( api_url + shard, { headers: viewerHeaders() } )
     // get response text
     .then( r => {      
       if ( log ) console.log( 'API result', r.status );

@@ -26,7 +26,7 @@ function cron_tasks() : array
     // every 5 minutes: casualties per hex, and the players in the game
     'reports' => fn( FoxholeApi $api, string $via ) : array => stats_reports_cron( $api, $via ),
     'players' => fn( FoxholeApi $api, string $via ) : array => stats_players_cron( $via ),
-    // every 5 minutes: viewers of F.A.T.T. (Matomo, when it has a token)
+    // every 5 minutes: viewers of F.A.T.T. (viewers.php)
     'viewers' => fn( FoxholeApi $api, string $via ) : array => stats_viewers_cron( $via ),
     // new hexes, icon types and map flags in the War API (watch.php)
     'watch'   => fn( FoxholeApi $api, string $via ) : array => watch_cron( $api, $via )

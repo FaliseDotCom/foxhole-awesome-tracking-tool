@@ -8,16 +8,23 @@ class WarlogStore
 {
   /**
    * Counts sampled over time, each in a table of its own name: players in the game (all
-   * shards together, from Steam) and viewers of F.A.T.T. (from Matomo).
+   * shards together, from Steam) and viewers of F.A.T.T. (open maps, see viewers.php).
    * @var string
    */
   public const PLAYERS = 'players';
 
   /**
-   * See PLAYERS.
+   * See PLAYERS. The table "viewers" before it held counts from Matomo and is no longer used.
    * @var string
    */
-  public const VIEWERS = 'viewers';
+  public const VIEWERS = 'viewer_counts';
+
+  /**
+   * A viewer's last seen time is written at most this often, in ms; their map asks for data
+   * every few seconds.
+   * @var int
+   */
+  private const VIEWER_WRITE_INTERVAL = 60 * 1000;
 
   /**
    * Database connection.
@@ -114,6 +121,11 @@ class WarlogStore
         count INTEGER NOT NULL
       )" );
     }
+    // when each open map (a random id per page load) last asked for data; see viewers.php
+    $this->db->exec( 'CREATE TABLE IF NOT EXISTS viewing (
+      id   TEXT    PRIMARY KEY,
+      seen INTEGER NOT NULL
+    )' );
     // what the War API watch (watch.php) has seen: hexes, icon types, flag bits, gone hexes;
     // baseline rows were there when watching started
     $this->db->exec( 'CREATE TABLE IF NOT EXISTS seen (
@@ -518,6 +530,44 @@ class WarlogStore
   public function saveCount( string $kind, int $time, int $count ) : void
   {
     $this->db->prepare( 'INSERT OR REPLACE INTO ' . $this->countTable( $kind ) . ' ( time, count ) VALUES ( ?, ? )' )->execute( [ $time, $count ] );
+  }
+
+  /**
+   * Note when a viewer was last seen, at most every VIEWER_WRITE_INTERVAL.
+   *
+   * @param  string $id   Viewer id, random per page load.
+   * @param  int    $time Time in ms.
+   * @return void
+   */
+  public function seeViewer( string $id, int $time ) : void
+  {
+    $this->db->prepare( 'INSERT INTO viewing ( id, seen ) VALUES ( ?, ? )
+      ON CONFLICT ( id ) DO UPDATE SET seen = excluded.seen WHERE excluded.seen - seen >= ?' )
+      ->execute( [ $id, $time, self::VIEWER_WRITE_INTERVAL ] );
+  }
+
+  /**
+   * Number of viewers seen since a moment.
+   *
+   * @param  int $since Time in ms.
+   * @return int Number of viewers.
+   */
+  public function countViewers( int $since ) : int
+  {
+    $query = $this->db->prepare( 'SELECT COUNT(*) FROM viewing WHERE seen >= ?' );
+    $query->execute( [ $since ] );
+    return (int) $query->fetchColumn();
+  }
+
+  /**
+   * Forget the viewers not seen since a moment.
+   *
+   * @param  int $before Time in ms.
+   * @return void
+   */
+  public function forgetViewers( int $before ) : void
+  {
+    $this->db->prepare( 'DELETE FROM viewing WHERE seen < ?' )->execute( [ $before ] );
   }
 
   /**

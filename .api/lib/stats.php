@@ -87,8 +87,8 @@ function stats_reports_cron( FoxholeApi $api, string $via ) : array
  * @param  string $shard Shard name.
  * @param  int    $hours How far back the series go, 1 to 168, or STATS_WHOLE_WAR for since the
  *                       first sample of the war.
- * @return array<string, mixed> { war, now, from, series, hexes, changed, players, viewers }, or
- *                              [] without data.
+ * @return array<string, mixed> { war, now, from, series, hexes, changed, players, viewers,
+ *                              watching }, or [] without data.
  */
 function stats_summary( string $shard, int $hours ) : array
 {
@@ -135,8 +135,10 @@ function stats_summary( string $shard, int $hours ) : array
       'changed' => $store->getLastChanges( $shard, $war ),
       // [ time, players in the game ]
       'players' => stats_thin( $store->getCountSeries( WarlogStore::PLAYERS, $from ), $from, $now ),
-      // [ time, viewers of F.A.T.T. in the ANALYTICS_ACTIVE_MINUTES before ]
-      'viewers' => stats_thin( $store->getCountSeries( WarlogStore::VIEWERS, $from ), $from, $now )
+      // [ time, viewers of F.A.T.T. in the VIEWERS_ACTIVE_MINUTES before ]
+      'viewers' => stats_thin( $store->getCountSeries( WarlogStore::VIEWERS, $from ), $from, $now ),
+      // viewers of F.A.T.T. right now
+      'watching' => $store->countViewers( viewers_active_since( $now ) )
     ];
   }
   catch ( Throwable $e )
@@ -234,8 +236,8 @@ function stats_players_cron( string $via ) : array
 }
 
 /**
- * Cron task: sample the viewers of F.A.T.T. from Matomo, every STATS_INTERVAL. Skipped without
- * the Matomo settings and token (lib/analytics.php).
+ * Cron task: sample the viewers of F.A.T.T. (viewers.php), every STATS_INTERVAL, and forget the
+ * viewers no longer watching.
  *
  * @param  string $via How the run was started, for the log: cli or url.
  * @return array<string, mixed> { viewers } or { skipped: reason }.
@@ -252,13 +254,11 @@ function stats_viewers_cron( string $via ) : array
     return [ 'skipped' => 'sampled less than ' . STATS_INTERVAL . 's ago' ];
   }
 
-  $active = analytics_active();
-  if ( !$active )
-  {
-    return [ 'skipped' => 'no Matomo token or no answer' ];
-  }
-
-  $store->saveCount( WarlogStore::VIEWERS, (int) round( microtime( true ) * 1000 ), $active[ 'count' ] );
-  log_line( CRON_LOG, "{$via}: {$active[ 'count' ]} viewers" );
-  return [ 'viewers' => $active[ 'count' ] ];
+  $now = (int) round( microtime( true ) * 1000 );
+  $since = viewers_active_since( $now );
+  $count = $store->countViewers( $since );
+  $store->forgetViewers( $since );
+  $store->saveCount( WarlogStore::VIEWERS, $now, $count );
+  log_line( CRON_LOG, "{$via}: {$count} viewers" );
+  return [ 'viewers' => $count ];
 }

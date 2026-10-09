@@ -62,12 +62,6 @@ const readSpan = () =>
 const span = writable( typeof window === 'undefined' ? spans[ 2 ].key : readSpan() );
 
 /**
- * Oldest viewer sample still shown as the number watching now, in ms (sampled every 5 minutes).
- * @type {number}
- */
-const viewers_fresh = 15 * 60 * 1000;
-
-/**
  * The moment hovered in one of the charts, marked in all of them; 0 when none.
  * @type {import('svelte/store').Writable<number>}
  */
@@ -135,7 +129,6 @@ const summary = derived( data, $data =>
   const series = $data.series || [],
         players = $data.players || [],
         viewers = $data.viewers || [],
-        viewer = viewers.length ? viewers[ viewers.length - 1 ] : null,
         from = $data.from || $data.now - 86400000;
 
   // the most active hexes in the last hour, by casualties of both teams
@@ -161,9 +154,9 @@ const summary = derived( data, $data =>
     to: $data.now,
     players: players.length ? players[ players.length - 1 ][ 1 ] : 0,
     playerSeries: players,
-    // viewers of F.A.T.T. (Matomo), when the server samples them; watching now from a recent sample
+    // viewers of F.A.T.T. (open maps) over time, and now: at least this one
     viewerSeries: viewers,
-    watching: viewer && $data.now - viewer[ 0 ] < viewers_fresh ? viewer[ 1 ] : -1,
+    watching: Math.max( 1, $data.watching || 0 ),
     casualties: {
       wardens: perHour( series, 1, from ),
       colonials: perHour( series, 2, from )
