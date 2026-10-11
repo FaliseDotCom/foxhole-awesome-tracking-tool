@@ -45,18 +45,37 @@ test( 'live data draws map icons', async ( { page } ) =>
 } );
 
 /**
- * Map point (in map pixels) at the centre of the viewport, from the view panzoom saves.
+ * Map point (in map pixels) at the centre of the viewport, from the transform panzoom sets.
  *
  * @param {import('@playwright/test').Page} page Page showing the map.
  * @returns {Promise<{ x: number, y: number }>} Map coordinates of the screen centre.
  */
 const centrePoint = page => page.evaluate( () =>
 {
-  const t = JSON.parse( window.localStorage.getItem( 'fatt-view' ) );
+  const t = new DOMMatrix( getComputedStyle( document.querySelector( '.panzoom' ) ).transform );
   return {
-    x: ( window.innerWidth / 2 - t.x ) / t.scale,
-    y: ( window.innerHeight / 2 - t.y ) / t.scale
+    x: ( window.innerWidth / 2 - t.e ) / t.a,
+    y: ( window.innerHeight / 2 - t.f ) / t.a
   };
+} );
+
+test( 'opening the map without a link shows the whole map', async ( { page } ) =>
+{
+  // a view an earlier visit left behind, from before views were no longer restored
+  await page.addInitScript( () => window.localStorage.setItem( 'fatt-view', JSON.stringify( { x: -9000, y: -9000, scale: 2 } ) ) );
+  await page.setViewportSize( { width: 1280, height: 720 } );
+  await page.goto( '/' );
+  await page.waitForTimeout( 1000 );
+  const opened = await centrePoint( page );
+
+  // Numpad5 fits the whole map
+  await page.keyboard.press( 'ArrowLeft' );
+  await page.keyboard.press( 'Numpad5' );
+  await page.waitForTimeout( 1000 );
+  const fitted = await centrePoint( page );
+
+  expect( Math.abs( opened.x - fitted.x ) ).toBeLessThan( 2 );
+  expect( Math.abs( opened.y - fitted.y ) ).toBeLessThan( 2 );
 } );
 
 test( 'resizing keeps the centre of the map in place', async ( { page } ) =>

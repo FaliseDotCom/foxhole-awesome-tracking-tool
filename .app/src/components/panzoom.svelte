@@ -18,13 +18,6 @@
               zoom_step = zoom.step,
               pan_step = 100;
 
-  /**
-   * localStorage key of the last view. Renamed from "pzt" when the world grew to 53 hexes,
-   * because views saved for the old grid point at the wrong place.
-   * @type {string}
-   */
-  const view_key = 'fatt-view';
-
   let root = null,
       pz = null,
       // viewport size the current view was laid out for, used to keep the centre on resize
@@ -70,15 +63,10 @@
     setTimeout( saveTransform, 100 );    
   }
 
-  // save transform (x, y, scale) in localstorage and the map centre in the shareable link
+  // save the map centre in the shareable link
   const saveTransform = () =>
   {
     const t = pz.getTransform();
-    if ( window && window.localStorage )
-    {
-      window.localStorage.setItem( view_key, JSON.stringify( t ) );
-    }
-
     link.write( {
       x: ( window.innerWidth / 2 - t.x ) / t.scale,
       y: ( window.innerHeight / 2 - t.y ) / t.scale,
@@ -101,33 +89,11 @@
     return true;
   }
 
-  // retrieve transform (x, y, scale) from a shared link or localstorage and apply it
+  // show the view from a shared link (also a reload), or else the whole map; a view of an
+  // earlier visit is not restored, because it was laid out for that screen
   const loadTransform = () =>
   {
-    if ( loadLinkedView() ) return;
-
-    let done = false;
-    if ( window && window.localStorage )
-    {
-      try
-      {
-        const data = window.localStorage.getItem( view_key );
-        if ( data )
-        {
-          const t = JSON.parse( data )
-          if ( t )
-          {
-            pz.zoomAbs( 0, 0, t.scale );
-            pz.moveTo( t.x, t.y );
-            done = true;
-          }
-        }
-      }
-      catch( e ) { console.error( 'loadTransform failed', e ) }
-
-      // center the map on screen if no transform was loaded
-      if ( !done ) centerMap();
-    }
+    if ( !loadLinkedView() ) centerMap();
   }
 
   /**
