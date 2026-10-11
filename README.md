@@ -33,9 +33,10 @@ F.A.T.T. can stand for any of the following:
 - Shows more detail the further you zoom in: victory bases, rocket sites, and scorched items
   when zoomed out, then every map item, then region labels, then minor labels.
 - Supports mouse, touch, and keyboard pan and zoom (arrows / WASD / numpad to pan, `+` / `-`
-  to zoom, numpad 5 to recentre), and remembers the last view. Buttons at the bottom on the
-  logo's side do the same: arrows, a zoom slider, and one that shows the whole map (hidden on
-  narrow screens, which pan and zoom by touch).
+  to zoom, numpad 5 to recentre). Buttons at the bottom on the logo's side do the same:
+  arrows, a zoom slider, and one that shows the whole map (hidden on narrow screens, which pan
+  and zoom by touch). The map opens showing the whole map, or the view in the link, which a
+  reload keeps.
 - Zoomed out, hovering a hex shows its structures per team, its casualties in the last hour
   and day, and its three latest war log entries.
 - Shows, bottom centre, the war number, the day of the war, the players in the game
