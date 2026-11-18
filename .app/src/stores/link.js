@@ -55,6 +55,9 @@ const write = changes =>
   }
   if ( hash === window.location.hash ) return;
 
+  // only the fragment of the current page changes, so there is no route for resolve() to add
+  // the base path to
+  // eslint-disable-next-line svelte/no-navigation-without-resolve
   goto( hash, { shallow: true, replace: true } ).catch( () => {} );
 };
 
