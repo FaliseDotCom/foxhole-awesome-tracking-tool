@@ -180,8 +180,17 @@ and load live War API data, so they fail when the War API is down.
 ## Hosting it
 
 F.A.T.T. needs a web server that applies the rewrite rules in `.htaccess`, and PHP 8.4 with
-the curl and pdo_sqlite extensions and write access to `.api/` and the web root. Build the app
-with `npm run build` and serve the repository root without the source and tooling folders.
+the curl and pdo_sqlite extensions and write access to `.api/` and the web root.
+
+Every push to master runs the Deploy workflow: it lints, builds the app, installs the PHP
+dependencies, runs the unit tests, and commits the finished site to the `production` branch.
+That branch is the web root as it should be on the server, including `.api/vendor/`, without
+the source and tooling folders. Point the server's git deploy at `production`; it needs no
+Node.js or Composer.
+
+The runtime folders `.api/data/` (the war log database), `.api/cache/`, `.logs/`, and the
+settings in `.api/.env` exist only on the server. The `.gitignore` in `production` lists them,
+so a deploy leaves them alone; check that once on a new server before relying on it.
 
 Request `/api/cron` every 15 seconds to record the war log, the map history, and the
 statistics. Without it the war log is still recorded, but only while someone has the page open.

@@ -19,8 +19,8 @@ and say where it came from.
 ## Getting started
 
 See the [README](../README.md) for how the project fits together and how to run it. Before
-opening a pull request (the deploy only runs the unit tests, so the browser tests are up to
-you):
+opening a pull request (the Deploy workflow only runs the unit tests before it publishes to the
+`production` branch, so the browser tests are up to you):
 
 ```bash
 cd .app
