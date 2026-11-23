@@ -123,6 +123,7 @@
           {#if part.count}
             <div
               class={ `war-part ${ part.key }` }
+              role="presentation"
               style:width={ `${ percent( part.count, $war.total ) }%` }
               on:pointerenter={ e => tooltip.show( part.title, describe( part ), e, true ) }
               on:pointermove={ tooltip.move }
