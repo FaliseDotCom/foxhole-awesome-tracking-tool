@@ -1,12 +1,14 @@
 """
-Unit tests for the bridge and town rules of extract-roads.py, on small drawn maps.
+Unit tests for the bridge, town and touching-road rules of extract-roads.py, on small drawn maps.
 
 Run from the repository root:
   .venv-roads/Scripts/python -m unittest discover -s .scripts/roads -p "test_*.py"
 """
 
 import importlib.util
+import json
 import os
+import tempfile
 import unittest
 import warnings
 
@@ -93,6 +95,25 @@ def component_count( graph ):
   @return int number of connected pieces of road
   """
   return len( [ c for c in graph.components() if c ] )
+
+
+def line_graph( *lines ):
+  """
+  A graph of polylines, one edge each; lines that end at the same point share a node there.
+
+  @param lines lists of ( x, y ) in image pixels
+  @return Graph
+  """
+  graph = roads.Graph()
+  ids = {}
+  for line in lines:
+    ends = []
+    for point in ( line[ 0 ], line[ -1 ] ):
+      if point not in ids:
+        ids[ point ] = graph.add_node( *point )
+      ends.append( ids[ point ] )
+    graph.add_edge( ends[ 0 ], ends[ 1 ], roads.Graph.densify( line ) )
+  return graph
 
 
 def kinds( tracer ):
@@ -214,6 +235,90 @@ class TownTest( unittest.TestCase ):
     self.assertTrue( any( abs( tracer.graph.nodes[ n ][ 1 ] - 520 ) < 4 for n in ends ) )
 
 
+class TouchTest( unittest.TestCase ):
+  """
+  Roads that touch are joined.
+  """
+
+  # two roads that bend towards each other and nearly meet in the middle, like ")(", 8 px
+  # apart there; they join far away only, at the bottom
+  LEFT = [ ( 400, 300 ), ( 500, 400 ), ( 400, 500 ), ( 400, 700 ) ]
+  RIGHT = [ ( 610, 300 ), ( 508, 400 ), ( 610, 500 ), ( 610, 700 ), ( 400, 700 ) ]
+
+  def kissing( self, between = True ):
+    """
+    The two roads as the clean-up leaves them at a junction whose middle the skeleton went
+    round: the road mask covers the junction, but the traced roads pass each other without a
+    node.
+
+    @param between bool whether the classifier saw road between the two (one patch of road)
+    @return HexTracer with the drawing's mask and water, and the two roads as its graph
+    """
+    drawn = DrawnHex().road( self.LEFT ).road( self.RIGHT )
+    if between:
+      drawn.road( [ ( 500, 400 ), ( 508, 400 ) ] )
+    tracer = drawn.trace()
+    tracer.graph = line_graph( self.LEFT, self.RIGHT )
+    tracer.gap_lines = []
+    return tracer
+
+  def test_roads_that_touch_are_joined_where_they_touch( self ):
+    """
+    The two roads get a short link between them in the middle, so a route need not go round.
+    """
+    tracer = self.kissing()
+    tracer.join_touching()
+    self.assertEqual( kinds( tracer ), [ 'touch' ] )
+    line = tracer.gap_lines[ 0 ][ 1 ]
+    self.assertLess( roads.Graph.length( line ), roads.TOUCH_DISTANCE + 1 )
+    self.assertTrue( all( 495 <= x <= 513 and 390 <= y <= 410 for x, y in line ) )
+
+  def test_roads_with_open_ground_between_them_stay_apart( self ):
+    """
+    The same roads without road between them are two roads side by side, not a junction.
+    """
+    tracer = self.kissing( False )
+    tracer.join_touching()
+    self.assertEqual( kinds( tracer ), [] )
+
+  def test_roads_with_water_between_them_stay_apart( self ):
+    """
+    Roads on both banks of a narrow stream are not joined over it.
+    """
+    tracer = self.kissing()
+    tracer.wet[ 300:480, 503:506 ] = True
+    tracer.join_touching()
+    self.assertEqual( kinds( tracer ), [] )
+
+  def test_roads_that_meet_at_a_junction_get_no_link( self ):
+    """
+    Roads that already meet close by need nothing more.
+    """
+    drawn = DrawnHex().road( [ ( 300, 400 ), ( 700, 400 ) ] ).road( [ ( 500, 400 ), ( 520, 600 ) ] )
+    tracer = drawn.trace()
+    self.assertNotIn( 'touch', kinds( tracer ) )
+
+  def test_a_road_end_cut_off_in_a_patch_of_road_is_joined_to_the_road_beside_it( self ):
+    """
+    A road that ends in a wide patch of road (a square the clean-up dropped as a filled area)
+    is joined across it to the road on the other side, whichever way the end points.
+    """
+    drawn = DrawnHex().road( [ ( 300, 300 ), ( 300, 500 ), ( 400, 500 ) ] ).road( [ ( 420, 300 ), ( 420, 700 ) ] )
+    ImageDraw.Draw( drawn.prob ).rectangle( ( 395, 470, 425, 530 ), fill = 255 )
+    tracer = drawn.trace()
+    self.assertIn( 'touch', kinds( tracer ) )
+    self.assertEqual( component_count( tracer.graph ), 1 )
+
+  def test_a_road_end_with_open_ground_beside_it_stays_an_end( self ):
+    """
+    The same road end without the patch: open ground lies between it and the other road.
+    """
+    drawn = DrawnHex().road( [ ( 300, 300 ), ( 300, 500 ), ( 400, 500 ) ] ).road( [ ( 420, 300 ), ( 420, 700 ) ] )
+    tracer = drawn.trace()
+    self.assertNotIn( 'touch', kinds( tracer ) )
+    self.assertEqual( component_count( tracer.graph ), 2 )
+
+
 class PlaceTest( unittest.TestCase ):
   """
   Places come from the world data.
@@ -234,6 +339,28 @@ class PlaceTest( unittest.TestCase ):
     self.assertEqual( places[ 1 ].radius, roads.VILLAGE_RADIUS )
     self.assertAlmostEqual( places[ 0 ].x, 0.3 * roads.HEX_WIDTH )
     self.assertLess( places[ 0 ].reach( places[ 0 ].x + roads.TOWN_RADIUS / 2, places[ 0 ].y ), 1 )
+
+
+class CorrectionTest( unittest.TestCase ):
+  """
+  Corrections by hand are merged into the network.
+  """
+
+  def test_an_added_road_joins_the_road_its_end_lies_on( self ):
+    """
+    An added road whose end lies on a road, away from its nodes, joins that road there.
+    """
+    network = roads.Network()
+    graph = network.graph
+    graph.add_edge( graph.add_node( 0, 0 ), graph.add_node( 100, 0 ), [ ( 0, 0 ), ( 100, 0 ) ], hex = 'TestHex' )
+    graph.add_edge( graph.add_node( 50, 40 ), graph.add_node( 50, 100 ), [ ( 50, 40 ), ( 50, 100 ) ], hex = 'TestHex' )
+    with tempfile.TemporaryDirectory() as folder:
+      path = os.path.join( folder, 'corrections.json' )
+      with open( path, 'w', encoding = 'utf-8' ) as fh:
+        json.dump( { 'add': [ { 'hex': 'TestHex', 'points': [ [ 52, 3 ], [ 50, 40 ] ] } ] }, fh )
+      self.assertEqual( network.apply_corrections( path ), 1 )
+    self.assertEqual( component_count( graph ), 1 )
+    self.assertEqual( len( graph.nodes ), 5 )
 
 
 if __name__ == '__main__':

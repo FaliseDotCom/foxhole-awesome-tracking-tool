@@ -21,6 +21,10 @@ What it does
      Towns are never dead ends: every road end inside a town (a region's name label, or a
      minor place name with at least two road ends) is led on through the town, over land and
      not over water, to the nearest other road or to the town centre.
+     Then roads that touch are joined: where two roads pass each other a few pixels apart (a
+     junction whose middle the skeleton went round, a link over a street), or a road end lies
+     in the same patch of road as another road, with road and not water between them, while
+     the roads only join them a long way round.
   6. Moves everything to world map pixels and joins roads that cross a hex border to the
      road of the neighbouring hex.
   7. Writes assets/data/roads.json, and optionally an overlay image per hex for checking.
@@ -123,6 +127,7 @@ FACING_MAX_WATER = 0.3
 BORDER_DISTANCE = 14        # road ends this close to the hex border may join a neighbour ...
 BORDER_SNAP = 26            # ... road end up to this far away
 SIMPLIFY = 1.5              # Douglas-Peucker tolerance for the polylines
+CORRECTION_SNAP = 8         # the ends of a road added by hand snap to a node, else a road, this close
 
 # bridges are always roads: a land band at most BRIDGE_WIDTH wide that interrupts water (found
 # by closing the water mask), touching land at two banks BRIDGE_SPAN apart and water along at
@@ -154,6 +159,24 @@ TOWN_STREET = 0.5           # cost per pixel falls to this on pixels that look l
 TOWN_BEHIND = 25            # a link goes ahead of its road end, never to the roads this close behind it
 TOWN_INWARD = 5             # ... and inwards: it reaches a road at least this much closer to the centre
 TOWN_ALONGSIDE = 0.35       # ... and is dropped when more than this share runs within 6 px of those roads
+
+# roads that touch are joined: two roads that come within TOUCH_DISTANCE of each other (a
+# junction whose middle the skeleton went round, like ")(", or a link that crosses a street),
+# while the roads join those two points only by a way longer than TOUCH_DETOUR times their
+# distance plus TOUCH_SLACK, get a link where they are closest; the same two roads at most
+# once per TOUCH_SPACING. Unless they cross (TOUCH_CROSSING), the gap lies on the road mask
+# (at least TOUCH_ON_ROAD of it, with a pixel of slack) and hardly over water
+TOUCH_DISTANCE = 10
+TOUCH_DETOUR = 4
+TOUCH_SLACK = 40
+TOUCH_SPACING = 30
+TOUCH_CROSSING = 1.5
+TOUCH_ON_ROAD = 0.5
+TOUCH_MAX_WATER = 0.2
+# ... and a road end reaches a road up to TOUCH_END_REACH away, in any direction, when the road
+# mask covers at least TOUCH_END_ON_ROAD of the way (one patch of road the clean-up cut through)
+TOUCH_END_REACH = 30
+TOUCH_END_ON_ROAD = 0.9
 
 
 def hexagon():
@@ -522,6 +545,20 @@ class Graph:
       return 0.0
     return float( np.hypot( *np.diff( a, axis = 0 ).T ).sum() )
 
+  @staticmethod
+  def densify( pts, step = 1.0 ):
+    """
+    @param pts list of ( x, y ) polyline
+    @param step float the largest distance between two points of the result
+    @return list of ( x, y ): the polyline with points added at most step apart
+    """
+    out = []
+    for ( x0, y0 ), ( x1, y1 ) in zip( pts[ :-1 ], pts[ 1: ] ):
+      n = max( 1, int( math.ceil( math.hypot( x1 - x0, y1 - y0 ) / step ) ) )
+      out.extend( ( x0 + ( x1 - x0 ) * k / n, y0 + ( y1 - y0 ) * k / n ) for k in range( n ) )
+    out.extend( pts[ -1: ] )
+    return out
+
   def oriented( self, e, start ):
     """
     @return list the points of edge e, starting at node start
@@ -647,6 +684,7 @@ class HexTracer:
     self.prune()
     self.drop_small()
     self.link_bridges_and_towns()
+    self.join_touching()
     return self.graph
 
   def segment( self ):
@@ -1313,22 +1351,8 @@ class HexTracer:
     @return int node id, or None when no road lies within the limit
     """
     g = self.graph
-    p = np.asarray( xy )
-    best = None
-    for e, edge in g.edges.items():
-      if e in skip:
-        continue
-      pts = np.asarray( edge[ 'pts' ] )
-      if ( pts.min( 0 ) - limit - 1 > p ).any() or ( pts.max( 0 ) + limit + 1 < p ).any():
-        continue
-      a, d = pts[ :-1 ], np.diff( pts, axis = 0 )
-      t = np.clip( ( ( p - a ) * d ).sum( 1 ) / np.maximum( ( d * d ).sum( 1 ), 1e-9 ), 0, 1 )
-      proj = a + t[ :, None ] * d
-      dist = np.hypot( *( proj - p ).T )
-      i = int( np.argmin( dist ) )
-      if best is None or dist[ i ] < best[ 0 ]:
-        best = ( float( dist[ i ] ), e, i, ( float( proj[ i ][ 0 ] ), float( proj[ i ][ 1 ] ) ) )
-    if best is None or best[ 0 ] > limit:
+    best = self.nearest_road( xy, skip, limit )
+    if best is None:
       return None
     _, e, i, proj = best
     if water is not None and self.line_fraction( water, xy, proj ) > 0.3:
@@ -1339,6 +1363,35 @@ class HexTracer:
         return self.node_at( e, j )
     pts.insert( i + 1, proj )
     return self.node_at( e, i + 1 )
+
+  def nearest_road( self, xy, skip, limit ):
+    """
+    The point of a road nearest to xy.
+
+    @param xy tuple ( x, y ) in image pixels
+    @param skip set of edge ids to leave out
+    @param limit float the largest distance to the road in pixels
+    @return tuple ( distance, edge id, index of the polyline segment, ( x, y ) the point on
+            it ), or None when no road lies within the limit
+    """
+    p = np.asarray( xy )
+    best = None
+    for e, edge in self.graph.edges.items():
+      if e in skip:
+        continue
+      pts = np.asarray( edge[ 'pts' ] )
+      if len( pts ) < 2 or ( pts.min( 0 ) - limit - 1 > p ).any() or ( pts.max( 0 ) + limit + 1 < p ).any():
+        continue
+      a, d = pts[ :-1 ], np.diff( pts, axis = 0 )
+      t = np.clip( ( ( p - a ) * d ).sum( 1 ) / np.maximum( ( d * d ).sum( 1 ), 1e-9 ), 0, 1 )
+      proj = a + t[ :, None ] * d
+      dist = np.hypot( *( proj - p ).T )
+      i = int( np.argmin( dist ) )
+      if best is None or dist[ i ] < best[ 0 ]:
+        best = ( float( dist[ i ] ), e, i, ( float( proj[ i ][ 0 ] ), float( proj[ i ][ 1 ] ) ) )
+    if best is None or best[ 0 ] > limit:
+      return None
+    return best
 
   def node_at( self, e, j ):
     """
@@ -1384,6 +1437,134 @@ class HexTracer:
       self.links.pop( e, None )
       if other in g.nodes and other in nodes:
         todo.add( other )
+
+  def join_touching( self ):
+    """
+    Join roads that touch without meeting. Where a junction has an island in its middle, or
+    two roads meet at a small square, the skeleton goes round the middle, and the roads pass
+    each other a few pixels apart (like ")(") as if one ran over the other; a town link can
+    cross a street the same way. Two roads that come within TOUCH_DISTANCE of each other, with
+    road (the road mask) and not water between them, while the roads join those two points
+    only by a way longer than TOUCH_DETOUR times their distance plus TOUCH_SLACK (or not at
+    all), get a short link where they are closest. Roads that meet at a junction are joined
+    right there, so they never qualify; two roads with open ground between them do not either.
+    A road end reaches further, TOUCH_END_REACH, in any direction, when the road mask runs all
+    the way (TOUCH_END_ON_ROAD): the classifier saw one patch of road there, and the clean-up
+    (a dropped blob or weak piece at a wide junction) cut the road off.
+    """
+    g = self.graph
+    pts, owner = [], []
+    for e, edge in g.edges.items():
+      dense = Graph.densify( edge[ 'pts' ] )
+      pts.extend( dense )
+      owner.extend( [ e ] * len( dense ) )
+    if len( pts ) < 2:
+      return
+    pts = np.asarray( pts )
+    owner = np.asarray( owner )
+    tree = cKDTree( pts )
+    # the road mask with a pixel of slack: a gap between two roads in one patch of road
+    on_road = ndi.binary_dilation( self.mask ) if self.mask is not None else np.zeros( self.prob.shape, bool )
+    for d, p, q, key, end in self.touch_candidates( pts, owner, tree ):
+      if end is not None:
+        if end not in g.nodes or g.degree( end ) != 1:
+          continue
+        if self.line_fraction( self.wet, p, q ) > TOUCH_MAX_WATER or self.line_fraction( on_road, p, q ) < TOUCH_END_ON_ROAD:
+          continue
+      elif d > TOUCH_CROSSING and ( self.line_fraction( self.wet, p, q ) > TOUCH_MAX_WATER or self.line_fraction( on_road, p, q ) < TOUCH_ON_ROAD ):
+        continue
+      limit = TOUCH_DETOUR * d + TOUCH_SLACK
+      if self.touch_distance( p, q, limit ) <= limit:
+        continue
+      a = end if end is not None else self.attach( p, set(), 1.5 )
+      b = self.attach( q, set( g.adj[ a ] ) if a is not None else set(), 1.5 )
+      if a is None or b is None or a == b:
+        continue
+      line = [ g.nodes[ a ], g.nodes[ b ] ]
+      g.add_edge( a, b, line, gap = 'touch' )
+      self.joins[ 'touch' ] = self.joins.get( 'touch', 0 ) + 1
+      self.gap_lines.append( ( 'touch', line ) )
+    g.merge_degree2()
+
+  def touch_candidates( self, pts, owner, tree ):
+    """
+    The places where two roads come close, closest first: every pair of points of different
+    roads within TOUCH_DISTANCE, and every road end with a point of another road within
+    TOUCH_END_REACH; of the same two roads only the closest pair within TOUCH_SPACING.
+
+    @param pts numpy array of the road points, densified, in image pixels
+    @param owner numpy array the edge id of every point
+    @param tree cKDTree of the points
+    @return list of tuples ( distance, p, q, ( edge id, edge id ), road end node id or None )
+    """
+    g = self.graph
+    cands = []
+    pairs = tree.query_pairs( TOUCH_DISTANCE, output_type = 'ndarray' )
+    if len( pairs ):
+      pairs = pairs[ owner[ pairs[ :, 0 ] ] != owner[ pairs[ :, 1 ] ] ]
+      dist = np.hypot( *( pts[ pairs[ :, 0 ] ] - pts[ pairs[ :, 1 ] ] ).T )
+      for ( i, j ), d in zip( pairs, dist ):
+        cands.append( ( float( d ), tuple( map( float, pts[ i ] ) ), tuple( map( float, pts[ j ] ) ),
+                        ( min( owner[ i ], owner[ j ] ), max( owner[ i ], owner[ j ] ) ), None ) )
+    for n in list( g.nodes ):
+      if g.degree( n ) != 1 or border_distance( *g.nodes[ n ] ) < BORDER_DISTANCE:
+        continue
+      own = next( iter( g.adj[ n ] ) )
+      p = g.nodes[ n ]
+      for j in tree.query_ball_point( p, TOUCH_END_REACH ):
+        d = math.hypot( pts[ j ][ 0 ] - p[ 0 ], pts[ j ][ 1 ] - p[ 1 ] )
+        if owner[ j ] != own and d > TOUCH_DISTANCE:
+          cands.append( ( d, p, tuple( map( float, pts[ j ] ) ), ( min( own, owner[ j ] ), max( own, owner[ j ] ) ), n ) )
+    cands.sort( key = lambda c: c[ 0 ] )
+    picked, result = {}, []
+    for cand in cands:
+      d, p, q, key, end = cand
+      if any( math.hypot( p[ 0 ] - x, p[ 1 ] - y ) < TOUCH_SPACING for x, y in picked.get( key, [] ) ):
+        continue
+      picked.setdefault( key, [] ).append( p )
+      result.append( cand )
+    return result
+
+  def road_position( self, xy ):
+    """
+    Where a point lies on the roads.
+
+    @param xy tuple ( x, y ) in image pixels, on or right next to a road
+    @return tuple ( edge id, distance from the edge's node a along it, edge length ), or None
+            when no road lies within 2 px
+    """
+    near = self.nearest_road( xy, set(), 2 )
+    if near is None:
+      return None
+    _, e, i, proj = near
+    pts = self.graph.edges[ e ][ 'pts' ]
+    offset = Graph.length( pts[ :i + 1 ] ) + math.hypot( proj[ 0 ] - pts[ i ][ 0 ], proj[ 1 ] - pts[ i ][ 1 ] )
+    return ( e, offset, Graph.length( pts ) )
+
+  def touch_distance( self, p, q, limit ):
+    """
+    The distance between two points on the roads, along the roads, when it is within a limit.
+
+    @param p tuple ( x, y ) a point on a road, in image pixels
+    @param q tuple ( x, y ) a point on a road
+    @param limit float the largest distance of interest in pixels
+    @return float the distance, inf when it is above the limit, 0 when a point is on no road
+    """
+    g = self.graph
+    here, there = self.road_position( p ), self.road_position( q )
+    if here is None or there is None:
+      return 0.0
+    ( e1, o1, l1 ), ( e2, o2, l2 ) = here, there
+    best = abs( o1 - o2 ) if e1 == e2 else math.inf
+    E1, E2 = g.edges[ e1 ], g.edges[ e2 ]
+    for n1, d1 in ( ( E1[ 'a' ], o1 ), ( E1[ 'b' ], l1 - o1 ) ):
+      if d1 > min( best, limit ):
+        continue
+      reached = self.reachable( n1, limit - d1 + 1 )[ 0 ]
+      for n2, d2 in ( ( E2[ 'a' ], o2 ), ( E2[ 'b' ], l2 - o2 ) ):
+        if n2 in reached:
+          best = min( best, d1 + reached[ n2 ] + d2 )
+    return best if best <= limit else math.inf
 
 
 class Network:
@@ -1523,7 +1704,9 @@ class Network:
                                                   middle point inside are dropped
         "add": [ { "hex": "<key>", "points": [ [ x, y ], ... ] }, ... ] }
                                                   roads to add; their ends snap to the
-                                                  nearest node within 8 px
+                                                  nearest node within 8 px, else to the
+                                                  nearest road within 8 px; an optional
+                                                  "note" says why, for people
 
     @param path string file path
     @return int number of corrections applied
@@ -1546,14 +1729,46 @@ class Network:
       ends = []
       for p in ( pts[ 0 ], pts[ -1 ] ):
         near = min( W.nodes.items(), key = lambda kv: math.hypot( kv[ 1 ][ 0 ] - p[ 0 ], kv[ 1 ][ 1 ] - p[ 1 ] ), default = None )
-        if near and math.hypot( near[ 1 ][ 0 ] - p[ 0 ], near[ 1 ][ 1 ] - p[ 1 ] ) <= 8:
+        if near and math.hypot( near[ 1 ][ 0 ] - p[ 0 ], near[ 1 ][ 1 ] - p[ 1 ] ) <= CORRECTION_SNAP:
           ends.append( near[ 0 ] )
         else:
-          ends.append( W.add_node( *p ) )
+          ends.append( self.road_node( p, CORRECTION_SNAP ) )
       pts[ 0 ], pts[ -1 ] = W.nodes[ ends[ 0 ] ], W.nodes[ ends[ 1 ] ]
       W.add_edge( ends[ 0 ], ends[ 1 ], pts, hex = road.get( 'hex', '' ) )
       count += 1
     return count
+
+  def road_node( self, p, limit ):
+    """
+    A node on the road nearest to a point, splitting the road there; a new loose node when no
+    road lies within the limit.
+
+    @param p tuple ( x, y ) in world pixels
+    @param limit float the largest distance to the road in pixels
+    @return int node id
+    """
+    W = self.graph
+    best = None
+    for e, edge in W.edges.items():
+      pts = edge[ 'pts' ]
+      for i in range( len( pts ) - 1 ):
+        ( ax, ay ), ( bx, by ) = pts[ i ], pts[ i + 1 ]
+        dx, dy = bx - ax, by - ay
+        t = max( 0.0, min( 1.0, ( ( p[ 0 ] - ax ) * dx + ( p[ 1 ] - ay ) * dy ) / max( dx * dx + dy * dy, 1e-9 ) ) )
+        q = ( ax + t * dx, ay + t * dy )
+        d = math.hypot( q[ 0 ] - p[ 0 ], q[ 1 ] - p[ 1 ] )
+        if d <= limit and ( best is None or d < best[ 0 ] ):
+          best = ( d, e, i, q )
+    if best is None:
+      return W.add_node( *p )
+    _, e, i, q = best
+    edge = W.edges[ e ]
+    pts = edge[ 'pts' ]
+    for j, n in ( ( 0, edge[ 'a' ] ), ( len( pts ) - 1, edge[ 'b' ] ) ):
+      if math.hypot( pts[ j ][ 0 ] - q[ 0 ], pts[ j ][ 1 ] - q[ 1 ] ) < 0.5:
+        return n
+    pts.insert( i + 1, q )
+    return W.split( e, i + 1 )
 
   def export( self ):
     """
@@ -1612,7 +1827,8 @@ class Overlay:
     Draw the roads of one hex (and the ends of neighbouring hexes) over the dimmed map.
     Red: road in the largest component; magenta: road cut off from it; closed gaps: cyan for a
     bridge, orange for facing road ends, yellow-green for a short gap; dark blue for a bridge
-    band, gold for a link through a town; grey circles: the towns (solid) and minor places
+    band, gold for a link through a town, sea green where touching roads are joined; grey
+    circles: the towns (solid) and minor places
     (thin); blue dot: road end; green dot: joined across the hex border.
 
     @param hex_image HexImage
@@ -1636,7 +1852,7 @@ class Overlay:
       x, y, r = place.x * scale, place.y * scale, place.radius * scale
       draw.ellipse( ( x - r, y - r, x + r, y + r ), outline = ( 90, 90, 90 ), width = 3 if place.town else 1 )
     gap_colours = dict( bridge = ( 0, 200, 230 ), facing = ( 255, 140, 0 ), gap = ( 150, 200, 0 ),
-                        band = ( 0, 40, 160 ), town = ( 230, 170, 0 ) )
+                        band = ( 0, 40, 160 ), town = ( 230, 170, 0 ), touch = ( 0, 160, 90 ) )
     for key, kind, pts in network.gap_lines:
       if key == hex_image.key:
         draw.line( [ local( p ) for p in pts ], fill = gap_colours[ kind ], width = 5 if kind == 'town' else 7 )
