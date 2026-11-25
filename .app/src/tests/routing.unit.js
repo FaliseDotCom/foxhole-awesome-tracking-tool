@@ -221,18 +221,25 @@ test( 'fuel is estimated on the high side: thirstiest vehicle of the class, load
   VEHICLE_CLASSES.forEach( vehicle => assert.ok( VEHICLES.some( entry => entry.cls === vehicle.key ) ) );
 
   const fast = classFigures( 'fast' ),
+        medium = classFigures( 'medium' ),
         truck = VEHICLES[ 0 ],
         tanker = VEHICLES[ 1 ];
-  // the fuel tanker uses more per km than the truck, so the class uses its figure
-  assert.ok( Math.abs( fast.road - litresPerKm( tanker.use, tanker.road * ( 1 - tanker.load ) ) ) < 1e-9 );
+  // trucks have a class of their own: the estimate is the loaded truck's use, not the tanker's
+  assert.ok( Math.abs( fast.road - litresPerKm( truck.use, truck.road * ( 1 - truck.load ) ) ) < 1e-9 );
   assert.ok( fast.road > litresPerKm( truck.use, truck.road ) );
   assert.equal( fast.tank, 100 );
+  // the tanker drives with the heavy-duty trucks, and its 100 L is the class's smallest tank
+  assert.ok( medium.vehicles.includes( tanker.name ) );
+  assert.ok( medium.road >= litresPerKm( tanker.use, tanker.road * ( 1 - tanker.load ) ) );
+  assert.equal( medium.tank, 100 );
 
   const fuel = estimateFuel( 10, 1, 'fast' );
   assert.equal( fuel.litres, Math.ceil( ( 10 * fast.road + fast.offroad ) * SAFETY_MARGIN ) );
   assert.ok( fuel.litres > 10 * litresPerKm( truck.use, truck.road ) * 1.2 );
   assert.equal( fuel.overTank, false );
-  assert.equal( estimateFuel( 30, 0, 'fast' ).overTank, true );
+  assert.equal( estimateFuel( 30, 0, 'fast' ).overTank, false );
+  assert.equal( estimateFuel( 50, 0, 'fast' ).overTank, true );
+  assert.equal( estimateFuel( 30, 0, 'medium' ).overTank, true );
   assert.equal( estimateFuel( 0, 0, 'unknown' ).litres, 0 );
 } );
 

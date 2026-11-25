@@ -107,14 +107,14 @@ and live in `lib/vehicles.js` with that version.
 
 | Class | Vehicles | Tank | Road, loaded | Off-road, loaded | Estimate per road km |
 | --- | --- | --- | --- | --- | --- |
-| Fast | Dunne Transport / R-1 Hauler (2.00 L/km), Dunne Fuelrunner 2d / RR-3 Stolon (4.29) | 100 L | 4.29 L/km | 14.3 L/km | 5.4 L |
-| Medium | Cnute Cliffwrest (4.43), AU-A150 Taurine Rigger (4.68) | 150 L | 4.68 L/km | 14.8 L/km | 5.9 L |
+| Fast | Dunne Transport / R-1 Hauler (2.00 L/km) | 100 L | 2.00 L/km | 10.0 L/km | 2.5 L |
+| Medium | Dunne Fuelrunner 2d / RR-3 Stolon (4.29), Cnute Cliffwrest (4.43), AU-A150 Taurine Rigger (4.68) | 100 L | 4.68 L/km | 14.8 L/km | 5.9 L |
 | Slow | BMS - Packmule Flatbed (6.39) | 150 L | 6.39 L/km | 12.8 L/km | 8.0 L |
 
-The Fast class is very much on the high side for the truck, which uses about half of what the
-tanker does: 100 L takes a loaded truck about 50 km, the estimate says about 19 km. Splitting
-trucks and tankers into classes of their own would fix that, at the price of a class that is
-not about speed.
+Trucks have a class of their own (2026-11-25): in one class with the fuel tanker, the estimate
+for a truck was about twice what it uses. The tanker drives about as fast as the heavy-duty
+trucks (42 km/h loaded, against 41 and 38), so it joined the Medium class; its 100 L tank makes
+the Medium tank warning come early for the heavy-duty trucks, which is on the safe side.
 
 ## Limitations
 

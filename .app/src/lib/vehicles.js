@@ -29,12 +29,14 @@ export const SAFETY_MARGIN = 1.25;
 const km_per_minute = 60 / 1000;
 
 /**
- * Speed classes, fastest first; the first is the default.
+ * Speed classes, fastest first; the first is the default. Trucks have a class of their own, as
+ * they use about half the fuel per km of anything else; the fuel tanker drives about as fast as
+ * the heavy-duty trucks.
  * @type {{ key: string, title: string, label: string }[]}
  */
 export const VEHICLE_CLASSES = [
-  { key: 'fast', title: 'Fast', label: 'trucks and fuel tankers' },
-  { key: 'medium', title: 'Medium', label: 'heavy-duty trucks' },
+  { key: 'fast', title: 'Fast', label: 'trucks' },
+  { key: 'medium', title: 'Medium', label: 'fuel tankers and heavy-duty trucks' },
   { key: 'slow', title: 'Slow', label: 'flatbeds' }
 ];
 
@@ -47,7 +49,7 @@ export const VEHICLE_CLASSES = [
  */
 export const VEHICLES = [
   { name: 'Dunne Transport / R-1 Hauler', cls: 'fast', tank: 100, use: 1.5, road: 17.32, offroad: 3.46, load: .28 },
-  { name: 'Dunne Fuelrunner 2d / RR-3 Stolon Tanker', cls: 'fast', tank: 100, use: 3, road: 16.17, offroad: 4.85, load: .28 },
+  { name: 'Dunne Fuelrunner 2d / RR-3 Stolon Tanker', cls: 'medium', tank: 100, use: 3, road: 16.17, offroad: 4.85, load: .28 },
   { name: 'Cnute Cliffwrest', cls: 'medium', tank: 150, use: 3, road: 15.66, offroad: 4.70, load: .28 },
   { name: 'AU-A150 Taurine Rigger', cls: 'medium', tank: 150, use: 3, road: 14.06, offroad: 5.63, load: .24 },
   { name: 'BMS - Packmule Flatbed', cls: 'slow', tank: 150, use: 3, road: 9.78, offroad: 4.89, load: .20 }
