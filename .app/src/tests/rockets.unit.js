@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pairRockets, PAIR_WINDOW, ROCKET } from '../lib/rockets.js';
+import { pairRockets, isImpact, PAIR_WINDOW, ROCKET } from '../lib/rockets.js';
 
 // unit tests for pairing rocket launches with impacts; run with `npm run test:unit`
 
@@ -49,6 +49,14 @@ test( 'two rockets each get their own launch', () =>
     launch( 'a2', 5 * minute ), impact( 'b2', 6 * minute )
   ] );
   assert.deepEqual( ids( rockets ), [ [ 'a2', 'b2' ], [ 'a1', 'b1' ] ] );
+} );
+
+test( 'a target turning into ground zero is an impact, logged before its launch', () =>
+{
+  // war 142: the Stonecradle hex updated 16 seconds before the Kings Cage hex with the site
+  const target = { id: 'b', time: 0, kind: 'upgraded', iconFrom: ROCKET.target, item: { i: ROCKET.impact }, x: 100, y: 100, team: 'Colonials' };
+  assert.ok( isImpact( target ) );
+  assert.deepEqual( ids( pairRockets( [ target, launch( 'a', 16 * 1000 ) ] ) ), [ [ 'a', 'b' ] ] );
 } );
 
 test( 'other entries are ignored', () =>

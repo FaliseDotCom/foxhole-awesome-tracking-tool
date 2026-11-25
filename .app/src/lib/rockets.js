@@ -3,8 +3,11 @@
  * Site (the launch) paired with a Rocket Ground Zero appearing (the impact). Pure, so it runs in
  * Node tests. See .docs/plans/2026-10-07-rocket-arcs.md.
  *
- * The icon sequence comes from the War API documentation and has not been seen in a real launch
- * yet; adjust here once one is recorded.
+ * Sequence seen in war 142 (Colonial rocket from Kings Cage at Stonecradle, 17 November 2026):
+ * the site is built (37) and armed (72); the Rocket Target (70) appears publicly at the target
+ * a day before the launch; at the launch the target turns into a Rocket Ground Zero (71) and the
+ * site turns back into an empty one (72 → 37), each when its own hex updates, so the impact can
+ * be logged before the launch.
  */
 
 /**
@@ -34,12 +37,15 @@ export const isLaunch = entry =>
   entry.kind === 'upgraded' && entry.iconFrom === ROCKET.armed && entry.item && entry.item.i === ROCKET.site;
 
 /**
- * Whether an entry is an impact: a Rocket Ground Zero appeared.
+ * Whether an entry is an impact: a Rocket Target turned into a Rocket Ground Zero, or a Rocket
+ * Ground Zero appeared where no target was seen.
  *
- * @param {object} entry War log entry ({ kind, item }).
+ * @param {object} entry War log entry ({ kind, item, iconFrom }).
  * @returns {boolean} True for an impact.
  */
-export const isImpact = entry => entry.kind === 'built' && entry.item && entry.item.i === ROCKET.impact;
+export const isImpact = entry =>
+  Boolean( entry.item ) && entry.item.i === ROCKET.impact
+    && ( entry.kind === 'built' || ( entry.kind === 'upgraded' && entry.iconFrom === ROCKET.target ) );
 
 /**
  * Pair launches with impacts. Each impact is paired with the unpaired launch closest to it in

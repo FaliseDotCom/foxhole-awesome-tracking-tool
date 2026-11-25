@@ -1,10 +1,12 @@
 # Plan: rocket launches as arcs on the map
 
 Date: 7 October 2026. Status: built on the documented icon sequence (`lib/rockets.js`,
-`components/map/arcs.svelte`, rocket entries in `stores/warlog.js`); still to be checked against
-a real launch. Not built yet: the 80 m blast circle (needs the hex size in metres) and fading
-old arcs. Added: alarm, beacon and rumble on a live launch; flash, shockwave, explosion and
-quake on a live impact (`stores/effects.js`, `lib/sound.js`, `assets/css/effects.css`).
+`components/map/arcs.svelte`, rocket entries in `stores/warlog.js`); checked on 25 November 2026
+against the first real launch (see "Seen in war 142" below), which showed that the impact is a
+Rocket Target turning into a Rocket Ground Zero, not a new one appearing. Not built yet: the
+80 m blast circle (needs the hex size in metres) and fading old arcs. Added: alarm, beacon and
+rumble on a live launch; flash, shockwave, explosion and quake on a live impact
+(`stores/effects.js`, `lib/sound.js`, `assets/css/effects.css`).
 
 Use the war log to work out when a rocket was fired, from where, and where it landed, and draw
 an arc on the map from the launch site to the impact.
@@ -41,6 +43,22 @@ The likely sequence of one launch, as the war log would see it:
    Ground Zero (71) **appears** at the impact point.
 5. Structures around the impact are **scorched** or **destroyed**.
 
+### Seen in war 142
+
+The first launch the server war log recorded, a Colonial rocket from Kings Cage at Stonecradle:
+
+| Time (UTC) | Hex | Change |
+| --- | --- | --- |
+| 16 Nov 09:25 | Kings Cage | Rocket Site (37) built |
+| 16 Nov 09:28 | Kings Cage | upgraded 37 → 72: armed |
+| 16 Nov 16:14 | Stonecradle | Rocket Target (70) built, public, a day before the launch |
+| 17 Nov 16:14:41 | Stonecradle | upgraded 70 → 71 at the same spot: the impact; the town hall nearby scorched |
+| 17 Nov 16:14:57 | Kings Cage | upgraded 72 → 37: the launch, logged 16 s after the impact |
+| 24 Nov 23:40 | Kings Cage | the empty Rocket Site destroyed |
+
+So the target is public during the countdown, the impact is an `upgraded` 70 → 71 rather than a
+new 71, and the Ground Zero stays on the map for at least a week.
+
 ## Detecting a launch
 
 A launch is a short burst of war log events, so it is a second pass over the changes of one
@@ -48,7 +66,7 @@ update (or two consecutive updates, because the launch site and the impact can b
 different hexes that update separately):
 
 - **Launch site:** a 72 → 37 change. Its position is point A.
-- **Impact:** a new 71. Its position is point B. If there is no 71, use the centre of the
+- **Impact:** a Rocket Target turning into a 71, or a new 71. Its position is point B. If there is no 71, use the centre of the
   structures that were scorched or destroyed in the same update.
 - **Pairing:** one launch and one impact within the same or the next update form one launch.
   With several at once (rare), pair each impact with the launch site that had a Rocket Target

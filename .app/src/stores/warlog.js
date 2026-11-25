@@ -164,6 +164,7 @@ const toEntry = ( change, hex, time, extra ) =>
       // rocket sites: arming and firing read better than "became"
       if ( previous.i === ROCKET.site && item.i === ROCKET.armed ) [ text, team_first ] = [ 'armed a rocket', true ];
       else if ( isLaunch( entry ) ) [ text, team_first ] = [ 'launched a rocket', true ];
+      else if ( isImpact( entry ) ) [ text, team_first ] = [ 'Rocket impact', false ];
       else text = `${ icons.getName( previous.i ) } became ${ type }`;
       break;
     case 'built':
