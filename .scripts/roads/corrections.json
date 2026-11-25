@@ -1,0 +1,15 @@
+{
+  "remove": [],
+  "add": [
+    {
+      "hex": "UmbralWildwoodHex",
+      "note": "Thunderfoot: the wide road over the ford north-east of the town, dropped by the tracing as a filled area",
+      "points": [ [ 4959.8, 3941.2 ], [ 4978, 3925 ], [ 4988.5, 3900 ] ]
+    },
+    {
+      "hex": "CallahansPassageHex",
+      "note": "Lochan Berth: the street from the town runs on west to the junction with the road from the north-west",
+      "points": [ [ 5169.3, 2155.3 ], [ 5151, 2149 ] ]
+    }
+  ]
+}

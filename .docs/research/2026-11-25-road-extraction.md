@@ -1,6 +1,7 @@
 # Research: extracting the road network from the map images
 
-Date: 25 November 2026, extended the same day with [towns and bridges](#towns-and-bridges).
+Date: 25 November 2026, extended the same day with [towns and bridges](#towns-and-bridges)
+and with [touching roads](#touching-roads).
 Status: data step done; used by the road layer and the route planner. Follows
 [route navigation](2026-11-25-route-navigation.md), whose decision was to trace the roads
 ourselves from the map images.
@@ -15,6 +16,9 @@ ourselves from the map images.
 - Two rules fill in what the images do not show by themselves: **bridges are always roads**
   (27 bridges added) and **towns are never dead ends** (239 links through towns). Before them
   the network had 676 km, 63 pieces and 756 dead ends; now 42 pieces and 566 dead ends.
+- A third rule joins **roads that touch** (87 links), and two corrections by hand fill gaps no
+  rule catches: 38 pieces and 551 dead ends, and town-to-town routes a few percent shorter on
+  average ([Touching roads](#touching-roads)). The file is now 776,542 bytes, 170 KB gzipped.
 - Quality, judged by eye per hex: **31 good, 20 usable, 2 poor** (table below).
 - **85.2 % of the road length is in one connected network** that covers the whole mainland.
   The rest is the western land mass, the south-eastern land mass and the island hexes: the
@@ -78,14 +82,17 @@ ourselves from the map images.
      In mottled terrain only facing ends are joined. The final run closed 265 short gaps, 109
      bridges and 117 facing ends.
 5. **Bridges and towns** (added later the same day): bridges are always roads, and towns are
-   never dead ends. See [Towns and bridges](#towns-and-bridges).
+   never dead ends. See [Towns and bridges](#towns-and-bridges). Then **roads that touch are
+   joined**: junctions the skeleton went round, links over a street, and road ends cut off in
+   a patch of road. See [Touching roads](#touching-roads).
 6. **World graph.** Polylines simplified with Douglas–Peucker (1.5 px), moved to world pixels
    (`x = int( col * 1024 / 1.333 ) + x`, `y = int( row * 888 / 2 ) + y`, pixel centres at
    +0.5).
 7. **Join across hex borders.** Road ends within 14 px of their hexagon edge are paired with the
    nearest road end of another hex within 26 px; both move to their midpoint and become one
    node (335 joins). Ends left over snap to a road of the neighbouring hex within 16 px.
-8. **Corrections** from `.scripts/roads/corrections.json`, when it exists (see below).
+8. **Corrections** from `.scripts/roads/corrections.json` (see below); two since
+   [Touching roads](#touching-roads).
 9. **Write** the json, and with `--overlays DIR` an overlay per hex and a world overview.
 
 All parameters are constants at the top of the script, with a comment each.
@@ -102,7 +109,7 @@ python -m venv .venv-roads
 40 seconds instead of 5 minutes (the cache keeps them as 16-bit floats, so a run from the cache
 can differ from a fresh run by a link or two; write the final json with a fresh run). `--hex <WorldDataKey>` (repeatable) processes single hexes and
 writes no json unless `--out` is given. Rerun after `build-hexes.js` brings new images, and
-check the overlays of the changed hexes. The unit tests of the town and bridge rules run with
+check the overlays of the changed hexes. The unit tests of the town, bridge and touching-road rules run with
 `.venv-roads/Scripts/python -m unittest discover -s .scripts/roads -p "test_*.py"`.
 
 ## The json format
@@ -367,6 +374,148 @@ place, and not for a road pointing away; places come from the world data. The ro
 unit tests (`.app/src/tests/routing.unit.js`) check on the real network that Saltbrook Channel
 to Liegehearth is a short route over the channel.
 
+## Touching roads
+
+Added on 25 November 2026, after the owner planned a route from The Cut (Mooring County) to
+Blackthroat (Viper Pit), 3.57 km apart in a straight line: "some roads are not drawn, so you
+take an enormous detour". The route ran north through Headstone, Elksford, Brodytown, Ice
+Ranch and The Ark, crossed the river at Serenity's Blight and came back south past Fort Viper,
+all of it friendly.
+
+### The cause of that detour
+
+- **Reproduced** in Node with the route planner on the `roads.json` the live site served then
+  (the first trace, 732,744 bytes, before the town and bridge rules), in the default Safest
+  mode, all regions Warden, with fighting in Callahan's Passage (a contested hex counts four
+  times its length): 7.46 km, the same road as the screenshot. With all territory friendly and
+  no fighting there was no detour even then: 4.64 km straight through Callahan's Passage.
+  So the planner rightly kept out of Callahan's Passage, and the detour came from the roads
+  north of it.
+- **Kirknell** (Viper Pit) had no traced streets: the roads from the north ended at the edge of
+  the town, and its south half was a separate piece. From the north, the only way to
+  Blackthroat was over the bridge at Serenity's Blight. The town rule already fixed that in the
+  repository (5.56 km), but it was not yet published.
+- **A junction near Reprieve** (Reaching Trail), on the shortest friendly way, has a small
+  island in its middle. The skeleton went round it, and the two roads passed each other 6.5 px
+  apart without a node, as if one ran over the other. Routes had to go round by Harpy.
+
+That last kind of gap was common: the skeleton of a junction with an island or a small square
+in its middle, or of two roads that only touch, gives two roads that pass each other a few
+pixels apart; town links can cross a street without a node too; and a road end can be cut off
+from the road beside it when the clean-up drops the wide patch of road between them as a
+filled area. None of the gap rules saw these, as they only start from road ends, straight
+ahead.
+
+### Roads that touch are joined
+
+The rule runs per hex after the town and bridge rules (`HexTracer.join_touching`):
+
+1. **Touching roads.** Every place where two different roads come within **10 px** of each
+   other (closest first; the same two roads at most once per 30 px) gets a short link when
+   - the roads join the two points only by a way longer than **4 times their distance plus
+     40 px**, or not at all: roads that meet at a junction close by never qualify; and
+   - unless the roads cross, at least half of the gap lies on the **road mask** (with a pixel
+     of slack) and at most 20 % over water: the classifier saw one patch of road there, not
+     two roads with open ground between them.
+2. **Road ends in a patch of road.** A road end (not at the hex border) is joined to another
+   road up to **30 px** away, in any direction, under the same detour condition, when the road
+   mask covers at least **90 %** of the way and at most 20 % is water.
+
+Links are drawn in sea green on the overlays. What keeps false links out: the detour condition
+(only places the network has no short way between), the road mask (a gap of open ground,
+fields or buildings between two roads is not road), the water masks, and the short reach.
+
+### Corrections
+
+Two gaps no rule safely catches went into `.scripts/roads/corrections.json`, each with a note:
+the wide road over the ford north-east of Thunderfoot (Umbral Wildwood, 40 px, dropped as a
+filled area) and the street of Lochan Berth (Callahan's Passage) that runs on west to the
+junction with the road from the north-west. The ends of an added road now snap to the nearest
+road when no node is within 8 px, so a correction can end on the side of a road.
+
+### Result
+
+The final run (fresh, without the cache) added **87 links**, 14 of them longer than 10 px
+(road ends over a patch of road), and applied the 2 corrections.
+
+| | Before | After |
+| --- | --- | --- |
+| Road | 693 km | 694 km |
+| Nodes, edges, points | 3,683, 4,917, 22,329 | 3,826, 5,149, 22,673 |
+| File | 752,882 bytes, 166 KB gzipped | 776,542 bytes, 170 KB gzipped |
+| Components | 42 | 38 |
+| Largest component | 85.2 % of the length | 85.2 % |
+| Dead ends | 566 | 551 |
+| Roads within 10 px of each other, joined only the long way round | 39 places | 0 |
+| Dead ends with a road within 40 px, joined only the long way round | 44 | 21 |
+| The Cut to Blackthroat, Shortest, all friendly | 4.49 km (1.26 times the straight line) | 4.39 km (1.23 times) |
+| The same, Safest, fighting in Callahan's Passage | 5.56 km (7.46 km on the first trace) | 5.38 km (1.51 times) |
+
+The rest of the first trace's 7.46 km was the town rule (Kirknell); the Reprieve junction and
+the other touching roads took the last 0.2 km off.
+
+### Detours over the whole network
+
+Measured with the route planner (Shortest, all territory friendly) between every two towns
+(region labels) 150 to 1,100 px (0.3 to 2.3 km) apart: the road length plus the way to and
+from the road, divided by the straight distance.
+
+| 7,013 town pairs | Before | After |
+| --- | --- | --- |
+| Mean ratio | 1.70 | 1.65 |
+| Median ratio | 1.50 | 1.47 |
+| Pairs over 2 times the straight line | 998 | 793 |
+| Pairs over 3 times | 275 | 234 |
+| Pairs over 2.5 times with the straight line over land, not water | 158 | 89 |
+
+The largest gains: Fort Mac Conaill to Reprieve (Reaching Trail) from 6.4 to 1.3 times,
+Lochan Berth to The Procession (Callahan's Passage) from 6.1 to 1.2, The Procession to White
+Chapel from 6.0 to 1.6, Greenfield Orchard to The Plough (Heartlands) from 5.6 to 1.5, Frostmarch
+to Shattered Advance (Weathered Expanse) from 3.6 to 1.3. The worst remaining pairs over land
+were checked on the map: most go round water that the straight line misses by a little, round
+the dark rock plateaus (Callahan's Passage, Shackled Chasm, Farranac Coast), or lie in the
+western and south-eastern land masses; Fort Providence (Heartlands) has its label on a
+dead-end road, and east of Reprieve a road ends at the edge of a field. Those are what the map
+draws.
+
+### Checked by eye
+
+- All **87 links** of the rule, on crops of the map with the roads drawn over them. Nearly
+  all are junctions with an island or a small square in their middle, town squares, and town
+  links over a street. One joins two roads that run side by side 11 px apart in Viper Pit,
+  north of Kirknell, with a thin strip of ground between them that the classifier counts as
+  road; a car crosses that strip anyway, so it is left. Two links in towns that crossed only
+  open ground (Dead Lands, Callum's Cape) led to the road-mask condition, which leaves them
+  out.
+- The 14 links from road ends over a patch of road: a junction in Clanshead Valley, town
+  squares in Dead Lands, Kuura Strand, Nevish Line and Viper Pit, the interchange in Reaching
+  Trail, side roads in Kalokai, Linn Mercy, Mooring County and Origin, and the cut-off road in
+  Stlican Shelf (which made a 3 km detour).
+- The two corrections, and the route The Cut to Blackthroat, which now goes by Morrighan's
+  Grave, the Reprieve junction, past Fort Mac Conaill and through Kirknell.
+
+### Tests
+
+`test_extract_roads.py` checks that roads that touch are joined where they touch, but not with
+open ground or water between them, nor when they already meet at a junction; that a road end
+cut off in a patch of road is joined to the road beside it, and not over open ground; and that
+a correction joins the road its end lies on. `routing.unit.js` checks on the real network that
+The Cut to Blackthroat is at most 1.4 times the straight line, and, with fighting in
+Callahan's Passage, in Safest mode, at most 1.6 times without any contested road (it was 2.1
+times on the first trace).
+
+### Still open
+
+- The live site serves the first trace until this build is published; the town rule, which
+  fixes most of the owner's detour, is in the repository but was not yet published.
+- Gaps wider than the rule's reach remain where the image shows a road: a road end at the edge
+  of a light field in Reaching Trail (east of Reprieve) is a real end on the map; others are
+  bridges or fords drawn in water colour (Drowned Vale) and dead-end roads that the label of a
+  town sits on (Fort Providence, Heartlands), which make town-to-town routes long but are what
+  the map draws.
+- Most of the remaining long routes over land are in the western and south-eastern land masses
+  and in mottled terrain, where the tracing is weakest (see [Quality per hex](#quality-per-hex)).
+
 ## What a human still needs to fix, and how
 
 Most of the remaining work is a few dozen local fixes, not tracing:
@@ -379,8 +528,9 @@ Most of the remaining work is a few dozen local fixes, not tracing:
 4. Spot-check towns used as route ends, and the town links that cross open ground; a wrong
    link can be removed with a `remove` box in the corrections.
 
-**Suggested workflow: a correction file merged by the script** (already supported).
-`.scripts/roads/corrections.json`, applied after the border joins:
+**Workflow: a correction file merged by the script.** `.scripts/roads/corrections.json`,
+applied after the border joins (the file holds two links since
+[Touching roads](#touching-roads)):
 
 ```json
 {
@@ -393,8 +543,10 @@ Most of the remaining work is a few dozen local fixes, not tracing:
 
 - `remove`: boxes `[ x0, y0, x1, y1 ]` in world pixels; every edge whose middle point lies in a
   box is dropped.
-- `add`: roads as world-pixel polylines; each end snaps to the nearest node within 8 px, so a
-  two-point line between two road ends joins them. (The coordinates above are illustrative.)
+- `add`: roads as world-pixel polylines; each end snaps to the nearest node within 8 px, else
+  to the nearest point of a road within 8 px (the road is split there), so a two-point line
+  between two road ends, or from a road end to the side of a road, joins them. An optional
+  `note` says why, for people. (The coordinates above are illustrative.)
 - World pixels are easy to read off in the app: centre the view on a point and the address
   shows it (`#able/<x>/<y>/<zoom>`). The overlays (`--overlays`) are in image pixels of the
   hex; add the hex offset (`int( col * 1024 / 1.333 )`, `int( row * 888 / 2 )`) and halve the
@@ -403,14 +555,16 @@ Most of the remaining work is a few dozen local fixes, not tracing:
   be rerun after a map update and the corrections still apply where the map did not change;
   corrections in a changed hex should be reviewed then.
 
-A later step could make corrections more robust against small shifts (snap `add` ends to the
-nearest road within a larger radius, or match `remove` by overlap instead of the middle point),
+A later step could make corrections more robust against small shifts (snap `add` ends within
+a larger radius, or match `remove` by overlap instead of the middle point),
 and could add a tier per edge by hand for main roads if the route planner needs it.
 
 ## Files
 
 - `.scripts/roads/extract-roads.py`: the script, documented at the top.
-- `.scripts/roads/test_extract_roads.py`: unit tests of the town and bridge rules.
+- `.scripts/roads/test_extract_roads.py`: unit tests of the town, bridge and touching-road
+  rules and of the corrections.
+- `.scripts/roads/corrections.json`: corrections by hand, merged on every run.
 - `.scripts/roads/requirements.txt`: Python packages (numpy, pillow, scipy, scikit-image,
   scikit-learn), pinned to the tested versions.
 - `assets/data/roads.json`: the network.

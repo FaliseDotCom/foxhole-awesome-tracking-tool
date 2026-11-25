@@ -340,3 +340,29 @@ test( 'on the real road network the bridges of Saltbrook Channel lead straight t
   // over the channel, not around it: without the town and bridge rules this took 4.8 km
   assert.ok( toKm( answer.road ) < 0.5, `${ toKm( answer.road ) } km` );
 } );
+
+test( 'on the real road network The Cut to Blackthroat takes no detour, also around a contested hex', () =>
+{
+  const { graph: real, hexes } = realGraph(),
+        town = ( hex, name ) =>
+        {
+          const [ x, y ] = hexes.find( entry => entry.key === hex ).areas.find( area => area.name === name ).label;
+          return { x, y };
+        },
+        places = [ town( 'MooringCountyHex', 'The Cut' ), town( 'ViperPitHex', 'Blackthroat' ) ],
+        straight = toKm( Math.hypot( places[ 1 ].x - places[ 0 ].x, places[ 1 ].y - places[ 0 ].y ) ),
+        states = Object.fromEntries( real.regions.map( key => [ key, { hex: key.split( '/' )[ 0 ], team: 'W', scorched: false } ] ) );
+
+  // the straight way leads through Callahan's Passage: about 1.3 times the straight line
+  const direct = planRoute( real, { places, territory: allWarden( real ), options: { ...DEFAULT_OPTIONS, mode: 'shortest' } } );
+  assert.equal( direct.ok, true );
+  assert.ok( toKm( direct.road ) < straight * 1.4, `${ toKm( direct.road ) } km for ${ straight } km` );
+
+  // with fighting in Callahan's Passage the safest route keeps to friendly ground north of it,
+  // through Morrighan's Grave and Kirknell; before the towns were linked through and touching
+  // roads joined, it went round by Ice Ranch and took 7.5 km, more than twice the straight line
+  const around = planRoute( real, { places, territory: buildTerritory( states, 'W', new Set( [ 'CallahansPassageHex' ] ) ), options: { ...DEFAULT_OPTIONS, mode: 'safest' } } );
+  assert.equal( around.ok, true );
+  assert.equal( around.byClass.contested, 0 );
+  assert.ok( toKm( around.road ) < straight * 1.6, `${ toKm( around.road ) } km for ${ straight } km` );
+} );

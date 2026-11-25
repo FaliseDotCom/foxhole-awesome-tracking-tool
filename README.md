@@ -180,8 +180,9 @@ without spaces. The official source images are the `.TGA` files in the War API r
 `assets/data/roads.json` is the road network of the whole map as one graph in map pixels, for
 the route planner, which loads it when the Route tab first opens. It is traced from the hex images by `.scripts/roads/extract-roads.py` (Python;
 install `.scripts/roads/requirements.txt`, then run the script; the usage is at its top), in
-about 5 minutes. Two rules fill in what the images do not show by themselves: bridges are
-always roads, and towns are never dead ends (road ends in a town are led on through it).
+about 5 minutes. Three rules fill in what the images do not show by themselves: bridges are
+always roads, towns are never dead ends (road ends in a town are led on through it), and
+roads that touch are joined (junctions the tracing went round).
 Corrections by hand go in `.scripts/roads/corrections.json`, which the script merges. Run it
 again after the hex images change; its unit tests run with
 `python -m unittest discover -s .scripts/roads -p "test_*.py"`. The method, the quality per hex and the
