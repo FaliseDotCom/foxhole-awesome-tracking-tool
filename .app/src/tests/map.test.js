@@ -1006,3 +1006,69 @@ test( 'a new version online reloads the page once', async ( { page } ) =>
   await page.waitForTimeout( 500 );
   expect( loads ).toBe( 2 );
 } );
+
+test( 'the route tab plans a route between two places and shows its distance', async ( { page } ) =>
+{
+  const errors = collectErrors( page );
+  await page.setViewportSize( { width: 1280, height: 900 } );
+  await page.goto( '/' );
+
+  await page.getByRole( 'tab', { name: 'Route' } ).click();
+  const panel = page.getByRole( 'tabpanel', { name: 'Route' } );
+  // the team comes first, and is remembered
+  await expect( panel ).toContainText( 'Choose your team' );
+  await panel.getByRole( 'button', { name: 'Wardens' } ).click();
+
+  const start = panel.getByRole( 'combobox', { name: 'Start' } );
+  await start.fill( 'dead lands' );
+  await expect( panel.getByRole( 'option' ).first() ).toContainText( 'Dead Lands' );
+  await start.press( 'Enter' );
+  await expect( start ).toHaveValue( 'Dead Lands' );
+
+  const destination = panel.getByRole( 'combobox', { name: 'Destination' } );
+  await destination.fill( 'westgate' );
+  await destination.press( 'Enter' );
+
+  // the road network loads with the panel; the distance in km with one decimal and the fuel
+  await expect( panel.locator( '.route-total' ) ).toHaveText( /^\d+\.\d km · fuel about \d+ L$/, { timeout: 20000 } );
+  await expect( page.locator( 'polyline.route-line' ).first() ).toBeAttached();
+  await expect( page.locator( '.route-marker' ) ).toHaveCount( 2 );
+  await expect( panel.getByRole( 'button', { name: 'Show the route' } ) ).toBeVisible();
+
+  await page.reload();
+  await page.getByRole( 'tab', { name: 'Route' } ).click();
+  await expect( page.getByRole( 'tabpanel', { name: 'Route' } ).getByRole( 'button', { name: 'Wardens' } ) ).toHaveAttribute( 'aria-pressed', 'true' );
+
+  expect( errors ).toEqual( [] );
+} );
+
+test( 'a stop of the route can be picked on the map and removed again', async ( { page } ) =>
+{
+  await page.addInitScript( () => window.localStorage.setItem( 'fatt-route', JSON.stringify( { team: 'C' } ) ) );
+  await page.setViewportSize( { width: 1280, height: 900 } );
+  await page.goto( '/#able/5121/3108/1.00' );
+
+  await page.getByRole( 'tab', { name: 'Route' } ).click();
+  const panel = page.getByRole( 'tabpanel', { name: 'Route' } );
+  await panel.getByRole( 'button', { name: 'Add stop' } ).click();
+  const stop = panel.getByRole( 'combobox', { name: 'Stop 1' } );
+  await expect( stop ).toBeVisible();
+
+  // pick the middle of Dead Lands, left of the panel
+  await panel.getByRole( 'button', { name: 'Pick the stop 1 on the map' } ).click();
+  await expect( panel.locator( '.route-picking' ) ).toContainText( 'Click the map to choose the stop 1' );
+  await page.mouse.click( 400, 450 );
+  await expect( stop ).toHaveValue( /^Map point – .+, Dead Lands$/ );
+  await expect( page.locator( '.route-marker' ) ).toHaveCount( 1 );
+  await expect( panel.locator( '.route-picking' ) ).toHaveCount( 0 );
+
+  // Escape stops picking without closing the panel
+  await panel.getByRole( 'button', { name: 'Pick the start on the map' } ).click();
+  await page.keyboard.press( 'Escape' );
+  await expect( panel.locator( '.route-picking' ) ).toHaveCount( 0 );
+  await expect( panel ).toBeVisible();
+
+  await panel.getByRole( 'button', { name: 'Remove stop 1' } ).click();
+  await expect( stop ).toHaveCount( 0 );
+  await expect( page.locator( '.route-marker' ) ).toHaveCount( 0 );
+} );

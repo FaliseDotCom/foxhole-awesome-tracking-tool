@@ -1,0 +1,184 @@
+/* Route planner: the Route tab (components/route.svelte) and the route on the map
+   (components/map/route.svelte) */
+
+/* the places of the route, one row each: its letter, its field and its buttons */
+.route-points
+{
+  list-style: none;
+  margin: 0 0 6px 0;
+  padding: 0;
+}
+
+.route-point
+{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 0 0 4px 0;
+}
+
+.route-label
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  color: var( --clr-black );
+  background-color: var( --clr-route );
+  border: 2px solid var( --clr-route-casing );
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+/* the field takes the room left by the label and the buttons; its list opens below the row */
+.route-field
+{
+  flex: 1;
+  min-width: 120px;
+}
+
+.route-field .search-field input
+{
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: 13px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.route-field .search-list
+{
+  max-height: 40vh;
+}
+
+.route-actions
+{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.route-picking
+{
+  font-weight: bold;
+}
+
+.route-result .button
+{
+  margin-top: 4px;
+}
+
+.route-total
+{
+  margin: 4px 0;
+}
+
+.route-legs
+{
+  list-style: none;
+  margin: 0 0 4px 0;
+  padding: 0;
+  font-size: 13px;
+}
+
+.route-legs li
+{
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* no route, or more fuel than a tank */
+.route-problem
+{
+  margin: 4px 0;
+  padding: 6px 8px;
+  font-size: 13px;
+  background-color: rgba( 192, 57, 43, .12 );
+  border-left: 3px solid var( --clr-danger );
+  border-radius: 4px;
+}
+
+/* an option the route switched by itself, under its switch */
+.route-auto
+{
+  margin: 0 0 4px 22px;
+  font-style: italic;
+}
+
+/* on the map; sizes divided by --scale stay the same on screen */
+
+.route-leg,
+.route-marker
+{
+  pointer-events: none;
+}
+
+.route-leg polyline
+{
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.route-casing
+{
+  stroke: var( --clr-route-casing );
+  stroke-width: calc( 9px / var( --scale ) );
+}
+
+.route-line
+{
+  stroke: var( --clr-route );
+  stroke-width: calc( 5px / var( --scale ) );
+}
+
+.route-line.route-contested
+{
+  stroke: var( --clr-route-contested );
+}
+
+.route-line.route-enemy
+{
+  stroke: var( --clr-route-enemy );
+}
+
+/* from a place to the road it starts or ends on */
+.route-access
+{
+  stroke: var( --clr-route-casing );
+  stroke-width: calc( 3px / var( --scale ) );
+  stroke-dasharray: calc( 6px / var( --scale ) ) calc( 5px / var( --scale ) );
+}
+
+.route-marker circle
+{
+  r: calc( 11px / var( --scale ) );
+  fill: var( --clr-route );
+  stroke: var( --clr-route-casing );
+  stroke-width: calc( 3px / var( --scale ) );
+}
+
+.route-marker text
+{
+  font-family: var( --font-body );
+  font-size: calc( 13px / var( --scale ) );
+  font-weight: bold;
+  fill: var( --clr-black );
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* takes the click that picks a place of the route */
+.route-pick
+{
+  fill: transparent;
+  pointer-events: all;
+  cursor: crosshair;
+}

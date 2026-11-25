@@ -23,6 +23,12 @@
   --clr-danger: #c0392b;
   --clr-danger-hover: #a93226;
 
+  /* the planned route on the map (route.css), per territory class it runs through */
+  --clr-route: #ffb000;
+  --clr-route-contested: #ff6a00;
+  --clr-route-enemy: #d40000;
+  --clr-route-casing: rgba( 0, 0, 0, .65 );
+
   --clr-black: #222;
   --clr-white: #eee;
   --clr-focus: orange;

@@ -8,8 +8,8 @@
   left: 50%;
   transform: translateX( -50% );
   z-index: 10001;
-  /* keep clear of the logo (left) and the tabs (right) */
-  width: min( 420px, calc( 100% - 660px ) );
+  /* keep clear of the logo (left, 160px) and the tabs (right, about 485px for five) */
+  width: min( 420px, calc( 100% - 1000px ) );
   font-family: var( --font-body );
   font-size: 14px;
 }
@@ -174,7 +174,7 @@
 
 /* narrow screens: below the logo and the tabs, nearly full width; tab panels open below it */
 
-@media ( max-width: 1000px )
+@media ( max-width: 1240px )
 {
   /* a row of its own, under the logo and the tabs */
   .search
@@ -184,17 +184,17 @@
   }
 
   /* an open tab panel hangs from its tab; the search field makes way on its left */
-  /* the panel is as wide as the tabs: 419px for four, about 515px with the shard tab */
+  /* the panel is as wide as the tabs: 477px for five, about 565px with the shard tab */
   body:has( .tab-panel ) .search
   {
     left: 8px;
     transform: none;
-    width: calc( 100% - 445px );
+    width: calc( 100% - 503px );
   }
 
   body:has( #tab-shard ):has( .tab-panel ) .search
   {
-    width: calc( 100% - 540px );
+    width: calc( 100% - 590px );
   }
 
   /* with the tabs on the left (Settings), it makes way on the right */
