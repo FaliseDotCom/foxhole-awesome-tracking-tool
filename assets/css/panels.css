@@ -722,6 +722,7 @@
   margin-top: 4px;
   padding: 6px 8px;
   font-size: 12px;
+  font-weight: normal;
   line-height: 1.4;
   color: var( --clr-white );
   background-color: rgba( 0, 0, 0, .85 );

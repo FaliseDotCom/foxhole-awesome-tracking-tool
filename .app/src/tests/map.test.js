@@ -1052,22 +1052,42 @@ test( 'the route tab plans a route between two places and shows its distance', a
   await destination.press( 'Enter' );
 
   // the road network loads with the panel; the distance in km with one decimal and the fuel
-  await expect( panel.locator( '.route-total' ) ).toHaveText( /^\d+\.\d km · fuel about \d+ L$/, { timeout: 20000 } );
+  await expect( panel.locator( '.route-km' ) ).toHaveText( /^\d+\.\d km$/, { timeout: 20000 } );
+  await expect( panel.locator( '.route-fuel' ) ).toHaveText( /^\d+ L$/ );
   await expect( page.locator( 'polyline.route-line' ).first() ).toBeAttached();
   await expect( page.locator( '.route-marker' ) ).toHaveCount( 2 );
   await expect( panel.getByRole( 'button', { name: 'Show the route' } ) ).toBeVisible();
+  // what the road network does not know is behind the (i) next to the distance
+  const about = panel.getByRole( 'button', { name: 'About the road network' } );
+  await about.click();
+  await expect( panel.getByRole( 'tooltip' ) ).toBeVisible();
+  await expect( panel.getByRole( 'tooltip' ) ).toContainText( 'gates, walls and destroyed bridges' );
+  // and its bubble fits in the panel
+  const bubble = await panel.getByRole( 'tooltip' ).boundingBox(),
+        sides = await panel.boundingBox();
+  expect( bubble.x ).toBeGreaterThanOrEqual( sides.x );
+  expect( bubble.x + bubble.width ).toBeLessThanOrEqual( sides.x + sides.width );
+  // what shortest and safest mean is behind the (i) next to Prefer
+  await panel.getByRole( 'button', { name: 'About shortest and safest' } ).click();
+  await expect( panel.getByRole( 'tooltip' ).filter( { visible: true } ) ).toContainText( 'Safest weighs every km' );
+  // how the fuel is estimated is behind the (i) next to the fuel
+  await panel.getByRole( 'button', { name: 'About the fuel estimate' } ).click();
+  await expect( panel.getByRole( 'tooltip' ).filter( { visible: true } ) ).toContainText( 'on the high side' );
 
   // the colours of the line are explained in the panel
   await expect( panel.locator( '.route-classes .route-swatch' ).first() ).toBeVisible();
 
-  // adding a stop and picking it on the map leaves the map where it is; only a new start or
-  // destination fits the route again
+  // a stop is added at the bottom, as the new destination; the empty field is left out of the
+  // route, and adding a place or picking it on the map leaves the map where it is
   await page.waitForTimeout( 1000 );
   const fitted = await centrePoint( page );
   await panel.getByRole( 'button', { name: 'Add stop' } ).click();
-  await panel.getByRole( 'button', { name: 'Pick the stop 1 on the map' } ).click();
+  await expect( panel.getByRole( 'combobox', { name: 'Stop 1' } ) ).toHaveValue( /Westgate/ );
+  await expect( panel.getByRole( 'combobox', { name: 'Destination' } ) ).toHaveValue( '' );
+  await expect( panel.locator( '.route-km' ) ).toBeVisible();
+  await panel.getByRole( 'button', { name: 'Pick the destination on the map' } ).click();
   await page.mouse.click( 400, 450 );
-  await expect( panel.getByRole( 'combobox', { name: 'Stop 1' } ) ).toHaveValue( /^Map point/ );
+  await expect( panel.getByRole( 'combobox', { name: 'Destination' } ) ).toHaveValue( /^Map point/ );
   await expect( page.locator( '.route-marker' ) ).toHaveCount( 3 );
   await page.waitForTimeout( 1000 );
   const after = await centrePoint( page );
@@ -1110,4 +1130,11 @@ test( 'a stop of the route can be picked on the map and removed again', async ( 
   await panel.getByRole( 'button', { name: 'Remove stop 1' } ).click();
   await expect( stop ).toHaveCount( 0 );
   await expect( page.locator( '.route-marker' ) ).toHaveCount( 0 );
+
+  // empty fields can be removed too, while more than two remain
+  await panel.getByRole( 'button', { name: 'Add stop' } ).click();
+  await expect( panel.getByRole( 'combobox' ) ).toHaveCount( 3 );
+  await panel.getByRole( 'button', { name: 'Remove destination' } ).click();
+  await expect( panel.getByRole( 'combobox' ) ).toHaveCount( 2 );
+  await expect( panel.getByRole( 'button', { name: /^Remove / } ) ).toHaveCount( 0 );
 } );

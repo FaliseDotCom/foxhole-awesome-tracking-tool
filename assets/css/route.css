@@ -74,9 +74,43 @@
   margin-top: 4px;
 }
 
-.route-total
+/* the distance and the fuel in two boxes of the same size, each with an (i); the bubbles open
+   below both boxes, so they fit in the panel */
+.route-figures
 {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
   margin: 4px 0;
+}
+
+.route-figure
+{
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px;
+  border: 1px solid rgba( 0, 0, 0, .15 );
+  border-radius: 4px;
+}
+
+.route-figure .stats-big
+{
+  margin: 0;
+}
+
+.route-figure-name
+{
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  opacity: .75;
+}
+
+.route-figures .info-tip
+{
+  position: static;
 }
 
 .route-legs
