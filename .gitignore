@@ -16,8 +16,9 @@
 .logs/
 .api/logs/
 
-# Python bytecode from the development scripts in .scripts/
+# Python bytecode and the virtual environment of the development scripts in .scripts/
 __pycache__/
+.venv-roads/
 
 # editor and OS files
 .idea/
