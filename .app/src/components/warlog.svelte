@@ -20,7 +20,8 @@
         history_since = warlog.historySince,
         source = warlog.source,
         checked = warlog.checked,
-        recorder = warlog.recorder;
+        recorder = warlog.recorder,
+        fresh = warlog.fresh;
 
   // a clock for "2 min ago" and "checked 5s ago"
   let now = Date.now(),
@@ -123,6 +124,9 @@
               <span>{#if entry.teamFirst}<b>{ entry.team }</b>{/if}{ entry.teamFirst ? ` ${ entry.text }` : entry.text }</span>
               {#if entry.place}<span class="warlog-place">{ entry.place }</span>{/if}
             </span>
+            {#if $fresh( entry )}
+              <span class="warlog-new" title="New since you last opened the log"><span class="visually-hidden">New</span></span>
+            {/if}
             <time datetime={ new Date( entry.time ).toISOString() } title={ new Date( entry.time ).toLocaleString() }>
               { ago( entry.time, now ) }
             </time>

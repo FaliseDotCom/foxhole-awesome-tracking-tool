@@ -106,7 +106,11 @@ const server_entries = writable( [] ),
       checked = writable( 0 ),
       // who made the server's last recording (cron or request), and when the cron job last ran
       recorder = writable( { by: '', cronAt: 0 } ),
-      unseen = writable( 0 ),
+      // ids of the entries that arrived while the war log was closed, counted on its tab
+      unseen_ids = writable( new Set() ),
+      // ids of the entries shown with a "new" dot: the unseen ones once the log opens, until it
+      // closes again
+      marked_ids = writable( new Set() ),
       major_only = writable( readFilter() ),
       // text typed in the war log's search field
       query = writable( '' ),
@@ -126,7 +130,22 @@ let shard = '',
     newest_server_id = 0,
     loading = false,
     // when the fallback started; browser entries from before then are not shown
-    fallback_since = 0;
+    fallback_since = 0,
+    // whether the war log panel is open: entries arriving then are seen as they come in
+    log_open = false;
+
+/**
+ * Number of entries that arrived while the war log was closed.
+ * @type {import('svelte/store').Readable<number>}
+ */
+const unseen = derived( unseen_ids, $ids => $ids.size );
+
+/**
+ * Whether an entry is new to the viewer, for its dot: it arrived while the log was closed. A
+ * rocket entry is new when its launch or its impact is.
+ * @type {import('svelte/store').Readable<function( object ): boolean>}
+ */
+const is_new = derived( marked_ids, $ids => entry => $ids.has( entry.id ) || ( entry.parts || [] ).some( id => $ids.has( id ) ) );
 
 /**
  * Read the "Major updates only" filter.
@@ -324,7 +343,7 @@ const withoutNoise = ( added, existing ) =>
 
 /**
  * Add entries at the top of a list, newest first, and count them as unseen when that list is
- * the one being shown.
+ * the one being shown and the war log is closed.
  *
  * @param {import('svelte/store').Writable<object[]>} list Server or browser entries.
  * @param {object[]} added New entries.
@@ -335,12 +354,12 @@ const add = ( list, added, shown ) =>
 {
   // an entry that is already there (a server repeating events) would break the keyed list
   const known = new Set( get( list ).map( entry => entry.id ) );
-  const fresh = added.filter( entry => !known.has( entry.id ) );
-  if ( !fresh.length ) return;
-  list.update( current => [ ...fresh, ...current ]
+  const arrived = added.filter( entry => !known.has( entry.id ) );
+  if ( !arrived.length ) return;
+  list.update( current => [ ...arrived, ...current ]
     .sort( ( a, b ) => b.time - a.time )
     .slice( 0, max_entries ) );
-  if ( shown ) unseen.update( count => count + fresh.length );
+  if ( shown && !log_open ) unseen_ids.update( ids => new Set( [ ...ids, ...arrived.map( entry => entry.id ) ] ) );
 };
 
 /**
@@ -521,7 +540,8 @@ shards.subscribe( name =>
   browser_entries.set( [] );
   source.set( 'loading' );
   checked.set( 0 );
-  unseen.set( 0 );
+  unseen_ids.set( new Set() );
+  marked_ids.set( new Set() );
   loadServer();
 } );
 
@@ -535,6 +555,7 @@ shards.subscribe( name =>
  */
 const toRocketEntry = ( launch, impact ) => ( {
   id: `r${ launch.id }-${ impact.id }`,
+  parts: [ launch.id, impact.id ],
   source: impact.source,
   time: impact.time,
   kind: 'rocket',
@@ -665,6 +686,7 @@ export const warlog = {
   all: { subscribe: combined.subscribe },
   rockets: { subscribe: rockets.subscribe },
   unseen: { subscribe: unseen.subscribe },
+  fresh: { subscribe: is_new.subscribe },
   majorOnly: { subscribe: major_only.subscribe },
   query: { subscribe: query.subscribe },
   paging: { subscribe: paging.subscribe },
@@ -745,13 +767,18 @@ export const warlog = {
   },
 
   /**
-   * Mark every entry as seen (the panel is open).
+   * Tell the log whether its panel is open. Opening it shows the unseen entries with a "new"
+   * dot and clears the count; closing it clears the dots.
    *
+   * @param {boolean} open Whether the war log panel is open.
    * @returns {void}
    */
-  markSeen()
+  setOpen( open )
   {
-    unseen.set( 0 );
+    if ( open === log_open ) return;
+    log_open = open;
+    marked_ids.set( open ? get( unseen_ids ) : new Set() );
+    unseen_ids.set( new Set() );
   },
 
   /**

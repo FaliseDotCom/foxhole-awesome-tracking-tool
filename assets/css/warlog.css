@@ -25,6 +25,17 @@
   margin: 0 0 4px 0;
 }
 
+/* an entry that arrived while the log was closed, the colour of the count on the tab */
+.warlog-new
+{
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background-color: var( --clr-focus );
+}
+
 /* side by side, as tall as the entry: square for an entry of two lines, taller for longer ones */
 .warlog-actions
 {

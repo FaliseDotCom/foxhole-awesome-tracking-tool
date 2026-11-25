@@ -39,8 +39,9 @@
 
   $: current = tabs.find( tab => tab.key === open );
 
-  // entries arriving while the war log is open count as seen
-  $: if ( open === 'warlog' && $unseen ) warlog.markSeen();
+  // entries arriving while the war log is open count as seen; opening it marks the unseen ones
+  // as new
+  $: warlog.setOpen( open === 'warlog' );
 
   // newest major entry, read out by screen readers whichever tab is open
   $: announcement = $warlog.find( entry => entry.major );
