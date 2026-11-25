@@ -366,9 +366,21 @@ test( 'the war log is filled from the server and moves the map to an entry', asy
   await expect( page.locator( '.warlog-notice' ) ).toHaveCount( 0 );
   await expect( page.locator( '.warlog-status' ) ).toContainText( /Live · checked \d+s ago · last change/ );
 
-  // a new event arrives with the next map update
+  // a new event arrives with the next map update, while the log is closed: the tab counts it,
+  // and opening the log marks it as new until the log is closed again
+  const tab = page.getByRole( 'tab', { name: 'Log' } );
+  await tab.click();
+  await expect( page.locator( '.warlog-entry' ) ).toHaveCount( 0 );
   events = [ ...events, { ...captureEvent( 2, { ...town, t: from }, town.t ) } ];
-  await expect( page.locator( '.warlog-entry' ) ).toHaveCount( 2, { timeout: 15000 } );
+  await expect( tab.locator( '.tab-badge' ) ).toHaveText( '1', { timeout: 15000 } );
+  await tab.click();
+  await expect( page.locator( '.warlog-entry' ) ).toHaveCount( 2 );
+  await expect( tab.locator( '.tab-badge' ) ).toHaveCount( 0 );
+  await expect( page.locator( '.warlog-entry' ).first().locator( '.warlog-new' ) ).toHaveCount( 1 );
+  await expect( page.locator( '.warlog-entry' ).nth( 1 ).locator( '.warlog-new' ) ).toHaveCount( 0 );
+  await tab.click();
+  await tab.click();
+  await expect( page.locator( '.warlog-new' ) ).toHaveCount( 0 );
 
   // Dead Lands is at column 6, row 6
   // clicking the entry only rings the structure; the target button moves the map there
@@ -1044,6 +1056,23 @@ test( 'the route tab plans a route between two places and shows its distance', a
   await expect( page.locator( 'polyline.route-line' ).first() ).toBeAttached();
   await expect( page.locator( '.route-marker' ) ).toHaveCount( 2 );
   await expect( panel.getByRole( 'button', { name: 'Show the route' } ) ).toBeVisible();
+
+  // the colours of the line are explained in the panel
+  await expect( panel.locator( '.route-classes .route-swatch' ).first() ).toBeVisible();
+
+  // adding a stop and picking it on the map leaves the map where it is; only a new start or
+  // destination fits the route again
+  await page.waitForTimeout( 1000 );
+  const fitted = await centrePoint( page );
+  await panel.getByRole( 'button', { name: 'Add stop' } ).click();
+  await panel.getByRole( 'button', { name: 'Pick the stop 1 on the map' } ).click();
+  await page.mouse.click( 400, 450 );
+  await expect( panel.getByRole( 'combobox', { name: 'Stop 1' } ) ).toHaveValue( /^Map point/ );
+  await expect( page.locator( '.route-marker' ) ).toHaveCount( 3 );
+  await page.waitForTimeout( 1000 );
+  const after = await centrePoint( page );
+  expect( Math.abs( after.x - fitted.x ) ).toBeLessThan( 1 );
+  expect( Math.abs( after.y - fitted.y ) ).toBeLessThan( 1 );
 
   await page.reload();
   await page.getByRole( 'tab', { name: 'Route' } ).click();
