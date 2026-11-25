@@ -266,7 +266,8 @@ test( 'a point lies in the region outline around it, or else in the region named
 /**
  * The real road network and world data, as the app loads them.
  *
- * @returns {object} Graph over assets/data/roads.json with the regions of world_data.json.
+ * @returns {object} Graph over assets/data/roads.json with the regions of world_data.json, the
+ *                   hexes, and the world data itself.
  */
 const realGraph = () =>
 {
@@ -291,8 +292,16 @@ const realGraph = () =>
       } ) )
     };
   } );
-  return { graph: prepareGraph( network, createRegionIndex( hexes ).locate ), hexes };
+  return { graph: prepareGraph( network, createRegionIndex( hexes ).locate ), hexes, world };
 };
+
+/**
+ * Territory with every region of a graph held by the Wardens, the viewer's team.
+ *
+ * @param {object} real Graph from realGraph().
+ * @returns {object} Territory by region key.
+ */
+const allWarden = real => buildTerritory( Object.fromEntries( real.regions.map( key => [ key, { hex: key.split( '/' )[ 0 ], team: 'W', scorched: false } ] ) ), 'W', new Set() );
 
 test( 'on the real road network a route crosses the mainland quickly, and an island has none', () =>
 {
@@ -302,7 +311,7 @@ test( 'on the real road network a route crosses the mainland quickly, and an isl
           const hex = hexes.find( entry => entry.key === key );
           return { x: hex.x + hex.width / 2, y: hex.y + hex.height / 2 };
         },
-        land = buildTerritory( Object.fromEntries( real.regions.map( key => [ key, { hex: key.split( '/' )[ 0 ], team: 'W', scorched: false } ] ) ), 'W', new Set() );
+        land = allWarden( real );
 
   const started = performance.now(),
         answer = planRoute( real, { places: [ centre( 'DeadLandsHex' ), centre( 'WestgateHex' ) ], territory: land, options: { ...DEFAULT_OPTIONS, mode: 'safest' } } ),
@@ -316,4 +325,18 @@ test( 'on the real road network a route crosses the mainland quickly, and an isl
   const island = planRoute( real, { places: [ centre( 'DeadLandsHex' ), centre( 'GodcroftsHex' ) ], territory: land, options: { ...DEFAULT_OPTIONS, mode: 'shortest' } } );
   assert.equal( island.ok, false );
   assert.equal( island.reason, 'island' );
+} );
+
+test( 'on the real road network the bridges of Saltbrook Channel lead straight to Liegehearth', () =>
+{
+  const { graph: real, hexes, world } = realGraph(),
+        shore = hexes.find( entry => entry.key === 'EndlessShoreHex' ),
+        town = shore.areas.find( area => area.name === 'Saltbrook Channel' ).label,
+        village = world.EndlessShoreHex.labels.find( label => label.text === 'Liegehearth' ),
+        places = [ { x: town[ 0 ], y: town[ 1 ] }, { x: shore.x + village.x * shore.width, y: shore.y + village.y * shore.height } ];
+
+  const answer = planRoute( real, { places, territory: allWarden( real ), options: { ...DEFAULT_OPTIONS, mode: 'shortest' } } );
+  assert.equal( answer.ok, true );
+  // over the channel, not around it: without the town and bridge rules this took 4.8 km
+  assert.ok( toKm( answer.road ) < 0.5, `${ toKm( answer.road ) } km` );
 } );

@@ -16,9 +16,14 @@ What it does
   4. Cleans the graph: drops blobs, weak edges (stricter in mottled terrain), short spurs and
      tiny pieces, and closes gaps: short gaps the image supports, bridges (a thin light line
      over the gap) and road ends that point at each other over land.
-  5. Moves everything to world map pixels and joins roads that cross a hex border to the
+  5. Applies two rules the images cannot show by themselves. Bridges are always roads: a
+     narrow land band across water, with a town or a road end on both banks, becomes a road.
+     Towns are never dead ends: every road end inside a town (a region's name label, or a
+     minor place name with at least two road ends) is led on through the town, over land and
+     not over water, to the nearest other road or to the town centre.
+  6. Moves everything to world map pixels and joins roads that cross a hex border to the
      road of the neighbouring hex.
-  6. Writes assets/data/roads.json, and optionally an overlay image per hex for checking.
+  7. Writes assets/data/roads.json, and optionally an overlay image per hex for checking.
 
 How to run (from the repository root)
   python -m venv .venv-roads
@@ -33,7 +38,8 @@ Options
   --out FILE       output file (default assets/data/roads.json)
 
 Inputs
-  .app/src/stores/world_data.json   hex keys and grid positions
+  .app/src/stores/world_data.json   hex keys, grid positions, and the place names (region
+                                    labels and minor labels) used as towns
   assets/maps/classic/*.webp        current hex maps, 1024 x 888 px each
   assets/maps/color/*.png           2022 maps with yellow roads (training labels only)
   .scripts/roads/corrections.json   optional manual corrections (see the report)
@@ -49,6 +55,7 @@ The method, parameters and known gaps are in .docs/research/2026-11-25-road-extr
 
 import argparse
 import datetime
+import heapq
 import json
 import math
 import os
@@ -60,6 +67,7 @@ from PIL import Image, ImageDraw
 from scipy import ndimage as ndi
 from scipy.spatial import cKDTree
 from skimage.filters import apply_hysteresis_threshold
+from skimage.graph import MCP_Geometric
 from skimage.measure import approximate_polygon
 from skimage.morphology import closing, disk, opening, remove_small_holes, remove_small_objects, skeletonize
 from sklearn.ensemble import HistGradientBoostingClassifier
@@ -115,6 +123,37 @@ FACING_MAX_WATER = 0.3
 BORDER_DISTANCE = 14        # road ends this close to the hex border may join a neighbour ...
 BORDER_SNAP = 26            # ... road end up to this far away
 SIMPLIFY = 1.5              # Douglas-Peucker tolerance for the polylines
+
+# bridges are always roads: a land band at most BRIDGE_WIDTH wide that interrupts water (found
+# by closing the water mask), touching land at two banks BRIDGE_SPAN apart and water along at
+# least BRIDGE_WATER_SIDE of its outline; skipped when a traced road runs within 3 px of
+# BRIDGE_TRACED of the straight line between the banks, or already joins them closely
+BRIDGE_WIDTH = 12
+BRIDGE_SPAN = ( 6, 160 )
+BRIDGE_WATER_SIDE = 0.4
+BRIDGE_TRACED = 0.5
+BRIDGE_REACH = 30           # a bank outside a town needs a road end this close, pointing at it
+BRIDGE_SNAP = 5             # a bank this close to a road is joined to that road directly
+BRIDGE_ROAD = 25            # ... and, outside towns, to a road this close over land
+BRIDGE_END_ANGLE = 60       # within this many degrees
+WATER_MIN = 40              # water areas smaller than this are ignored (speckle)
+
+# towns are never dead ends: road ends within TOWN_RADIUS of a region's name label (which lies
+# a median 6 px, at most about 65 px, from its town hall or relic base) or within VILLAGE_RADIUS
+# of a minor place name (only when at least VILLAGE_ENDS road ends are there) are led on
+# through the town to the nearest other road, link or the town centre, over land, inside the
+# circle, and at most TOWN_DETOUR times the straight distance plus TOWN_SLACK
+TOWN_RADIUS = 90
+VILLAGE_RADIUS = 60
+VILLAGE_ENDS = 2
+TOWN_ANGLE = 120            # only road ends pointing into the town, within this many degrees
+TOWN_CORE = 0.35            # ... unless they lie within this share of the radius from the centre
+TOWN_DETOUR = 1.8
+TOWN_SLACK = 15
+TOWN_STREET = 0.5           # cost per pixel falls to this on pixels that look like a road (1 on land)
+TOWN_BEHIND = 25            # a link goes ahead of its road end, never to the roads this close behind it
+TOWN_INWARD = 5             # ... and inwards: it reaches a road at least this much closer to the centre
+TOWN_ALONGSIDE = 0.35       # ... and is dropped when more than this share runs within 6 px of those roads
 
 
 def hexagon():
@@ -199,6 +238,58 @@ class HexImage:
     @return tuple ( x, y ) in world map pixels
     """
     return ( self.x0 + x, self.y0 + y )
+
+
+class Place:
+  """
+  A named place of a hex that roads must not dead-end in: a town (a region's name label, next
+  to its town hall or relic base) or a minor place name (a village, or a landmark), in image
+  pixels.
+  """
+
+  def __init__( self, name, x, y, town ):
+    """
+    @param name string place name
+    @param x float image x
+    @param y float image y
+    @param town bool whether it is a region's town (else a minor place name)
+    """
+    self.name = name
+    self.x = float( x )
+    self.y = float( y )
+    self.town = town
+    self.radius = TOWN_RADIUS if town else VILLAGE_RADIUS
+    # road ends (and bridge banks) needed before the place is linked at all
+    self.minimum = 1 if town else VILLAGE_ENDS
+
+  @staticmethod
+  def of_hex( item ):
+    """
+    The places of one hex from its world data entry: the region labels as towns, the other
+    labels as minor places (left out when they repeat a town's name close by).
+
+    @param item dict world data entry with areas ( name: { x, y } ) and labels ( [ { x, y, text } ] )
+    @return list of Place
+    """
+    towns = [ Place( name, a[ 'x' ] * HEX_WIDTH, a[ 'y' ] * HEX_HEIGHT, True )
+              for name, a in sorted( ( item.get( 'areas' ) or {} ).items() ) ]
+    minors = []
+    for label in item.get( 'labels' ) or []:
+      place = Place( label[ 'text' ], label[ 'x' ] * HEX_WIDTH, label[ 'y' ] * HEX_HEIGHT, False )
+      if any( t.name == place.name and math.hypot( t.x - place.x, t.y - place.y ) < VILLAGE_RADIUS for t in towns ):
+        continue
+      minors.append( place )
+    return towns + minors
+
+  def reach( self, x, y ):
+    """
+    Distance from the place relative to its radius: at most 1 inside it.
+
+    @param x float image x
+    @param y float image y
+    @return float
+    """
+    return math.hypot( x - self.x, y - self.y ) / self.radius
 
 
 class RoadClassifier:
@@ -507,19 +598,25 @@ class HexTracer:
   Turns the road probability of one hex into a cleaned graph in image pixels.
   """
 
-  def __init__( self, hex_image, prob ):
+  def __init__( self, hex_image, prob, places = () ):
     """
     @param hex_image HexImage loaded hex
     @param prob numpy float array road probability
+    @param places list of Place on this hex (towns that roads must not dead-end in)
     """
     self.hex = hex_image
     self.prob = prob
+    self.places = list( places )
     self.mask = None
     self.width = None
     self.graph = Graph()
-    # gaps closed per rule, and the gap lines themselves (for the overlays)
+    # gaps closed per rule, and the gap lines themselves as ( kind, points ) (for the overlays)
     self.joins = {}
     self.gap_lines = []
+    # bridges and town links added by the two rules, by edge id: ( kind, points )
+    self.links = {}
+    # pixels no town link may cross: the bands of the bridges added as roads
+    self.blocked = np.zeros( prob.shape, bool )
     # probability with a pixel of slack sideways
     self.pmax = ndi.maximum_filter( prob, 3 )
     # share of middling probabilities around each pixel: high in mottled terrain
@@ -530,6 +627,12 @@ class HexTracer:
     self.thin = ndi.maximum_filter( lum - opening( lum, disk( 3 ) ) > 6, 3 )
     sm = ndi.gaussian_filter( hex_image.rgb, ( 1.5, 1.5, 0 ) )
     self.water = ( sm[ :, :, 2 ] - sm[ :, :, 0 ] >= 0 ) & ( lum > 135 ) & ( lum < 192 )
+    # water for the bridge and town rules: less blurred and up to the shore line (the rim of
+    # the water is a little warmer), so the gap a bridge leaves is no wider than the bridge;
+    # thin light lines over it (narrow bridges) are not water; small speckles are left out
+    fine = ndi.gaussian_filter( hex_image.rgb, ( 0.7, 0.7, 0 ) )
+    wet = ( fine[ :, :, 1 ] - fine[ :, :, 0 ] >= -3 ) & ( fine[ :, :, 2 ] - fine[ :, :, 0 ] >= -12 ) & ( lum > 135 ) & ( lum < 200 )
+    self.wet = remove_small_objects( wet & ~self.thin & hex_image.inside, WATER_MIN )
 
   def run( self ):
     """
@@ -543,6 +646,7 @@ class HexTracer:
     self.bridge_gaps()
     self.prune()
     self.drop_small()
+    self.link_bridges_and_towns()
     return self.graph
 
   def segment( self ):
@@ -808,7 +912,7 @@ class HexTracer:
         m = g.split( e, i )
       g.add_edge( n, m, [ g.nodes[ n ], g.nodes[ m ] ], gap = kind )
       self.joins[ kind ] = self.joins.get( kind, 0 ) + 1
-      self.gap_lines.append( ( kind, g.nodes[ n ], g.nodes[ m ] ) )
+      self.gap_lines.append( ( kind, [ g.nodes[ n ], g.nodes[ m ] ] ) )
       done.add( n )
       done.add( m )
     g.merge_degree2()
@@ -822,6 +926,464 @@ class HexTracer:
         if p == q:
           return ( e, i )
     return None
+
+  def link_bridges_and_towns( self ):
+    """
+    Apply the two rules the images do not show by themselves: bridges are always roads, and
+    towns are never dead ends. Bridges come first, so that a town can lead its roads to the
+    bridges on its bank; a bridge that still has no road on one of its banks afterwards is
+    taken out again.
+    """
+    g = self.graph
+    if not g.edges:
+      return
+    loose = self.add_bridges( self.find_bridges() )
+    for place in self.places:
+      centre = self.link_place( place )
+      if centre is not None:
+        loose.add( centre )
+    self.drop_loose( loose )
+    for e, ( kind, pts ) in self.links.items():
+      self.gap_lines.append( ( kind, pts ) )
+      self.joins[ kind ] = self.joins.get( kind, 0 ) + 1
+    self.links = {}
+    g.merge_degree2()
+
+  def rasterize( self, lines, box, width ):
+    """
+    Draw polylines into a mask of part of the image.
+
+    @param lines list of polylines, each a list of ( x, y ) in image pixels
+    @param box tuple ( r0, r1, c0, c1 ) rows and columns of the part
+    @param width int line width in pixels
+    @return numpy bool array of the part
+    """
+    r0, r1, c0, c1 = box
+    img = Image.new( 'L', ( c1 - c0, r1 - r0 ), 0 )
+    draw = ImageDraw.Draw( img )
+    for pts in lines:
+      local = [ ( x - 0.5 - c0, y - 0.5 - r0 ) for x, y in pts ]
+      if len( local ) > 1:
+        draw.line( local, fill = 1, width = width )
+      elif local:
+        draw.point( local, fill = 1 )
+    return np.array( img ) > 0
+
+  def find_bridges( self ):
+    """
+    Bridges the traced roads do not cross yet. A bridge interrupts the water: closing the
+    water mask over bands up to BRIDGE_WIDTH wide fills it. A filled band that touches land at
+    two places (the banks) BRIDGE_SPAN apart, has water along most of its sides, and is not
+    yet covered by a traced road, is a bridge (or a causeway, which is just as good a road).
+
+    @return list of dicts: p and q, the bank points ( x, y ) in image pixels; box, the slices
+            of the image around the band; and band, its mask within the box
+    """
+    inside = self.hex.inside
+    water = self.wet
+    closed = ndi.binary_closing( water, structure = disk( BRIDGE_WIDTH // 2 ) )
+    band = closed & ~water & inside
+    land = ~water & ~band & inside
+    h, w = band.shape
+    roads = self.rasterize( [ edge[ 'pts' ] for edge in self.graph.edges.values() ], ( 0, h, 0, w ), 7 )
+    lab, _ = ndi.label( band, structure = np.ones( ( 3, 3 ) ) )
+    found = []
+    for i, sl in enumerate( ndi.find_objects( lab ) ):
+      if sl is None:
+        continue
+      box = tuple( slice( max( 0, s.start - 2 ), s.stop + 2 ) for s in sl )
+      comp = lab[ box ] == i + 1
+      size = comp.sum()
+      if size < 6:
+        continue
+      ring = ndi.binary_dilation( comp, structure = np.ones( ( 3, 3 ) ) ) & ~comp
+      if ( ring & water[ box ] ).sum() < BRIDGE_WATER_SIDE * ring.sum():
+        continue
+      glab, ng = ndi.label( ring & land[ box ], structure = np.ones( ( 3, 3 ) ) )
+      groups = [ np.argwhere( glab == j + 1 ).mean( 0 ) for j in range( ng ) if ( glab == j + 1 ).sum() >= 2 ]
+      if len( groups ) < 2:
+        continue
+      span, k, m = max( ( float( np.hypot( *( a - b ) ) ), k, m ) for k, a in enumerate( groups ) for m, b in enumerate( groups ) if k < m )
+      if not BRIDGE_SPAN[ 0 ] <= span <= BRIDGE_SPAN[ 1 ]:
+        continue
+      p = ( float( groups[ k ][ 1 ] + box[ 1 ].start + 0.5 ), float( groups[ k ][ 0 ] + box[ 0 ].start + 0.5 ) )
+      q = ( float( groups[ m ][ 1 ] + box[ 1 ].start + 0.5 ), float( groups[ m ][ 0 ] + box[ 0 ].start + 0.5 ) )
+      # a band whose straight crossing runs over open water is a curved shore, not a bridge
+      if self.line_fraction( water, p, q ) > 0.3:
+        continue
+      if self.line_fraction( roads, p, q ) >= BRIDGE_TRACED:
+        continue
+      found.append( dict( p = p, q = q, box = box, band = comp ) )
+    return found
+
+  def place_at( self, x, y ):
+    """
+    The place a point belongs to: the one it lies deepest inside, relative to the radius.
+
+    @param x float image x
+    @param y float image y
+    @return Place or None when the point lies in no place
+    """
+    best = min( self.places, key = lambda place: place.reach( x, y ), default = None )
+    return best if best is not None and best.reach( x, y ) <= 1 else None
+
+  def end_towards( self, xy ):
+    """
+    The road end that leads to a bridge bank: within BRIDGE_REACH, pointing at it within
+    BRIDGE_END_ANGLE, on the same bank (the line to it hardly crosses water), not at the hex
+    border (those join the neighbouring hex).
+
+    @param xy tuple ( x, y ) bank point in image pixels
+    @return int node id or None
+    """
+    g = self.graph
+    p = np.asarray( xy )
+    best = None
+    for n, node in g.nodes.items():
+      if g.degree( n ) != 1 or border_distance( *node ) < BORDER_DISTANCE:
+        continue
+      v = p - np.asarray( node )
+      dist = float( np.hypot( *v ) )
+      if dist > BRIDGE_REACH or ( best is not None and dist >= best[ 0 ] ):
+        continue
+      if dist >= 2:
+        d = self.end_direction( n )
+        if d is None or math.degrees( math.acos( max( -1, min( 1, float( v @ d ) / dist ) ) ) ) > BRIDGE_END_ANGLE:
+          continue
+      if self.line_fraction( self.wet, node, xy ) > 0.3:
+        continue
+      best = ( dist, n )
+    return best[ 1 ] if best else None
+
+  def add_bridges( self, bridges ):
+    """
+    Add the bridges with a road, a town or a road end on both banks as roads. A bank right
+    next to a road is joined to it; a bank in a town gets a node of its own, which the town
+    links to its streets; a bank outside towns is joined to the road end that leads to it, or
+    else to a road close by on the same bank. Banks already joined closely by the roads are
+    left alone. The band of every added bridge is blocked for town links, so they never run
+    over it a second time.
+
+    @param bridges list from find_bridges
+    @return set of the bank node ids made here (taken out again when no town reaches them)
+    """
+    g = self.graph
+    banks = set()
+    for bridge in bridges:
+      sides = []
+      for xy in ( bridge[ 'p' ], bridge[ 'q' ] ):
+        road = self.attach( xy, set(), BRIDGE_SNAP )
+        if road is not None and road not in sides:
+          sides.append( road )
+          continue
+        if self.place_at( *xy ) is not None:
+          sides.append( None )
+          continue
+        end = self.end_towards( xy )
+        if end is None:
+          end = self.attach( xy, set(), BRIDGE_ROAD, self.wet )
+        if end is None or end in sides:
+          break
+        sides.append( end )
+      if len( sides ) < 2:
+        continue
+      span = math.hypot( bridge[ 'p' ][ 0 ] - bridge[ 'q' ][ 0 ], bridge[ 'p' ][ 1 ] - bridge[ 'q' ][ 1 ] )
+      if None not in sides and self.road_distance( sides[ 0 ], sides[ 1 ], 2 * span + 20 ) is not None:
+        continue
+      ids = []
+      for side, xy in zip( sides, ( bridge[ 'p' ], bridge[ 'q' ] ) ):
+        if side is None:
+          side = g.add_node( *xy )
+          banks.add( side )
+        ids.append( side )
+      pts = [ g.nodes[ ids[ 0 ] ] ]
+      for xy in ( bridge[ 'p' ], bridge[ 'q' ], g.nodes[ ids[ 1 ] ] ):
+        if xy != pts[ -1 ]:
+          pts.append( xy )
+      e = g.add_edge( ids[ 0 ], ids[ 1 ], pts, gap = 'band' )
+      self.links[ e ] = ( 'band', pts )
+      self.blocked[ bridge[ 'box' ] ] |= bridge[ 'band' ]
+    return banks
+
+  def link_place( self, place ):
+    """
+    Lead every road end in a place on through it, so the town is never a dead end. Road ends
+    (and bridge banks) that belong to the place and point into it are taken nearest to the
+    centre first; each is led along the cheapest way over land inside the place's circle
+    (cheaper where the image looks like a street, never over water or a bridge band, never
+    behind the end) to the nearest other road or earlier link that lies closer to the centre
+    than the end, or to the centre itself. A link may be at most TOWN_DETOUR times the
+    straight distance plus TOWN_SLACK.
+
+    @param place Place
+    @return int the centre node when a link reached it, else None
+    """
+    g = self.graph
+    h, w = self.prob.shape
+    r = int( place.radius ) + 2
+    box = ( max( 0, int( place.y ) - r ), min( h, int( place.y ) + r + 1 ),
+            max( 0, int( place.x ) - r ), min( w, int( place.x ) + r + 1 ) )
+    r0, r1, c0, c1 = box
+    if r1 <= r0 or c1 <= c0:
+      return None
+    rows, cols = np.mgrid[ r0:r1, c0:c1 ]
+    circle = np.hypot( cols + 0.5 - place.x, rows + 0.5 - place.y ) <= place.radius
+    open_land = circle & self.hex.inside[ r0:r1, c0:c1 ] & ~self.wet[ r0:r1, c0:c1 ] & ~self.blocked[ r0:r1, c0:c1 ]
+    if not open_land.any():
+      return None
+    cost = np.where( open_land, 1 - ( 1 - TOWN_STREET ) * np.clip( self.pmax[ r0:r1, c0:c1 ], 0, 1 ), np.inf )
+    # the centre: the open pixel nearest to the label
+    _, nearest = ndi.distance_transform_edt( ~open_land, return_indices = True )
+    lr, lc = min( max( int( place.y ) - r0, 0 ), r1 - r0 - 1 ), min( max( int( place.x ) - c0, 0 ), c1 - c0 - 1 )
+    cr, cc = int( nearest[ 0 ][ lr, lc ] ), int( nearest[ 1 ][ lr, lc ] )
+    centre_xy = ( cc + c0 + 0.5, cr + r0 + 0.5 )
+    hub = np.zeros( cost.shape, bool )
+    hub[ max( 0, cr - 2 ):cr + 3, max( 0, cc - 2 ):cc + 3 ] = True
+    hub &= open_land
+    depth = np.hypot( cols + 0.5 - centre_xy[ 0 ], rows + 0.5 - centre_xy[ 1 ] )
+    ends = [ n for n in g.nodes if g.degree( n ) == 1 and self.leads_into( n, place, centre_xy ) ]
+    if len( ends ) < place.minimum:
+      return None
+    ends.sort( key = lambda n: math.hypot( g.nodes[ n ][ 0 ] - centre_xy[ 0 ], g.nodes[ n ][ 1 ] - centre_xy[ 1 ] ) )
+    roads = self.rasterize( [ edge[ 'pts' ] for edge in g.edges.values() ], box, 3 ) & circle
+    centre = None
+    for n in ends:
+      if n not in g.nodes or g.degree( n ) != 1:
+        continue
+      near = self.nearby_edges( n, TOWN_BEHIND )
+      # a link leads into the town, not along its edge to a road outside it
+      reach = math.hypot( g.nodes[ n ][ 0 ] - centre_xy[ 0 ], g.nodes[ n ][ 1 ] - centre_xy[ 1 ] )
+      inner = depth <= max( reach - TOWN_INWARD, TOWN_CORE * place.radius )
+      link = self.street( n, near, cost, box, roads & inner, hub )
+      if link is None:
+        continue
+      path, on_road = link
+      if on_road:
+        target = self.attach( path[ -1 ], near )
+        if target is None or target == n:
+          continue
+      else:
+        if centre is None:
+          centre = g.add_node( *centre_xy )
+        target = centre
+      pts = [ g.nodes[ n ] ] + path[ 1:-1 ] + [ g.nodes[ target ] ]
+      e = g.add_edge( n, target, pts, gap = 'town' )
+      self.links[ e ] = ( 'town', pts )
+      roads |= self.rasterize( [ pts ], box, 3 ) & circle
+    return centre
+
+  def leads_into( self, n, place, centre ):
+    """
+    Whether a road end leads into a place: it lies in the place, away from the hex border, and
+    points towards the centre within TOWN_ANGLE, or lies close to the centre anyway. An end
+    may lead into two places; the first to link it (towns before minor places) takes it.
+
+    @param n int node id of a road end
+    @param place Place
+    @param centre tuple ( x, y ) the place's centre in image pixels
+    @return bool
+    """
+    g = self.graph
+    x, y = g.nodes[ n ]
+    if border_distance( x, y ) < BORDER_DISTANCE or place.reach( x, y ) > 1:
+      return False
+    v = np.asarray( centre ) - np.asarray( ( x, y ) )
+    dist = float( np.hypot( *v ) )
+    if dist <= TOWN_CORE * place.radius:
+      return True
+    d = self.end_direction( n )
+    return d is not None and math.degrees( math.acos( max( -1, min( 1, float( v @ d ) / dist ) ) ) ) <= TOWN_ANGLE
+
+  def reachable( self, n, limit ):
+    """
+    Everything a node reaches over the roads within a distance.
+
+    @param n int node id
+    @param limit float distance along the roads in pixels
+    @return tuple ( dict node id: distance, set of the edge ids touched on the way )
+    """
+    g = self.graph
+    dist = { n: 0.0 }
+    queue = [ ( 0.0, n ) ]
+    edges = set()
+    while queue:
+      d, m = heapq.heappop( queue )
+      if d > dist[ m ]:
+        continue
+      for e in g.adj[ m ]:
+        edges.add( e )
+        edge = g.edges[ e ]
+        other = edge[ 'b' ] if edge[ 'a' ] == m else edge[ 'a' ]
+        nd = d + Graph.length( edge[ 'pts' ] )
+        if nd < limit and nd < dist.get( other, float( 'inf' ) ):
+          dist[ other ] = nd
+          heapq.heappush( queue, ( nd, other ) )
+    return dist, edges
+
+  def road_distance( self, a, b, limit ):
+    """
+    The distance between two nodes along the roads, when it is below a limit.
+
+    @param a int node id
+    @param b int node id
+    @param limit float the largest distance of interest in pixels
+    @return float distance, or None when b is not reached within the limit
+    """
+    return self.reachable( a, limit )[ 0 ].get( b )
+
+  def nearby_edges( self, n, limit ):
+    """
+    The edges that a road end reaches over the network within a distance: its own road and the
+    roads at the junction just behind it. A link from the end may not lead back to those, as it
+    would run alongside them.
+
+    @param n int node id
+    @param limit float distance along the roads in pixels
+    @return set of edge ids
+    """
+    return self.reachable( n, limit )[ 1 ]
+
+  def street( self, n, near, cost, box, roads, hub ):
+    """
+    The cheapest way from a road end to another road (not one of the roads just behind it) or
+    to the centre of a place, over the cost of the place's circle.
+
+    @param n int node id of the road end
+    @param near set of edge ids that are no goal: the end's own road and those just behind it
+    @param cost numpy float array cost per pixel of the box, inf where closed
+    @param box tuple ( r0, r1, c0, c1 ) the part of the image of the place
+    @param roads numpy bool array roads and links so far in the box
+    @param hub numpy bool array the centre of the place in the box
+    @return tuple ( points from the end to the goal as ( x, y ) image pixels, whether the goal
+            is a road ), or None when there is no way within the allowed detour
+    """
+    g = self.graph
+    r0, r1, c0, c1 = box
+    x, y = g.nodes[ n ]
+    sr, sc = int( y ) - r0, int( x ) - c0
+    if not ( 0 <= sr < r1 - r0 and 0 <= sc < c1 - c0 ):
+      return None
+    own = next( iter( g.adj[ n ] ) )
+    # the way leads on ahead of the end: not back along its own road, not behind it, and not
+    # to the roads just behind it
+    own_road = self.rasterize( [ g.edges[ own ][ 'pts' ] ], box, 5 )
+    behind = self.rasterize( [ g.edges[ e ][ 'pts' ] for e in near ], box, 5 )
+    back = np.zeros( cost.shape, bool )
+    d = self.end_direction( n )
+    if d is not None:
+      rows, cols = np.mgrid[ r0:r1, c0:c1 ]
+      back = ( cols + 0.5 - x ) * d[ 0 ] + ( rows + 0.5 - y ) * d[ 1 ] < -2
+    start = np.zeros( cost.shape, bool )
+    start[ max( 0, sr - 3 ):sr + 4, max( 0, sc - 3 ):sc + 4 ] = True
+    goals = ( ( roads & ~behind ) | hub ) & ~back & ~start
+    here = cost.copy()
+    here[ ( own_road | back ) & ~start ] = np.inf
+    # a goal can always be reached, even a road over water (a traced bridge): the way stops there
+    here[ goals & ~np.isfinite( here ) ] = 1.0
+    here[ sr, sc ] = min( here[ sr, sc ], 1.0 )
+    targets = np.argwhere( goals )
+    if not len( targets ):
+      return None
+    mcp = MCP_Geometric( here )
+    reached, _ = mcp.find_costs( [ ( sr, sc ) ], [ tuple( t ) for t in targets ], find_all_ends = False )
+    values = reached[ goals ]
+    if not np.isfinite( values ).any():
+      return None
+    gr, gc = targets[ int( np.argmin( values ) ) ]
+    path = mcp.traceback( ( int( gr ), int( gc ) ) )
+    length = Graph.length( path )
+    if length > TOWN_DETOUR * math.hypot( gr - sr, gc - sc ) + TOWN_SLACK:
+      return None
+    # a way that mostly runs alongside the end's own roads adds nothing but a second line
+    zone = self.rasterize( [ g.edges[ e ][ 'pts' ] for e in near ], box, 13 )
+    beside = [ zone[ r, c ] for r, c in path[ 5: ] ]
+    if beside and sum( beside ) > TOWN_ALONGSIDE * len( path ):
+      return None
+    points = [ ( c + c0 + 0.5, r + r0 + 0.5 ) for r, c in path ]
+    return ( points, bool( roads[ gr, gc ] ) and not behind[ gr, gc ] )
+
+  def attach( self, xy, skip, limit = 3, water = None ):
+    """
+    The node at the point of a road nearest to xy, splitting the road there when needed.
+
+    @param xy tuple ( x, y ) in image pixels
+    @param skip set of edge ids to leave out (the roads the link starts from)
+    @param limit float the largest distance to the road in pixels
+    @param water numpy bool array, when given: no road across more than 30 % of water
+    @return int node id, or None when no road lies within the limit
+    """
+    g = self.graph
+    p = np.asarray( xy )
+    best = None
+    for e, edge in g.edges.items():
+      if e in skip:
+        continue
+      pts = np.asarray( edge[ 'pts' ] )
+      if ( pts.min( 0 ) - limit - 1 > p ).any() or ( pts.max( 0 ) + limit + 1 < p ).any():
+        continue
+      a, d = pts[ :-1 ], np.diff( pts, axis = 0 )
+      t = np.clip( ( ( p - a ) * d ).sum( 1 ) / np.maximum( ( d * d ).sum( 1 ), 1e-9 ), 0, 1 )
+      proj = a + t[ :, None ] * d
+      dist = np.hypot( *( proj - p ).T )
+      i = int( np.argmin( dist ) )
+      if best is None or dist[ i ] < best[ 0 ]:
+        best = ( float( dist[ i ] ), e, i, ( float( proj[ i ][ 0 ] ), float( proj[ i ][ 1 ] ) ) )
+    if best is None or best[ 0 ] > limit:
+      return None
+    _, e, i, proj = best
+    if water is not None and self.line_fraction( water, xy, proj ) > 0.3:
+      return None
+    pts = g.edges[ e ][ 'pts' ]
+    for j in ( i, i + 1 ):
+      if math.hypot( pts[ j ][ 0 ] - proj[ 0 ], pts[ j ][ 1 ] - proj[ 1 ] ) <= 1.5:
+        return self.node_at( e, j )
+    pts.insert( i + 1, proj )
+    return self.node_at( e, i + 1 )
+
+  def node_at( self, e, j ):
+    """
+    The node at point j of edge e: its end node, or a new node splitting the edge there. A
+    split link keeps its kind in both halves.
+
+    @param e int edge id
+    @param j int point index
+    @return int node id
+    """
+    g = self.graph
+    edge = g.edges[ e ]
+    if j == 0:
+      return edge[ 'a' ]
+    if j == len( edge[ 'pts' ] ) - 1:
+      return edge[ 'b' ]
+    n = g.split( e, j )
+    if e in self.links:
+      kind = self.links.pop( e )[ 0 ]
+      for half in ( g.next_edge - 2, g.next_edge - 1 ):
+        self.links[ half ] = ( kind, g.edges[ half ][ 'pts' ] )
+    return n
+
+  def drop_loose( self, nodes ):
+    """
+    Take out the bridges and town links that lead nowhere: a bridge bank that no town link
+    reached, a town centre that only one link reached, and whatever leads only to those.
+
+    @param nodes set of node ids of bridge banks and town centres
+    """
+    g = self.graph
+    todo = set( nodes )
+    while todo:
+      n = todo.pop()
+      if n not in g.nodes or g.degree( n ) != 1:
+        continue
+      e = next( iter( g.adj[ n ] ) )
+      edge = g.edges[ e ]
+      if edge.get( 'gap' ) not in ( 'band', 'town' ):
+        continue
+      other = edge[ 'b' ] if edge[ 'a' ] == n else edge[ 'a' ]
+      g.remove_edge( e )
+      self.links.pop( e, None )
+      if other in g.nodes and other in nodes:
+        todo.add( other )
 
 
 class Network:
@@ -1045,16 +1607,18 @@ class Overlay:
     self.folder = folder
     os.makedirs( folder, exist_ok = True )
 
-  def hex( self, hex_image, network, main ):
+  def hex( self, hex_image, network, main, places = () ):
     """
     Draw the roads of one hex (and the ends of neighbouring hexes) over the dimmed map.
     Red: road in the largest component; magenta: road cut off from it; closed gaps: cyan for a
-    bridge, orange for facing road ends, yellow-green for a short gap; blue dot: road end;
-    green dot: joined across the hex border.
+    bridge, orange for facing road ends, yellow-green for a short gap; dark blue for a bridge
+    band, gold for a link through a town; grey circles: the towns (solid) and minor places
+    (thin); blue dot: road end; green dot: joined across the hex border.
 
     @param hex_image HexImage
     @param network Network
     @param main set of edge ids in the largest component
+    @param places list of Place of the hex
     """
     W = network.graph
     base = ( hex_image.rgb * 0.45 + 140 ).clip( 0, 255 ).astype( np.uint8 )
@@ -1068,10 +1632,14 @@ class Overlay:
         continue
       colour = ( 220, 0, 0 ) if e in main else ( 200, 0, 200 )
       draw.line( [ local( p ) for p in edge[ 'pts' ] ], fill = colour, width = 3 )
-    gap_colours = dict( bridge = ( 0, 200, 230 ), facing = ( 255, 140, 0 ), gap = ( 150, 200, 0 ) )
-    for key, kind, a, b in network.gap_lines:
+    for place in places:
+      x, y, r = place.x * scale, place.y * scale, place.radius * scale
+      draw.ellipse( ( x - r, y - r, x + r, y + r ), outline = ( 90, 90, 90 ), width = 3 if place.town else 1 )
+    gap_colours = dict( bridge = ( 0, 200, 230 ), facing = ( 255, 140, 0 ), gap = ( 150, 200, 0 ),
+                        band = ( 0, 40, 160 ), town = ( 230, 170, 0 ) )
+    for key, kind, pts in network.gap_lines:
       if key == hex_image.key:
-        draw.line( [ local( a ), local( b ) ], fill = gap_colours[ kind ], width = 7 )
+        draw.line( [ local( p ) for p in pts ], fill = gap_colours[ kind ], width = 5 if kind == 'town' else 7 )
     for n, xy in W.nodes.items():
       x, y = local( xy )
       if not ( -10 <= x <= HEX_WIDTH * scale + 10 and -10 <= y <= HEX_HEIGHT * scale + 10 ):
@@ -1135,6 +1703,7 @@ def main():
   log( '%d hexes loaded' % len( hexes ) )
 
   todo = [ h for h in hexes if not args.hex or h.key in args.hex ]
+  places = { h.key: Place.of_hex( world[ h.key ] ) for h in hexes }
   probs = {}
   if args.cache:
     os.makedirs( args.cache, exist_ok = True )
@@ -1157,12 +1726,12 @@ def main():
   network = Network()
   joins = {}
   for h in todo:
-    tracer = HexTracer( h, probs[ h.key ] )
+    tracer = HexTracer( h, probs[ h.key ], places[ h.key ] )
     network.add_hex( h, tracer.run() )
-    network.gap_lines += [ ( h.key, kind, h.to_world( *a ), h.to_world( *b ) ) for kind, a, b in tracer.gap_lines ]
+    network.gap_lines += [ ( h.key, kind, [ h.to_world( *p ) for p in pts ] ) for kind, pts in tracer.gap_lines ]
     for kind, count in tracer.joins.items():
       joins[ kind ] = joins.get( kind, 0 ) + count
-  log( 'traced %d edges; gaps closed: %s' % ( len( network.graph.edges ), ', '.join( '%d %s' % ( v, k ) for k, v in sorted( joins.items() ) ) ) )
+  log( 'traced %d edges; gaps closed and links added: %s' % ( len( network.graph.edges ), ', '.join( '%d %s' % ( v, k ) for k, v in sorted( joins.items() ) ) ) )
   network.join_borders()
   log( 'joined %d road ends across hex borders' % network.border_joins )
   fixes = network.apply_corrections( CORRECTIONS_FILE )
@@ -1194,7 +1763,7 @@ def main():
   if args.overlays:
     overlay = Overlay( args.overlays )
     for h in todo:
-      overlay.hex( h, network, main_set )
+      overlay.hex( h, network, main_set, places[ h.key ] )
     if not args.hex:
       overlay.world( hexes, network, main_set )
     log( 'overlays in ' + args.overlays )
