@@ -455,6 +455,11 @@ test( 'a rocket launch and impact show as one entry with an arc', async ( { page
   const impact = { x: parseInt( 3 * 1024 / 1.333 ) + .5 * 1024, y: parseInt( 7 * 888 / 2 ) + .5 * 888 };
   expect( Math.abs( centre.x - ( launch.x + impact.x ) / 2 ) ).toBeLessThan( 5 );
   expect( Math.abs( centre.y - ( launch.y + impact.y ) / 2 ) ).toBeLessThan( 5 );
+
+  // the trajectories can be switched off in Settings
+  await page.getByRole( 'tab', { name: 'Settings' } ).click();
+  await page.getByLabel( 'Rocket trajectories on the map' ).uncheck();
+  await expect( page.locator( 'path.rocket-arc' ) ).toHaveCount( 0 );
 } );
 
 /**

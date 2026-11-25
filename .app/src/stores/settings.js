@@ -15,6 +15,8 @@ const storage_key = 'fatt-settings';
 const switches = {
   // alarm and impact sounds for rocket launches
   sound: true,
+  // rocket trajectories on the map: fired rockets and those counting down
+  rockets: true,
   // hex names written large over each hex
   names: true
 };

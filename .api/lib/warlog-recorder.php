@@ -25,6 +25,13 @@ class WarlogRecorder
   public const MAJOR_TYPES = [ 27, 37, 45, 46, 47, 70, 71, 72 ];
 
   /**
+   * Types of the rocket: Rocket Site, Rocket Target, Rocket Ground Zero, Rocket Site With
+   * Rocket. Their events draw the rocket arcs on the map, so they are sent for the whole war.
+   * @var int[]
+   */
+  public const ROCKET_TYPES = [ 37, 70, 71, 72 ];
+
+  /**
    * Flag bits from the War API.
    * @var int
    */

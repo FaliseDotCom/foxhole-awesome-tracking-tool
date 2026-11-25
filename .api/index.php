@@ -161,11 +161,19 @@
     $next_before = count( $rows ) === $limit ? (int) end( $rows )[ 'id' ] : 0;
 
     // ?major=1 on the first request also returns the major events older than the latest ones
-    // (victory towns, relics, rockets), so a page opening late still sees them
+    // (victory towns, relics, rockets), so a page opening late still sees them, and every
+    // rocket event of the war, for the rocket arcs on the map
     if ( !empty( $_GET[ 'major' ] ) && !$since && !$before && count( $rows ) === $limit )
     {
       $oldest = (int) end( $rows )[ 'id' ];
-      $rows = array_merge( $rows, $store->getEvents( $shard, $war, 0, $oldest, 200, true ) );
+      $older = array_merge(
+        $store->getEvents( $shard, $war, 0, $oldest, 200, true ),
+        $store->getTypeEvents( $shard, $war, $oldest, WarlogRecorder::ROCKET_TYPES )
+      );
+      // newest first and each event once: the rocket events can be among the major ones
+      $by_id = array_column( $older, null, 'id' );
+      krsort( $by_id );
+      $rows = array_merge( $rows, array_values( $by_id ) );
     }
 
     json( [

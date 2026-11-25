@@ -2,8 +2,8 @@
 
   /**
    * Viewer settings, remembered in the browser: icon brightness, hex shading, how the map looks
-   * (team colours, region colour strength, icon size, hex names), rocket sounds, and whether
-   * visits are counted
+   * (team colours, region colour strength, icon size, hex names), rocket trajectories and
+   * sounds, and whether visits are counted
    */
 
   import { config } from '@stores/config'
@@ -83,6 +83,10 @@
 
 <fieldset class="settings-group">
   <legend>Rockets</legend>
+  <label>
+    <input type="checkbox" checked={ $settings.rockets } on:change={ e => settings.set( 'rockets', e.target.checked ) }/>
+    Rocket trajectories on the map
+  </label>
   <label>
     <input type="checkbox" checked={ $settings.sound } on:change={ e => settings.set( 'sound', e.target.checked ) }/>
     Alarm and impact sounds

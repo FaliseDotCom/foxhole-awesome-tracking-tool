@@ -41,7 +41,9 @@
       {#if config.tools.points }
         <Layer class="points" component={ HexPoints } show={ true }/>
       {/if}
-      <Arcs/>
+      {#if $settings.rockets}
+        <Arcs/>
+      {/if}
       <Effects/>
       <Marker/>
     </SvgMap>

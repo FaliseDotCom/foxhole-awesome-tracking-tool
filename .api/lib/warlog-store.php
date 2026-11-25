@@ -758,4 +758,29 @@ class WarlogStore
     $query->execute( [ $shard, $war, $hex, $until, ...array_values( $kinds ) ] );
     return $query->fetchAll( PDO::FETCH_ASSOC );
   }
+
+  /**
+   * Events of a war in which a structure of some types changed (as it is or as it was), newest
+   * first.
+   *
+   * @param  string $shard  Shard name.
+   * @param  int    $war    War number.
+   * @param  int    $before Only events with a lower id; 0 for no limit.
+   * @param  int[]  $types  Icon types.
+   * @return array<int, array<string, mixed>> Events.
+   */
+  public function getTypeEvents( string $shard, int $war, int $before, array $types ) : array
+  {
+    if ( !$types )
+    {
+      return [];
+    }
+
+    $list = implode( ', ', array_map( 'intval', $types ) );
+    $query = $this->db->prepare( "SELECT * FROM events
+      WHERE shard = ? AND war = ? AND id < ? AND ( icon IN ( {$list} ) OR icon_from IN ( {$list} ) )
+      ORDER BY id DESC" );
+    $query->execute( [ $shard, $war, $before ?: PHP_INT_MAX ] );
+    return $query->fetchAll( PDO::FETCH_ASSOC );
+  }
 }

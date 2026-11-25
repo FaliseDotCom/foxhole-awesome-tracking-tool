@@ -70,13 +70,14 @@ F.A.T.T. can stand for any of the following:
     in-game name.
   - **Settings** — icon brightness, hex shading (fighting in the last hour, or changes in the
     last 6 hours), colour-blind team colours (blue and orange), region colour strength, icon
-    size, hex names, the tabs on the right or the left, sound, and whether your visits are
-    counted. Remembered in the browser.
+    size, hex names, the tabs on the right or the left, rocket trajectories, sound, and whether
+    your visits are counted. Remembered in the browser.
   - **Shard** — switch between live shards. Since May 2026 Foxhole runs a single shard, so
     this tab is hidden until there is more than one.
 - Draws a rocket counting down (its target is public for about a day before the launch) as a
   dashed arc from the armed rocket site to a dashed ring at the target.
-- Draws rocket launches as an arc from the launch site to the impact. A launch seen live sets
+- Draws rocket launches as an arc from the launch site to the impact, for every rocket of the
+  war; Settings can hide these trajectories. A launch seen live sets
   off an air raid siren, a flashing beacon and a rumble; the impact a flash, a shockwave, an
   explosion and a quake. Sound can be turned off in Settings; "reduce motion" turns off the
   shaking and flashing.
