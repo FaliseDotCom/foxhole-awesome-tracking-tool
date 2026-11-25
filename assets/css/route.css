@@ -112,6 +112,47 @@
   font-style: italic;
 }
 
+/* how far the route runs through each kind of territory, with the colour of its line */
+.route-classes
+{
+  list-style: none;
+  margin: 0 0 4px 0;
+  padding: 0;
+  font-size: 12px;
+}
+
+.route-classes li
+{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.route-swatch
+{
+  flex: none;
+  width: 18px;
+  height: 5px;
+  border: 2px solid var( --clr-route-casing );
+  border-radius: 3px;
+  background-color: var( --clr-route );
+}
+
+.route-swatch.route-neutral
+{
+  background-color: var( --clr-route-neutral );
+}
+
+.route-swatch.route-contested
+{
+  background-color: var( --clr-route-contested );
+}
+
+.route-swatch.route-enemy
+{
+  background-color: var( --clr-route-enemy );
+}
+
 /* on the map; sizes divided by --scale stay the same on screen */
 
 .route-leg,
@@ -137,6 +178,11 @@
 {
   stroke: var( --clr-route );
   stroke-width: calc( 5px / var( --scale ) );
+}
+
+.route-line.route-neutral
+{
+  stroke: var( --clr-route-neutral );
 }
 
 .route-line.route-contested

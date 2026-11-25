@@ -187,9 +187,15 @@
           {/each}
         </ul>
       {/if}
-      <p class="legend-note">
-        Through { $result.byClass.map( part => `${ km( part.km ) } ${ part.name }` ).join( ', ' ) } territory{#if $result.offroad >= .05}, and { km( $result.offroad ) } off the road to reach it{/if}.
-      </p>
+      <!-- the colours of the line on the map -->
+      <ul class="route-classes" aria-label="Territory along the route">
+        {#each $result.byClass as part ( part.cls )}
+          <li><span class={ `route-swatch route-${ part.cls }` }></span>{ km( part.km ) } { part.name }</li>
+        {/each}
+      </ul>
+      {#if $result.offroad >= .05}
+        <p class="legend-note">And { km( $result.offroad ) } off the road to reach it, dashed on the map.</p>
+      {/if}
       {#if $result.fuel.overTank}
         <p class="route-problem">More than a full tank ({ $result.fuel.tank } L) of the smallest tank in this class: refuel on the way.</p>
       {/if}

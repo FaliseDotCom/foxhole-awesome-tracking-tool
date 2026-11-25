@@ -23,8 +23,10 @@
   --clr-danger: #c0392b;
   --clr-danger-hover: #a93226;
 
-  /* the planned route on the map (route.css), per territory class it runs through */
-  --clr-route: #ffb000;
+  /* the planned route on the map (route.css), per territory class it runs through: from
+     yellow on friendly ground to red in enemy territory */
+  --clr-route: #ffe14d;
+  --clr-route-neutral: #ffb000;
   --clr-route-contested: #ff6a00;
   --clr-route-enemy: #d40000;
   --clr-route-casing: rgba( 0, 0, 0, .65 );

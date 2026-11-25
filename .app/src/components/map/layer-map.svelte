@@ -46,6 +46,11 @@
       {#if $settings.roads}
         <Roads/>
       {/if}
+      <!-- the route's lines above the regions and roads, below the icons; only while a route
+           has a place, so the map does not load what routes need -->
+      {#if $routeShown}
+        <Route part="lines"/>
+      {/if}
       <Layer class="summaries" component={ HexSummary } show={ $zoom.toFixed( 1 ) < .4 }/>
       <Layer class="dynamics" component={ HexDynamic } show={ $zoom.toFixed( 1 ) >= .4 }/>
       <Layer class="labels-major" component={ HexMajor } show={  $zoom >= .6 }/> 
@@ -56,9 +61,9 @@
       {#if $settings.rockets}
         <Arcs/>
       {/if}
-      <!-- only while a route has a place, so the map does not load what routes need -->
+      <!-- the route's places on top, and the cover that takes a click picking one -->
       {#if $routeShown}
-        <Route/>
+        <Route part="places"/>
       {/if}
       <Effects/>
       <Marker/>

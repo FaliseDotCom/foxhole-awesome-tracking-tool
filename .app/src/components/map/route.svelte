@@ -1,15 +1,22 @@
 <script>
 
   /**
-   * The planned route on the map: the road in pieces coloured by the territory they run
-   * through over a dark casing, dashed lines between each place and its road, and a marker per
-   * place (A, the stops, B). While a place is picked on the map, a cover over the whole map
-   * takes the click. Sizes are divided by --scale in route.css, so they stay the same on
-   * screen.
+   * The planned route on the map, in two parts drawn at different heights. The lines: the
+   * road in pieces coloured by the territory they run through over a dark casing, and dashed
+   * lines between each place and its road; drawn above the region colours and roads, below the
+   * icons. The places: a marker per place (A, the stops, B), and while a place is picked on the
+   * map, a cover over the whole map that takes the click; drawn on top. Sizes are divided by
+   * --scale in route.css, so they stay the same on screen.
    */
 
   import { route } from '@stores/route'
   import { grid } from '@stores/grid'
+
+  /**
+   * Which part to draw: 'lines' or 'places'.
+   * @type {string}
+   */
+  export let part = 'lines';
 
   /**
    * Places of the route, the point being picked on the map, and the planned route.
@@ -77,7 +84,7 @@
 
 </script>
 
-{#if $result && $result.ok}
+{#if part === 'lines' && $result && $result.ok}
   {#each $result.legs as leg, index ( index )}
     <g class="route-leg">
       <polyline class="route-access" points={ toPoints( [ [ leg.from.place.x, leg.from.place.y ], leg.start ] ) }/>
@@ -90,14 +97,16 @@
   {/each}
 {/if}
 
-{#each $points.filter( point => point.place ) as point ( point.id )}
-  <g class="route-marker">
-    <circle cx={ point.place.x } cy={ point.place.y }/>
-    <text x={ point.place.x } y={ point.place.y }>{ point.label }</text>
-  </g>
-{/each}
+{#if part === 'places'}
+  {#each $points.filter( point => point.place ) as point ( point.id )}
+    <g class="route-marker">
+      <circle cx={ point.place.x } cy={ point.place.y }/>
+      <text x={ point.place.x } y={ point.place.y }>{ point.label }</text>
+    </g>
+  {/each}
+{/if}
 
-{#if $picking}
+{#if part === 'places' && $picking}
   <!-- takes the click that picks a place of the route; dragging still moves the map -->
   <rect
     class="route-pick"
