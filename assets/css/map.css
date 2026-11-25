@@ -241,6 +241,27 @@ svg text
   stroke-width: calc( 2px / var( --scale ) );
 }
 
+/* a rocket counting down: a dashed arc from the armed site to the public Rocket Target */
+
+.rocket-planned
+{
+  fill: none;
+  stroke: var( --rocket-colour );
+  stroke-width: calc( 2px / var( --scale ) );
+  stroke-dasharray: calc( 8px / var( --scale ) ) calc( 6px / var( --scale ) );
+  stroke-linecap: round;
+  stroke-opacity: .8;
+}
+
+.rocket-target
+{
+  r: calc( 14px / var( --scale ) );
+  fill: none;
+  stroke: var( --rocket-colour );
+  stroke-width: calc( 2px / var( --scale ) );
+  stroke-dasharray: calc( 4px / var( --scale ) ) calc( 4px / var( --scale ) );
+}
+
 @keyframes rocket-flight
 {
   to

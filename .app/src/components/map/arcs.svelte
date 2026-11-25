@@ -1,12 +1,18 @@
 <script>
 
   /**
-   * Rocket trajectories: an arc from launch site to impact for every rocket in the war log
+   * Rocket trajectories: an arc from launch site to impact for every rocket in the war log, and
+   * a dashed arc from the armed site to every Rocket Target still counting down
    */
 
   import { warlog } from '@stores/warlog'
+  import { rocketCountdowns } from '@stores/countdowns'
   import RocketHead from './rocket-head.svelte'
 
+  /**
+   * Rockets fired, from the war log, with their launch site in from.
+   * @type {import('svelte/store').Readable<object[]>}
+   */
   const rockets = warlog.rockets;
 
   /**
@@ -43,6 +49,16 @@
   };
 
 </script>
+
+{#each $rocketCountdowns as countdown ( `${ countdown.to.x }-${ countdown.to.y }` )}
+  <g class="rocket rocket-countdown">
+    {#if countdown.from}
+      <path class="rocket-planned" d={ arcPath( countdown.from, countdown.to ) }/>
+      <circle class="rocket-site" cx={ countdown.from.x } cy={ countdown.from.y }/>
+    {/if}
+    <circle class="rocket-target" cx={ countdown.to.x } cy={ countdown.to.y }/>
+  </g>
+{/each}
 
 {#each $rockets as rocket ( rocket.id )}
   <g class="rocket">

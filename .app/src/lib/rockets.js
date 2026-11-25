@@ -92,3 +92,21 @@ export const pairRockets = entries =>
   const timeOf = rocket => ( rocket.impact || rocket.launch ).time;
   return rockets.sort( ( a, b ) => timeOf( b ) - timeOf( a ) );
 };
+
+/**
+ * Pair every Rocket Target on the map with the armed rocket site that will fire at it: the
+ * nearest armed site of the same team. The War API does not link the two; in the one launch
+ * seen so far there was a single armed site per team.
+ *
+ * @param {{ x: number, y: number, team: string }[]} sites   Armed rocket sites, in map pixels.
+ * @param {{ x: number, y: number, team: string }[]} targets Rocket Targets, in map pixels.
+ * @returns {{ from: { x: number, y: number }|null, to: { x: number, y: number, team: string } }[]} One per target; from is null when the team has no armed site on the map.
+ */
+export const pairCountdowns = ( sites, targets ) => targets.map( target =>
+{
+  const distance = site => Math.hypot( site.x - target.x, site.y - target.y );
+  const from = sites
+    .filter( site => site.team === target.team )
+    .reduce( ( best, site ) => !best || distance( site ) < distance( best ) ? site : best, null );
+  return { from: from ? { x: from.x, y: from.y } : null, to: target };
+} );

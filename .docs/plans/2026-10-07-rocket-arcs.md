@@ -95,7 +95,18 @@ than guessing.
   stay. Arcs older than an hour fade out; with the server log (war log phase 2) they could be
   shown for the whole war, with a toggle.
 
+## The countdown
+
+Added 25 November 2026: while a Rocket Target (70) is on the map, a dashed arc runs from the
+armed rocket site (72) to a dashed ring at the target (`stores/countdowns.js`,
+`pairCountdowns()` in `lib/rockets.js`). The War API does not say which site aims at which
+target, so the target is paired with the nearest armed site of its team. It follows the map
+data shown, so the history view shows the countdowns of that moment, and it disappears when the
+target turns into a Ground Zero and the war log's rocket arc takes over.
+
 ## Before building
+
+Done: the server war log recorded the first launch in war 142 (see "Seen in war 142").
 
 1. Record the data during a real launch: save `/api/data/<shard>` every 10 seconds for a few
    minutes around one, to confirm the icon sequence above and whether the Rocket Target is

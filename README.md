@@ -71,6 +71,8 @@ F.A.T.T. can stand for any of the following:
     counted. Remembered in the browser.
   - **Shard** — switch between live shards. Since May 2026 Foxhole runs a single shard, so
     this tab is hidden until there is more than one.
+- Draws a rocket counting down (its target is public for about a day before the launch) as a
+  dashed arc from the armed rocket site to a dashed ring at the target.
 - Draws rocket launches as an arc from the launch site to the impact. A launch seen live sets
   off an air raid siren, a flashing beacon and a rumble; the impact a flash, a shockwave, an
   explosion and a quake. Sound can be turned off in Settings; "reduce motion" turns off the

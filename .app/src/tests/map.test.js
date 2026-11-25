@@ -379,6 +379,19 @@ test( 'the war log falls back to the browser and back to the server', async ( { 
   await expect( page.locator( '.warlog-entry' ) ).toHaveCount( 1 );
 } );
 
+test( 'a rocket counting down shows as a dashed arc from the armed site to the target', async ( { page, request } ) =>
+{
+  // an armed Colonial rocket site in Dead Lands and its public Rocket Target in Westgate
+  const data = await ( await request.get( '/api/data/able' ) ).json();
+  data.DeadLands.d.push( { x: .3, y: .3, t: 'C', i: 72, f: 0 } );
+  data.Westgate.d.push( { x: .5, y: .5, t: 'C', i: 70, f: 0 } );
+  await page.route( '**/api/data/able', route => route.fulfill( { json: data } ) );
+  await page.goto( '/' );
+
+  await expect( page.locator( 'path.rocket-planned' ) ).toHaveCount( 1 );
+  await expect( page.locator( 'circle.rocket-target' ) ).toHaveCount( 1 );
+} );
+
 test( 'a rocket launch and impact show as one entry with an arc', async ( { page } ) =>
 {
   const now = Date.now();

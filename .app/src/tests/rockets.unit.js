@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pairRockets, isImpact, PAIR_WINDOW, ROCKET } from '../lib/rockets.js';
+import { pairRockets, pairCountdowns, isImpact, PAIR_WINDOW, ROCKET } from '../lib/rockets.js';
 
 // unit tests for pairing rocket launches with impacts; run with `npm run test:unit`
 
@@ -63,4 +63,21 @@ test( 'other entries are ignored', () =>
 {
   const other = { id: 'x', time: 0, kind: 'upgraded', iconFrom: 56, item: { i: 57 } };
   assert.deepEqual( pairRockets( [ other ] ), [] );
+} );
+
+test( 'a rocket target is paired with the nearest armed site of its team', () =>
+{
+  const sites = [
+    { x: 0, y: 0, team: 'C' },
+    { x: 50, y: 50, team: 'W' },
+    { x: 400, y: 400, team: 'C' }
+  ];
+  const targets = [ { x: 100, y: 100, team: 'C' } ];
+  assert.deepEqual( pairCountdowns( sites, targets ), [ { from: { x: 0, y: 0 }, to: targets[ 0 ] } ] );
+} );
+
+test( 'a rocket target without an armed site of its team has no launch site', () =>
+{
+  const targets = [ { x: 100, y: 100, team: 'W' } ];
+  assert.deepEqual( pairCountdowns( [ { x: 0, y: 0, team: 'C' } ], targets ), [ { from: null, to: targets[ 0 ] } ] );
 } );
