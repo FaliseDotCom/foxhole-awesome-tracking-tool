@@ -107,6 +107,14 @@ const aliases = {
 const without_image = [ 83 ];
 
 /**
+ * Name and icon file for structure types the War API sends but does not document (such as 97,
+ * seen in November 2026 next to aircraft factories and seaports), so they still show and can
+ * be found; the icon is a question mark in the team colour.
+ * @type {{ name: string, icon: string }}
+ */
+const unknown = { name: 'Unknown structure', icon: 'Unknown' };
+
+/**
  * Unknown icon ids that were already reported, so each is logged only once.
  * @type {Set<number>}
  */
@@ -190,9 +198,15 @@ const getIcon = ( d, style = config.styles.icons[ 0 ] ) =>
 
   if ( without_image.includes( id ) ) return '';
 
-  if  ( id && id in list )
+  if ( id && !( id in list ) && !reported.has( id ) )
   {
-    let name = list[ id ].replaceAll( ' ', '' ) 
+    reported.add( id );
+    console.warn( 'Unknown icon type ' + id );
+  }
+
+  if ( id )
+  {
+    let name = id in list ? list[ id ].replaceAll( ' ', '' ) : unknown.icon
 
     if ( flags.isScorched )
     {
@@ -209,11 +223,6 @@ const getIcon = ( d, style = config.styles.icons[ 0 ] ) =>
 
     return `${ config.urls.icons }${ style }/${ name }.${ ext }${ config.assetsQuery }`
   }
-  else if ( !reported.has( id ) )
-  {
-    reported.add( id );
-    console.warn( 'Unknown icon type ' + id );
-  }
   return ''
 }
 
@@ -229,8 +238,8 @@ const getCss = d =>
   return css;
 }
 
-// get name from ID
-const getName = id => ( id in list ) ? list[ id ] : '';
+// get name from ID; types the War API does not document get a general name
+const getName = id => ( id in list ) ? list[ id ] : ( id ? unknown.name : '' );
 
 /**
  * Other names of a structure type, for search.

@@ -207,12 +207,29 @@ svg text
   }
 }
 
+/* the road network, switched on in Settings; under the icons, the same width at every zoom */
+
+.roads
+{
+  fill: none;
+  stroke: #b35900;
+  stroke-opacity: .85;
+  stroke-width: calc( 2px / var( --scale ) );
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
 /* rocket trajectories from the war log; sizes divided by --scale stay the same on screen */
 
 .rocket
 {
   pointer-events: none;
   --rocket-colour: #d40000;
+  /* the rocket head grows from small to medium at launch and to the impact circle at impact */
+  --rocket-head-small: 3px;
+  --rocket-head-medium: 9px;
+  --rocket-impact-size: 14px;
 }
 
 .rocket-arc
@@ -238,7 +255,7 @@ svg text
 
 .rocket-impact
 {
-  r: calc( 14px / var( --scale ) );
+  r: calc( var( --rocket-impact-size ) / var( --scale ) );
   fill: rgba( 178, 34, 34, .35 );
   stroke: firebrick;
   stroke-width: calc( 2px / var( --scale ) );
@@ -265,11 +282,16 @@ svg text
   stroke-dasharray: calc( 4px / var( --scale ) ) calc( 4px / var( --scale ) );
 }
 
-/* the rocket flying along its arc: a glowing head that fades out when it lands */
+/* the rocket flying along its arc: a glowing head that grows at launch (--launch 0 to 1), grows
+   to the impact circle as it lands (--land 0 to 1), and then fades into it (--fade 1 to 0);
+   rocket-flight.svelte sets the three */
 
 .rocket-head
 {
-  r: calc( 9px / var( --scale ) );
+  r: calc( ( var( --rocket-head-small )
+    + ( var( --rocket-head-medium ) - var( --rocket-head-small ) ) * var( --launch, 1 )
+    + ( var( --rocket-impact-size ) - var( --rocket-head-medium ) ) * var( --land, 0 ) ) / var( --scale ) );
+  opacity: var( --fade, 1 );
   fill: #fff3b0;
   stroke: #ff7a00;
   stroke-width: calc( 3px / var( --scale ) );

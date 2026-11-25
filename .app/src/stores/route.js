@@ -1,8 +1,8 @@
 import { writable, derived, get } from 'svelte/store';
-import { config } from './config';
 import { grid } from './grid';
 import { search } from './search';
 import { territory } from './territory';
+import { roads } from './roads';
 import { view } from './view';
 import { prepareGraph, planRoute, buildTerritory, toKm, DEFAULT_OPTIONS, MODES, CLASSES, MAX_SNAP, METRES_PER_PIXEL } from '@lib/routing';
 import { VEHICLE_CLASSES, estimateFuel, classFigures, SAFETY_MARGIN, GAME_VERSION } from '@lib/vehicles';
@@ -13,12 +13,6 @@ import { VEHICLE_CLASSES, estimateFuel, classFigures, SAFETY_MARGIN, GAME_VERSIO
  * distance and fuel estimate. The routing itself is lib/routing.js. See
  * .docs/plans/2026-11-25-route-planner.md.
  */
-
-/**
- * The road network, loaded when the route panel first opens.
- * @type {string}
- */
-const roads_url = config.urls.assets + 'data/roads.json';
 
 /**
  * localStorage key of the route preferences.
@@ -404,7 +398,8 @@ export const route = {
   gameVersion: GAME_VERSION,
 
   /**
-   * Load the road network, once.
+   * Load the road network, once (stores/roads.js, shared with the road layer), and prepare it
+   * for routing.
    *
    * @returns {Promise<void>}
    */
@@ -412,18 +407,15 @@ export const route = {
   {
     if ( get( status ) === 'loading' || get( status ) === 'ready' ) return;
     status.set( 'loading' );
-    try
+    const network = await roads.load();
+    if ( !network )
     {
-      const response = await fetch( roads_url );
-      if ( !response.ok ) throw new Error( `roads.json answered ${ response.status }` );
-      graph.set( prepareGraph( await response.json(), territory.locate ) );
-      status.set( 'ready' );
-    }
-    catch ( error )
-    {
-      console.error( 'The road network could not be loaded', error );
+      console.error( 'The road network could not be loaded' );
       status.set( 'error' );
+      return;
     }
+    graph.set( prepareGraph( network, territory.locate ) );
+    status.set( 'ready' );
   },
 
   /**

@@ -6,8 +6,8 @@
    */
 
   /**
-   * Which icon: search, map, list, legend, settings, shard, target, clock, chart, route, close,
-   * trash, up, down, left, right, plus, minus or fit.
+   * Which icon: search, map, list, legend, settings, shard, target, info, clock, chart, route,
+   * close, trash, up, down, left, right, plus, minus or fit.
    * @type {string}
    */
   export let name = '';
@@ -81,6 +81,11 @@
     <!-- a line going up and down over a base line -->
     <polyline points="3 17 9 11 13 14 21 6"/>
     <line x1="3" y1="21" x2="21" y2="21"/>
+  {:else if name === 'info'}
+    <!-- an i in a circle -->
+    <circle cx="12" cy="12" r="9"/>
+    <line x1="12" y1="11" x2="12" y2="16.5"/>
+    <circle cx="12" cy="7.5" r=".6"/>
   {:else if name === 'clock'}
     <!-- the map at that moment -->
     <circle cx="12" cy="12" r="9"/>

@@ -676,6 +676,65 @@
   cursor: pointer;
 }
 
+/* a setting with an (i) explanation next to it */
+.settings-row
+{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* an (i) button with a longer explanation in a bubble below it (info-tip.svelte): shown while
+   hovered or focused, and kept open by a click or tap */
+.info-tip
+{
+  position: relative;
+  display: inline-flex;
+}
+
+.info-tip-button
+{
+  display: inline-flex;
+  padding: 2px;
+  color: inherit;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  opacity: .7;
+  cursor: help;
+}
+
+.info-tip-button:hover,
+.info-tip-button:focus-visible
+{
+  opacity: 1;
+}
+
+.info-tip-text
+{
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: -8px;
+  z-index: 10;
+  width: max-content;
+  max-width: min( 300px, 70vw );
+  margin-top: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var( --clr-white );
+  background-color: rgba( 0, 0, 0, .85 );
+  border-radius: 6px;
+}
+
+.info-tip:hover .info-tip-text,
+.info-tip:focus-within .info-tip-text,
+.info-tip.open .info-tip-text
+{
+  display: block;
+}
+
 /* a slider with its name and value above it */
 .settings-slider span
 {

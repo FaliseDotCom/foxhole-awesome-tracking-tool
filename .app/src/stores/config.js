@@ -19,6 +19,8 @@ const urls = {
   assets,
   icons: assets + 'icons/',
   maps: assets + 'maps/',
+  // generated data such as the road network
+  data: assets + 'data/',
   api
 }
 
