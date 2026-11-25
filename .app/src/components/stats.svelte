@@ -13,7 +13,8 @@
   import { onDestroy } from 'svelte'
 
   const hover = stats.hover,
-        span = stats.span;
+        span = stats.span,
+        loading = stats.loading;
 
   // a moment hovered when the tab closed is not marked when it opens again
   onDestroy( () => stats.setHover( 0 ) );
@@ -34,8 +35,8 @@
   // the chosen time span in words, for the chart descriptions
   $: spanLabel = stats.spans.find( option => option.key === $span ).label;
 
-  // props every chart shares: the time span and the hovered moment
-  $: shared = $stats ? { from: $stats.from, to: $stats.to, hover: $hover } : {};
+  // props every chart shares: the time span, the hovered moment, and whether new data is coming
+  $: shared = $stats ? { from: $stats.from, to: $stats.to, hover: $hover, loading: $loading } : {};
 
   // viewers are counted since recently, so their line covers only the end of the chart
   $: viewersNew = $stats && $stats.now - $stats.viewersSince < 86400000
@@ -46,7 +47,9 @@
 
 </script>
 
-{#if !$stats}
+{#if !$stats && $loading}
+  <p class="stats-note stats-loading">Loading statistics…</p>
+{:else if !$stats}
   <p class="stats-note">No statistics yet. They are recorded every 5 minutes from now on.</p>
 {:else}
   <div class="stats-spans" role="group" aria-label="Time span of the charts">

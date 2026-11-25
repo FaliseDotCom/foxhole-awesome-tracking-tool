@@ -9,8 +9,9 @@
    *   GET /api/data/<shard>  compressed dynamic map data for every hex of a shard: stored by the
    *                          cron job, or fetched when that is older than 30 seconds
    *   GET /api/war/<shard>   war number, start time, winner and victory towns needed
-   *   GET /api/log/<shard>   war log events, newest first: ?limit=, ?since=<id>, ?before=<id>;
-   *                          ?major=1 adds the major events older than the latest ones
+   *   GET /api/log/<shard>   war log events, newest first: ?limit= (at most 1000),
+   *                          ?since=<id>, ?before=<id>; ?major=1 adds the major events older
+   *                          than the latest ones
    *   GET /api/cron          the scheduled tasks (lib/cron.php), for cron jobs that can only
    *                          request a URL; at most every 10 seconds
    *   GET /api/analytics     where the browser sends visitor statistics: { url, site } from
@@ -153,7 +154,7 @@
 
     $since = max( 0, (int) ( $_GET[ 'since' ] ?? 0 ) );
     $before = max( 0, (int) ( $_GET[ 'before' ] ?? 0 ) );
-    $limit = min( 200, max( 1, (int) ( $_GET[ 'limit' ] ?? 100 ) ) );
+    $limit = min( 1000, max( 1, (int) ( $_GET[ 'limit' ] ?? 100 ) ) );
     $war = (int) $status[ 'war' ];
     $rows = $store->getEvents( $shard, $war, $since, $before, $limit );
     // where the next page of older events starts, before the major events are added below

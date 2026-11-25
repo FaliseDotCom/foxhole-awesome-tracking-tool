@@ -67,9 +67,18 @@ const span = writable( typeof window === 'undefined' ? spans[ 2 ].key : readSpan
  */
 const hover = writable( 0 );
 
+/**
+ * Whether the charts wait for statistics someone asked for: the first ones, or another time
+ * span. The regular refresh in the background does not count.
+ * @type {import('svelte/store').Writable<boolean>}
+ */
+const loading = writable( false );
+
 let shard = '',
     timeout = 0,
-    users = 0;
+    users = 0,
+    // counts requests, so only the latest one ends the loading state
+    request = 0;
 
 /**
  * The last answer of /api/stats for the selected shard, or null while there is none.
@@ -90,14 +99,18 @@ const data = writable( null, () =>
 /**
  * Fetch the statistics and schedule the next fetch.
  *
+ * @param {boolean} [waited] Whether someone waits for this answer (a new time span), so the
+ *                           charts show they are loading; otherwise only without statistics.
  * @returns {Promise<void>}
  */
-const load = async () =>
+const load = async ( waited = false ) =>
 {
   clearTimeout( timeout );
   if ( !shard ) return;
   const requested = shard,
-        requested_span = get( span );
+        requested_span = get( span ),
+        id = ++request;
+  if ( waited || !get( data ) ) loading.set( true );
   try
   {
     const hours = spans.find( option => option.key === requested_span ).hours,
@@ -109,6 +122,7 @@ const load = async () =>
   {
     // keep the last answer; try again on the next round
   }
+  if ( id === request ) loading.set( false );
   timeout = setTimeout( load, refresh * 1000 );
 };
 
@@ -198,6 +212,7 @@ export const stats = {
   shading: { subscribe: shading.subscribe },
   hover: { subscribe: hover.subscribe },
   span: { subscribe: span.subscribe },
+  loading: { subscribe: loading.subscribe },
   spans,
 
   /**
@@ -218,7 +233,7 @@ export const stats = {
     {
       // storage can be unavailable (private mode); the span then lasts until reload
     }
-    if ( users ) load();
+    if ( users ) load( true );
   },
 
   /**

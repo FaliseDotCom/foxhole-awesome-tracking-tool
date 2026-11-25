@@ -19,16 +19,30 @@ import { analytics } from './analytics';
  */
 
 /**
- * Most entries kept per source; older ones drop off.
+ * Most entries kept per source; older ones drop off. Enough for a whole war, so scrolling and
+ * searching can go back to its start.
  * @type {number}
  */
-const max_entries = 2000;
+const max_entries = 50000;
 
 /**
  * Events fetched when the page opens.
  * @type {number}
  */
 const initial_events = 100;
+
+/**
+ * Older events fetched per request while a search looks further back; the most /api/log gives.
+ * @type {number}
+ */
+const search_page = 1000;
+
+/**
+ * A search stops looking further back once it shows this many entries; scrolling down loads
+ * more.
+ * @type {number}
+ */
+const search_wanted = 50;
 
 /**
  * The server log counts as stale when its last recording is older than this, in ms.
@@ -98,6 +112,8 @@ const server_entries = writable( [] ),
       query = writable( '' ),
       // older server events: ?before= for the next page (0: no more), and whether one is loading
       paging = writable( { next: 0, loading: false } ),
+      // while a search looks further back: the time of the oldest entry loaded so far; 0 when not
+      searching = writable( 0 ),
       // the map can be shown as it was at any moment from this time on (0: not yet)
       history_since = writable( 0 );
 
@@ -254,20 +270,27 @@ const fromEvent = event =>
 };
 
 /**
+ * Key of the spot of an entry, for finding construction at the same spot.
+ *
+ * @param {object} entry Log entry ({ x, y } in map pixels).
+ * @returns {string} Spot key.
+ */
+const spotOf = entry => `${ entry.x },${ entry.y }`;
+
+/**
  * Whether an entry is not worth logging: an abandoned build site (the site simply goes away),
  * or construction that started at the same spot within repeat_window. As isNoise() in
  * .api/lib/warlog-recorder.php.
  *
  * @param {object} entry Log entry.
- * @param {object[]} entries Entries logged so far.
+ * @param {Map<string, number[]>} constructions Times construction started so far, per spot.
  * @returns {boolean} True to leave the entry out.
  */
-const isNoise = ( entry, entries ) =>
+const isNoise = ( entry, constructions ) =>
 {
   if ( entry.kind === 'abandoned' ) return true;
   if ( entry.kind !== 'construction' ) return false;
-  return entries.some( other => other.kind === 'construction' && other.x === entry.x && other.y === entry.y
-    && Math.abs( entry.time - other.time ) < repeat_window );
+  return ( constructions.get( spotOf( entry ) ) || [] ).some( time => Math.abs( entry.time - time ) < repeat_window );
 };
 
 /**
@@ -279,10 +302,22 @@ const isNoise = ( entry, entries ) =>
  */
 const withoutNoise = ( added, existing ) =>
 {
+  const constructions = new Map();
+  const remember = entry =>
+  {
+    if ( entry.kind !== 'construction' ) return;
+    const key = spotOf( entry );
+    if ( !constructions.has( key ) ) constructions.set( key, [] );
+    constructions.get( key ).push( entry.time );
+  };
+  existing.forEach( remember );
+
   const kept = [];
   for ( const entry of [ ...added ].sort( ( a, b ) => a.time - b.time ) )
   {
-    if ( !isNoise( entry, [ ...kept, ...existing ] ) ) kept.push( entry );
+    if ( isNoise( entry, constructions ) ) continue;
+    kept.push( entry );
+    remember( entry );
   }
   return kept;
 };
@@ -373,7 +408,12 @@ const loadServer = async () =>
     recorder.set( { by: log.recordedBy || '', cronAt: log.cronAt || 0 } );
     history_since.set( log.historySince || 0 );
     // the first answer says where older events start
-    if ( !newest_server_id ) paging.set( { next: log.nextBefore || 0, loading: false } );
+    if ( !newest_server_id )
+    {
+      paging.set( { next: log.nextBefore || 0, loading: false } );
+      // a search typed before the log arrived looks further back now
+      setTimeout( searchOlder );
+    }
 
     const events = Array.isArray( log.events ) ? log.events : [];
     // events are live (worth an alarm) only after the first answer, and not when catching up
@@ -560,6 +600,65 @@ const visible = derived( [ combined, major_only, query ], ( [ $combined, $major_
  */
 const rockets = derived( combined, $combined => $combined.filter( entry => entry.kind === 'rocket' ) );
 
+/**
+ * Load the next page of older server events.
+ *
+ * @param {number} limit Events in the page.
+ * @returns {Promise<boolean>} Whether a page came in.
+ */
+const loadPage = async limit =>
+{
+  const { next, loading: busy } = get( paging );
+  if ( !next || busy || !shard ) return false;
+  paging.set( { next, loading: true } );
+  const requested_shard = shard;
+  try
+  {
+    const response = await fetch( `${ config.urls.api }log/${ requested_shard }?before=${ next }&limit=${ limit }` );
+    if ( !response.ok ) throw new Error( `status ${ response.status }` );
+    const log = await response.json();
+    if ( requested_shard !== shard ) return false;
+    const events = Array.isArray( log.events ) ? log.events : [];
+    add( server_entries, withoutNoise( events.map( fromEvent ).filter( Boolean ), get( server_entries ) ), false );
+    paging.set( { next: log.nextBefore || 0, loading: false } );
+    return true;
+  }
+  catch
+  {
+    // try again on the next scroll or search
+    if ( requested_shard === shard ) paging.set( { next, loading: false } );
+    return false;
+  }
+};
+
+/**
+ * Whether a search should look further back: it shows fewer than search_wanted entries and the
+ * server has older ones.
+ *
+ * @returns {boolean} True to load another page.
+ */
+const searchWantsMore = () => Boolean( normalise( get( query ) ).trim() ) && get( source ) === 'server'
+  && Boolean( get( paging ).next ) && get( visible ).length < search_wanted;
+
+/**
+ * While a search shows too few entries, load older server events until it shows enough or the
+ * start of the war is reached, so a search covers the whole war and not only the latest
+ * entries. Follows the search as it is typed; runs once at a time.
+ *
+ * @returns {Promise<void>}
+ */
+const searchOlder = async () =>
+{
+  if ( get( searching ) ) return;
+  while ( searchWantsMore() )
+  {
+    const loaded = get( server_entries );
+    searching.set( loaded.length ? loaded[ loaded.length - 1 ].time : Date.now() );
+    if ( !await loadPage( search_page ) ) break;
+  }
+  searching.set( 0 );
+};
+
 export const warlog = {
   subscribe: visible.subscribe,
   // every entry, before the filter and the search
@@ -569,6 +668,7 @@ export const warlog = {
   majorOnly: { subscribe: major_only.subscribe },
   query: { subscribe: query.subscribe },
   paging: { subscribe: paging.subscribe },
+  searching: { subscribe: searching.subscribe },
   historySince: { subscribe: history_since.subscribe },
 
   /**
@@ -578,25 +678,7 @@ export const warlog = {
    */
   async loadOlder()
   {
-    const { next, loading: busy } = get( paging );
-    if ( !next || busy || !shard ) return;
-    paging.set( { next, loading: true } );
-    const requested_shard = shard;
-    try
-    {
-      const response = await fetch( `${ config.urls.api }log/${ requested_shard }?before=${ next }&limit=${ initial_events }` );
-      if ( !response.ok ) throw new Error( `status ${ response.status }` );
-      const log = await response.json();
-      if ( requested_shard !== shard ) return;
-      const events = Array.isArray( log.events ) ? log.events : [];
-      add( server_entries, withoutNoise( events.map( fromEvent ).filter( Boolean ), get( server_entries ) ), false );
-      paging.set( { next: log.nextBefore || 0, loading: false } );
-    }
-    catch
-    {
-      // try again on the next scroll
-      if ( requested_shard === shard ) paging.set( { next, loading: false } );
-    }
+    await loadPage( initial_events );
   },
 
   /**
@@ -659,6 +741,7 @@ export const warlog = {
   setQuery( value )
   {
     query.set( value );
+    searchOlder();
   },
 
   /**

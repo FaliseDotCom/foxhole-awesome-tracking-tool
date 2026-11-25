@@ -52,6 +52,13 @@
   export let hover = 0;
 
   /**
+   * Whether new data is on its way (another time span was chosen): the chart then shows it is
+   * loading, over the lines it had.
+   * @type {boolean}
+   */
+  export let loading = false;
+
+  /**
    * Drawing size in user units; the svg scales to the width of its box.
    * @type {number}
    */
@@ -140,7 +147,7 @@
 
 </script>
 
-<div class="chart-box">
+<div class="chart-box" class:loading aria-busy={ loading }>
   <svg
     class="chart"
     viewBox={ `0 0 ${ width } ${ height }` }

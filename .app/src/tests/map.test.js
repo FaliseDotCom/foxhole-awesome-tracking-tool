@@ -589,6 +589,34 @@ test( 'on a phone the tabs show only icons and the open panel hides the map sear
   await expect( map_search ).toBeHidden();
 } );
 
+test( 'a search in the war log looks back through older entries', async ( { page, request } ) =>
+{
+  const { town, from } = await mapDataWithCapture( request );
+  // a full first page of captures, so the end of the list (which loads more when seen) is out of view
+  const recent = Array.from( { length: 40 }, ( _, i ) => ( { ...captureEvent( 200 + i, town, from ), time: Date.now() - ( 40 - i ) * 60000 } ) ),
+        scorched = { ...captureEvent( 100, town, from ), kind: 'scorched', flags: 16, flagsFrom: 0, time: Date.now() - 7 * 86400000 };
+
+  // the scorched town is only on the older page
+  const asked = [];
+  await page.route( '**/api/log/able**', route =>
+  {
+    const params = new URL( route.request().url() ).searchParams;
+    const since = Number( params.get( 'since' ) || 0 ),
+          before = Number( params.get( 'before' ) || 0 );
+    if ( before ) asked.push( Number( params.get( 'limit' ) ) );
+    const events = before ? [ scorched ] : recent.filter( e => e.id > since ).reverse();
+    route.fulfill( { json: { war: 141, recordedAt: Date.now(), nextBefore: before ? 0 : 150, events } } );
+  } );
+  await page.goto( '/' );
+  await expect( page.locator( '.warlog-row' ) ).toHaveCount( 40, { timeout: 20000 } );
+
+  await page.getByLabel( 'Search the war log' ).fill( 'scorched' );
+  await expect( page.locator( '.warlog-entry' ) ).toHaveCount( 1 );
+  await expect( page.locator( '.warlog-entry' ) ).toContainText( 'was scorched' );
+  // a search asks for big pages
+  expect( asked ).toEqual( [ 1000 ] );
+} );
+
 test( 'the war log loads older entries and shows the map at a moment', async ( { page, request } ) =>
 {
   const { changed, town, from } = await mapDataWithCapture( request );
@@ -863,11 +891,15 @@ test( 'visits can be left uncounted, and never are with Do Not Track', async ( {
 test( 'the stats charts can show the whole war, a week, a day, or the last hours', async ( { page } ) =>
 {
   const asked = [];
-  await page.route( '**/api/stats/able**', route =>
+  // the answer for the whole war waits until released, to see the charts loading
+  let release = () => {};
+  const held = new Promise( resolve => release = resolve );
+  await page.route( '**/api/stats/able**', async route =>
   {
     const hours = new URL( route.request().url() ).searchParams.get( 'hours' ),
           stats = sampleStats();
     asked.push( hours );
+    if ( hours === 'war' ) await held;
     // the war started ten days ago
     route.fulfill( { json: { ...stats, from: hours === 'war' ? stats.now - 10 * 86400000 : stats.now - Number( hours ) * 3600000 } } );
   } );
@@ -879,9 +911,14 @@ test( 'the stats charts can show the whole war, a week, a day, or the last hours
   await expect( spans.getByRole( 'button', { name: '24 h', exact: true } ) ).toHaveAttribute( 'aria-pressed', 'true' );
   expect( asked.at( -1 ) ).toBe( '24' );
 
+  await expect( panel.locator( '.chart-box.loading' ) ).toHaveCount( 0 );
   await spans.getByRole( 'button', { name: 'War' } ).click();
   await expect( spans.getByRole( 'button', { name: 'War' } ) ).toHaveAttribute( 'aria-pressed', 'true' );
   await expect.poll( () => asked.at( -1 ) ).toBe( 'war' );
+  // while the answer is on its way every chart shows it is loading
+  await expect( panel.locator( '.chart-box.loading' ) ).toHaveCount( 3 );
+  release();
+  await expect( panel.locator( '.chart-box.loading' ) ).toHaveCount( 0 );
   await expect( panel.locator( 'svg.chart' ).first() ).toHaveAttribute( 'aria-label', 'Players over this war' );
 
   // the day of samples fills the last tenth of a ten day chart; over days the moment has its date

@@ -140,6 +140,66 @@
   margin: 0 3px 0 0;
 }
 
+/* waiting for another time span: the old lines fade and a light sweeps across the chart */
+.chart-box.loading .chart-line
+{
+  opacity: .3;
+  transition: opacity var( --transition-time );
+}
+
+.chart-box.loading::after
+{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: linear-gradient( 90deg, transparent 0%, rgba( 255, 255, 255, .7 ) 50%, transparent 100% ) no-repeat;
+  background-size: 40% 100%;
+  animation: chart-loading 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.stats-loading
+{
+  animation: stats-loading-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes chart-loading
+{
+  from
+  {
+    background-position: -70% 0;
+  }
+
+  to
+  {
+    background-position: 170% 0;
+  }
+}
+
+@keyframes stats-loading-pulse
+{
+  50%
+  {
+    opacity: .4;
+  }
+}
+
+/* "reduce motion": no sweep or pulse, only the faded lines and a still light */
+@media ( prefers-reduced-motion: reduce )
+{
+  .chart-box.loading::after,
+  .stats-loading
+  {
+    animation: none;
+  }
+
+  .chart-box.loading::after
+  {
+    background: rgba( 255, 255, 255, .35 );
+  }
+}
+
 .chart-hover
 {
   stroke: rgba( 0, 0, 0, .4 );

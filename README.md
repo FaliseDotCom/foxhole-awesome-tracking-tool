@@ -58,8 +58,8 @@ F.A.T.T. can stand for any of the following:
   - **Log** — the war log, open by default on wide screens: captures, losses, upgrades,
     scorched towns, structures built or destroyed, construction started and finished, and
     victory town totals. The server records it, so it is the same for everyone and goes back
-    to the start of the war for major events (victory towns, relics, rockets). Filter it as
-    you type, click an entry to go there, or show the map as it was right after it happened.
+    to the start of the war for major events (victory towns, relics, rockets). Search it as
+    you type, back to the start of the war, click an entry to go there, or show the map as it was right after it happened.
     A status line ("Live · checked 5 s ago · last change 12 min ago") shows it is working
     during quiet spells.
   - **Stats** — players in the game, viewers of F.A.T.T., casualties per hour, and the hexes
@@ -117,7 +117,7 @@ Every route answers JSON. A shard that is down or unknown answers `502` with an 
 | `GET /api/shards` | The live shards. |
 | `GET /api/data/<shard>` | The current map items of every hex, compressed (see below). |
 | `GET /api/war/<shard>` | The war number, start time, winner, and victory towns needed. |
-| `GET /api/log/<shard>` | War log events. `?limit=`, `?since=<id>` and `?before=<id>` page through them; `&major=1` adds older major events. Also says when the scheduled task last ran. |
+| `GET /api/log/<shard>` | War log events. `?limit=` (at most 1000), `?since=<id>` and `?before=<id>` page through them; `&major=1` adds older major events. Also says when the scheduled task last ran. |
 | `GET /api/history/<shard>?at=<ms>` | The map items of every hex as they were at that moment, like `/api/data`. |
 | `GET /api/structures/<shard>/<hex>?at=<ms>` | Since when each structure in a hex is held by its team (built or taken) and since when it is scorched, from the war log; now, or at a moment of the war. |
 | `GET /api/stats/<shard>?hours=24` | Casualties over time and per hex, when each hex last changed, and players and viewers over time. `?hours=war` covers the whole war. |

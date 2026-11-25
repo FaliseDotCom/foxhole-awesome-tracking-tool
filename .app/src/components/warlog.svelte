@@ -11,11 +11,12 @@
   import { settings } from '@stores/settings'
   import FilterField from '@components/filter-field.svelte'
   import Icon from '@components/icon.svelte'
-  import { ago, agoShort } from '@lib/time'
+  import { ago, agoShort, moment } from '@lib/time'
 
   const major_only = warlog.majorOnly,
         query = warlog.query,
         paging = warlog.paging,
+        searching = warlog.searching,
         history_since = warlog.historySince,
         source = warlog.source,
         checked = warlog.checked,
@@ -154,7 +155,9 @@
     </ul>
   {:else}
     <p class="warlog-empty">
-      {#if $query.trim()}
+      {#if $query.trim() && $searching}
+        Searching the log back to { moment( $searching ) }…
+      {:else if $query.trim()}
         Nothing in the log matches “{ $query.trim() }”.
       {:else if $source === 'loading'}
         Loading the war log…
