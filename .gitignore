@@ -16,6 +16,9 @@
 .logs/
 .api/logs/
 
+# Python bytecode from the development scripts in .scripts/
+__pycache__/
+
 # editor and OS files
 .idea/
 .DS_Store

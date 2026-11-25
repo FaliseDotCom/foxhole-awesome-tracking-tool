@@ -1,0 +1,7 @@
+# Python packages for extract-roads.py (tested with Python 3.14). Pinned to the tested
+# versions, so a rerun trains the same classifier and roads.json only changes when the maps do.
+numpy==2.5.5
+pillow==13.0.0
+scipy==1.18.1
+scikit-image==0.26.0
+scikit-learn==1.9.1

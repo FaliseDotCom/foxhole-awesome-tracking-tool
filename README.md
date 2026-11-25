@@ -160,6 +160,16 @@ runs.
 without spaces. The official source images are the `.TGA` files in the War API repository
 (`Images/MapIcons`).
 
+### The road network
+
+`assets/data/roads.json` is the road network of the whole map as one graph in map pixels, for
+route planning. It is traced from the hex images by `.scripts/roads/extract-roads.py` (Python;
+install `.scripts/roads/requirements.txt`, then run the script; the usage is at its top), in
+about 5 minutes. Corrections by hand go in `.scripts/roads/corrections.json`, which the script
+merges. Run it again after the hex images change. The method, the quality per hex and the
+known gaps are in
+[.docs/research/2026-11-25-road-extraction.md](.docs/research/2026-11-25-road-extraction.md).
+
 ## Running it
 
 Requirements: PHP 8.4 with Composer and the curl and pdo_sqlite extensions, and Node.js 22.17
@@ -230,7 +240,7 @@ count once, and replaced after 5 minutes unused. The server counts the ids it sa
 | Path | Contents |
 | --- | --- |
 | `index.html`, `_app/` | The built app, published by `npm run build`. Do not edit by hand. |
-| `assets/` | Map images, icons, fonts, and stylesheets. |
+| `assets/` | Map images, icons, fonts, stylesheets, and the road network (`assets/data/`). |
 | `.app/` | The app source (SvelteKit). |
 | `.api/` | The API (PHP). |
 | `.docs/` | Project notes; reference links are in [.docs/links.md](.docs/links.md). |
@@ -258,3 +268,6 @@ Load these skills before changing code in this project:
 - `javascript` — stores and helpers in `.app/src/stores` and `.app/src/lib`, and `.app/scripts`.
 - `svelte` — components in `.app/src/components` and `.app/src/routes`.
 - `css` — stylesheets in `assets/css` and component `<style>` blocks.
+
+The Python road extraction in `.scripts/roads/` has no skill of its own; it follows the general
+formatting rules.
