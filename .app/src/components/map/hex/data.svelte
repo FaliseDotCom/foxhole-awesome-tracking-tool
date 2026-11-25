@@ -7,12 +7,13 @@
 	import { onDestroy } from 'svelte';
 	import Hex from './base.svelte';
   import { config } from '@stores/config.js'
+  import { grid } from '@stores/grid'
 
   export let name = '',
              data = {}
 
   const log = config.log.data,
-        id = name.replace( 'Hex', '' );
+        id = grid.id( name );
 
   let version = 0;
 

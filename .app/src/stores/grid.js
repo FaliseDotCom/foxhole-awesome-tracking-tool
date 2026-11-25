@@ -301,6 +301,13 @@ export const grid = {
    * @returns {string} World data key, or an empty string for a hex that is not drawn.
    */
   key: name => world[ name + 'Hex' ] ? name + 'Hex' : ( world[ name ] ? name : '' ),
+  /**
+   * Hex name in the API for a world data key: the key without "Hex"; the reverse of key().
+   *
+   * @param {string} key World data key.
+   * @returns {string} Hex name from the API.
+   */
+  id: key => key.replace( 'Hex', '' ),
   // bounds of a single grid item (hex ) as { x, y, width, height }
   bounds: id => 
   {

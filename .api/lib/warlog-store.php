@@ -85,6 +85,8 @@ class WarlogStore
       required   INTEGER
     )' );
     $this->db->exec( 'CREATE INDEX IF NOT EXISTS events_by_war ON events ( shard, war, id )' );
+    // the history of the structures in one hex, for the map's tooltips
+    $this->db->exec( 'CREATE INDEX IF NOT EXISTS events_by_hex ON events ( shard, war, hex, id )' );
     $this->db->exec( 'CREATE TABLE IF NOT EXISTS snapshots (
       shard   TEXT    NOT NULL,
       hex     TEXT    NOT NULL,
@@ -729,6 +731,31 @@ class WarlogStore
 
     $query = $this->db->prepare( $sql );
     $query->execute( $values );
+    return $query->fetchAll( PDO::FETCH_ASSOC );
+  }
+
+  /**
+   * Events of some kinds in one hex up to a moment, oldest first.
+   *
+   * @param  string   $shard Shard name.
+   * @param  int      $war   War number.
+   * @param  string   $hex   Hex name.
+   * @param  string[] $kinds Event kinds.
+   * @param  int      $until Only events at or before this time in ms.
+   * @return array<int, array<string, mixed>> Events with kind, time, team, x and y.
+   */
+  public function getHexEvents( string $shard, int $war, string $hex, array $kinds, int $until ) : array
+  {
+    if ( !$kinds )
+    {
+      return [];
+    }
+
+    $placeholders = implode( ', ', array_fill( 0, count( $kinds ), '?' ) );
+    $query = $this->db->prepare( "SELECT kind, time, team, x, y FROM events
+      WHERE shard = ? AND war = ? AND hex = ? AND time <= ? AND kind IN ( {$placeholders} )
+      ORDER BY id" );
+    $query->execute( [ $shard, $war, $hex, $until, ...array_values( $kinds ) ] );
     return $query->fetchAll( PDO::FETCH_ASSOC );
   }
 }

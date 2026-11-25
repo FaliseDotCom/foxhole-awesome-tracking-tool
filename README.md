@@ -44,7 +44,10 @@ F.A.T.T. can stand for any of the following:
   and the victory towns held per team against the number needed (lowered by one for every
   scorched victory town). Hover a counter for where they are.
 - Shows a tooltip when you hover over a structure: type, team, state, and the nearest named
-  place, such as "Town Base Tier 3 · Wardens · Victory town / The Spine, Dead Lands".
+  place, such as "Town Base Tier 3 · Wardens · Victory town / The Spine, Dead Lands", and from
+  the war log since when it is held or scorched: "Built by Wardens on 12 Nov, 09:40", "Taken by
+  Colonials on 17 Nov, 16:14" or "Scorched on 17 Nov, 16:14" (left out for structures that did
+  not change since the recording of the war started).
 - Searches hexes, regions, locations, and structures from the field at the top (`/` jumps to
   it). Structures are listed as "type – nearest place", so "hosp dead" finds the hospitals in
   Dead Lands. Choosing a result brings it on screen and marks it briefly. The last five choices
@@ -116,6 +119,7 @@ Every route answers JSON. A shard that is down or unknown answers `502` with an 
 | `GET /api/war/<shard>` | The war number, start time, winner, and victory towns needed. |
 | `GET /api/log/<shard>` | War log events. `?limit=`, `?since=<id>` and `?before=<id>` page through them; `&major=1` adds older major events. Also says when the scheduled task last ran. |
 | `GET /api/history/<shard>?at=<ms>` | The map items of every hex as they were at that moment, like `/api/data`. |
+| `GET /api/structures/<shard>/<hex>?at=<ms>` | Since when each structure in a hex is held by its team (built or taken) and since when it is scorched, from the war log; now, or at a moment of the war. |
 | `GET /api/stats/<shard>?hours=24` | Casualties over time and per hex, when each hex last changed, and players and viewers over time. `?hours=war` covers the whole war. |
 | `GET /api/players` | The last player count from Steam. |
 | `GET /api/analytics` | Where the browser sends visitor statistics; `[]` when that is off. |

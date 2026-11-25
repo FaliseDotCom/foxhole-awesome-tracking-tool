@@ -164,6 +164,35 @@ test( 'hovering a structure shows its name and place', async ( { page } ) =>
   await expect( tip ).toHaveCount( 0 );
 } );
 
+test( 'hovering a structure shows since when its team holds it or it is scorched', async ( { page, request } ) =>
+{
+  // the war log says every structure was taken by its current team, and scorched, at this moment
+  const time = Date.UTC( 2026, 10, 17, 12, 0 );
+  const data = await ( await request.get( '/api/data/able' ) ).json();
+  await page.route( '**/api/structures/able/**', route =>
+  {
+    const hex = decodeURIComponent( new URL( route.request().url() ).pathname.split( '/' ).pop() );
+    const items = data[ hex ] ? data[ hex ].d : [];
+    route.fulfill( { json: { structures: items.map( item => ( { x: item.x, y: item.y, scorched: time, held: { how: 'taken', team: item.t, time } } ) ) } } );
+  } );
+  await page.goto( '/' );
+
+  const tip = page.locator( '.tooltip' );
+  const held = page.locator( 'svg.layer.summaries image.icon:is(.team-W, .team-C):not(.scorched)' ).first();
+  await expect( held ).toBeVisible( { timeout: 20000 } );
+  await held.hover();
+  await expect( tip.locator( '.tooltip-detail' ).last() ).toHaveText( /^Taken by (Wardens|Colonials) on 17 Nov, \d\d:\d\d$/ );
+
+  // a scorched icon may sit under another one, so its pointer event is sent directly
+  const scorched = page.locator( 'svg.layer.summaries image.icon.scorched' ).first();
+  if ( await scorched.count() )
+  {
+    await page.mouse.move( 1, 1 );
+    await scorched.dispatchEvent( 'pointerenter', { clientX: 100, clientY: 100 } );
+    await expect( tip.locator( '.tooltip-detail' ).last() ).toHaveText( /^Scorched on 17 Nov, \d\d:\d\d$/ );
+  }
+} );
+
 test( 'the legend lists the structures on the map', async ( { page } ) =>
 {
   await page.goto( '/' );

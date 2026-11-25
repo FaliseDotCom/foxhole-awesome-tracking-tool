@@ -4,6 +4,8 @@
   import { settings } from '@stores/settings'
   import { tooltip } from '@stores/tooltip'
   import { search } from '@stores/search'
+  import { structures } from '@stores/structures'
+  import { grid } from '@stores/grid'
   import { fade } from 'svelte/transition';
 
   export let data = null,
@@ -16,8 +18,38 @@
   $: href = data ? icons.getIcon( data, $settings.icons ) : '';
   $: title = data ? icons.getTitle( data ) : '';
 
-  // the place is only looked up when the pointer reaches the icon
-  const onEnter = e => tooltip.show( title, name ? search.placeOf( name, data ) : '', e );
+  /**
+   * Counts every time the pointer enters or leaves, so history that arrives after the pointer
+   * moved on is dropped.
+   * @type {number}
+   */
+  let hover = 0;
+
+  /**
+   * Show the tooltip; the place is only looked up when the pointer reaches the icon, and since
+   * when the structure is what it is is added when the server answers.
+   *
+   * @param {PointerEvent} e Pointer event.
+   * @returns {Promise<void>}
+   */
+  const onEnter = async e =>
+  {
+    const token = ++hover;
+    tooltip.show( title, name ? search.placeOf( name, data ) : '', e );
+    const lines = await structures.describe( name ? grid.id( name ) : '', data );
+    if ( token === hover && lines.length ) tooltip.extend( lines );
+  };
+
+  /**
+   * Hide the tooltip.
+   *
+   * @returns {void}
+   */
+  const onLeave = () =>
+  {
+    hover++;
+    tooltip.hide();
+  };
 
 </script>
 {#if data && href}
@@ -32,6 +64,6 @@
     aria-label={ title }
     on:pointerenter={ onEnter }
     on:pointermove={ tooltip.move }
-    on:pointerleave={ tooltip.hide }
+    on:pointerleave={ onLeave }
   />
 {/if}

@@ -24,6 +24,9 @@
    *                          the viewers watching now
    *   GET /api/history/<shard>?at=<ms>  the map data of every hex as it was at that moment of
    *                          the current war, like /api/data; 404 before historySince
+   *   GET /api/structures/<shard>/<hex>?at=<ms>  since when each structure in a hex is held by
+   *                          its team and since when it is scorched, from the war log, now or
+   *                          at a moment: { structures: [ { x, y, scorched, held } ] }
    */
 
   require_once( __DIR__ . '/bootstrap.php' );
@@ -208,6 +211,19 @@
       json( [ 'error' => 'No history for that moment' ], 404 );
     }
     json( $history );
+  }
+
+  if ( $route[ 0 ] === 'structures' && count( $route ) === 3 )
+  {
+    $shard = $route[ 1 ];
+    // hex names as in /api/data: letters only
+    $hex = preg_match( '/^[A-Za-z]{1,40}$/', $route[ 2 ] ) ? $route[ 2 ] : '';
+    if ( !$hex || !$api->is_live_shard( $shard ) )
+    {
+      json( [ 'error' => 'Shard or hex is unknown or unavailable' ], 404 );
+    }
+    $at = is_string( $_GET[ 'at' ] ?? null ) ? max( 0, intval( $_GET[ 'at' ] ) ) : 0;
+    json( [ 'structures' => warlog_structures( $shard, $hex, $at ) ] );
   }
 
   if ( $route[ 0 ] === 'war' && count( $route ) === 2 )

@@ -7,16 +7,9 @@
 
   import { world } from '@stores/world'
   import Icon from '@components/icon.svelte'
+  import { moment } from '@lib/time'
 
   const past = world.past;
-
-  /**
-   * A moment as "8 Oct, 14:32".
-   *
-   * @param {number} time Moment in ms.
-   * @returns {string} Day, month and time in the viewer's time zone.
-   */
-  const moment = time => new Date( time ).toLocaleString( 'en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' } );
 
 </script>
 

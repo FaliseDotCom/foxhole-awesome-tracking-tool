@@ -1,5 +1,6 @@
 /**
- * How long ago something happened, in words. Pure, for the war log and the hex details.
+ * How long ago or when something happened, in words. Pure, for the war log, the hex details
+ * and the tooltips.
  */
 
 /**
@@ -29,3 +30,11 @@ export const agoShort = ( time, current ) =>
   const seconds = Math.max( 0, Math.round( ( current - time ) / 1000 ) );
   return seconds < 60 ? `${ seconds }s ago` : ago( time, current );
 };
+
+/**
+ * A moment as "8 Oct, 14:32", in the viewer's time zone.
+ *
+ * @param {number} time Moment in ms.
+ * @returns {string} Day, month and time.
+ */
+export const moment = time => new Date( time ).toLocaleString( 'en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' } );

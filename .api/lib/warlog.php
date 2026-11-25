@@ -151,6 +151,64 @@ function warlog_history( string $shard, int $at ) : array
 }
 
 /**
+ * War log events that say since when a structure is what it is: built (also a finished build
+ * site), taken, and scorched.
+ * @var array<string, string> Event kind => how the structure came to its team, or scorched.
+ */
+const WARLOG_STRUCTURE_KINDS = [
+  'built'     => 'built',
+  'completed' => 'built',
+  'captured'  => 'taken',
+  'scorched'  => 'scorched'
+];
+
+/**
+ * Since when every structure in a hex is held by its team and since when it is scorched, from
+ * the war log of the current war, up to a moment. Structures that did not change since the
+ * recording started are left out. Never throws.
+ *
+ * @param  string $shard Shard name.
+ * @param  string $hex   Hex name as in /api/data, without "Hex".
+ * @param  int    $until Moment in ms; 0 for now.
+ * @return array<int, array<string, mixed>> Per position: x, y, scorched (time in ms, 0 when
+ *                                          not seen), and held ({ how, team, time } or null).
+ */
+function warlog_structures( string $shard, string $hex, int $until ) : array
+{
+  try
+  {
+    $store = warlog_store();
+    $status = $store ? $store->getStatus( $shard ) : [];
+    if ( !$status )
+    {
+      return [];
+    }
+
+    $events = $store->getHexEvents( $shard, (int) $status[ 'war' ], $hex, array_keys( WARLOG_STRUCTURE_KINDS ), $until ?: PHP_INT_MAX );
+    $structures = [];
+    foreach ( $events as $event )
+    {
+      $key = $event[ 'x' ] . ',' . $event[ 'y' ];
+      $structures[ $key ] ??= [ 'x' => (float) $event[ 'x' ], 'y' => (float) $event[ 'y' ], 'scorched' => 0, 'held' => null ];
+      $how = WARLOG_STRUCTURE_KINDS[ $event[ 'kind' ] ];
+      if ( $how === 'scorched' )
+      {
+        $structures[ $key ][ 'scorched' ] = (int) $event[ 'time' ];
+        continue;
+      }
+      // events come oldest first, so the last one is how the current team got it
+      $structures[ $key ][ 'held' ] = [ 'how' => $how, 'team' => (string) $event[ 'team' ], 'time' => (int) $event[ 'time' ] ];
+    }
+    return array_values( $structures );
+  }
+  catch ( Throwable $e )
+  {
+    error_log( 'Reading the structure history failed: ' . $e->getMessage() );
+    return [];
+  }
+}
+
+/**
  * Cron task (see cron.php): record every live shard as the cron job, and report each shard in
  * cron-record.log.
  *
