@@ -319,6 +319,17 @@ factor; fuel from time; a warning when a leg needs more fuel than the tank holds
 11. **Sharing and privacy.** Put the route in the link? Count route use in the visitor
     statistics, as the search is counted?
 
+## Decisions (25 November 2026)
+
+- **Road data:** try tracing the roads ourselves from the map images first. A first attempt
+  at extracting them automatically (palette and line shape in `assets/maps/classic`) finds
+  the roads in open terrain well, but mistakes speckled terrain for roads; it is paused.
+- **Team:** chosen in the navigation panel itself.
+- **Contested:** hexes with casualties in the last hour, the dark "fighting" shading.
+- **Avoid scorched and neutral regions:** options in the navigation panel.
+- **Vehicles:** offer categories by speed rather than single vehicles; assume loaded, and
+  estimate fuel on the high side (better too much than too little).
+
 ## Sources
 
 - War API documentation: <https://github.com/clapfoot/warapi> (world extents, endpoints, map

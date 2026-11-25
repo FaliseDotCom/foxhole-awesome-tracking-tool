@@ -446,6 +446,19 @@ test( 'a rocket launch and impact show as one entry with an arc', async ( { page
   await expect( page.locator( '.warlog-entry' ) ).toHaveCount( 1 );
   await expect( page.locator( 'path.rocket-arc' ) ).toHaveCount( 1 );
 
+  // while it flies, the rocket is at the end of the drawn part of the arc
+  const gap = await page.evaluate( () =>
+  {
+    const path = document.querySelector( 'path.rocket-arc' ),
+          head = document.querySelector( 'circle.rocket-head' );
+    if ( !head ) return 0;
+    const length = path.getTotalLength(),
+          drawn = length - parseFloat( getComputedStyle( path ).strokeDashoffset ),
+          end = path.getPointAtLength( drawn );
+    return Math.hypot( end.x - Number( head.getAttribute( 'cx' ) ), end.y - Number( head.getAttribute( 'cy' ) ) );
+  } );
+  expect( gap ).toBeLessThan( 1 );
+
   // going there fits launch and impact: the centre lies between them
   await page.locator( '.warlog-row' ).first().getByRole( 'button', { name: 'Go there' } ).click();
   await page.waitForTimeout( 1500 );
@@ -869,7 +882,7 @@ test( 'hovering a stats chart marks that moment in every chart, with their value
   await expect( panel.locator( '.chart-hover' ) ).toHaveCount( 0 );
 } );
 
-test( 'visits can be left uncounted, and never are with Do Not Track', async ( { page, browser } ) =>
+test( 'visits can be left uncounted, and with Do Not Track only counted when chosen', async ( { page, browser } ) =>
 {
   await page.goto( '/' );
   await page.getByRole( 'tab', { name: 'Settings' } ).click();
@@ -880,16 +893,19 @@ test( 'visits can be left uncounted, and never are with Do Not Track', async ( {
   await page.getByRole( 'tab', { name: 'Settings' } ).click();
   await expect( page.getByRole( 'tabpanel', { name: 'Settings' } ).getByLabel( 'Count my visits' ) ).not.toBeChecked();
 
-  // the browser asks not to be tracked: off, and it cannot be turned on
+  // the browser asks not to be tracked: off, until the visitor turns it on, which is remembered
   const context = await browser.newContext();
   await context.addInitScript( () => Object.defineProperty( navigator, 'doNotTrack', { get: () => '1' } ) );
-  const blocked = await context.newPage();
-  await blocked.goto( page.url() );
-  await blocked.getByRole( 'tab', { name: 'Settings' } ).click();
-  const panel = blocked.getByRole( 'tabpanel', { name: 'Settings' } );
+  const dnt = await context.newPage();
+  await dnt.goto( page.url() );
+  await dnt.getByRole( 'tab', { name: 'Settings' } ).click();
+  const panel = dnt.getByRole( 'tabpanel', { name: 'Settings' } );
   await expect( panel.getByLabel( 'Count my visits' ) ).not.toBeChecked();
-  await expect( panel.getByLabel( 'Count my visits' ) ).toBeDisabled();
   await expect( panel ).toContainText( 'Your browser asks websites not to track you' );
+  await panel.getByLabel( 'Count my visits' ).check();
+  await dnt.reload();
+  await dnt.getByRole( 'tab', { name: 'Settings' } ).click();
+  await expect( dnt.getByRole( 'tabpanel', { name: 'Settings' } ).getByLabel( 'Count my visits' ) ).toBeChecked();
   await context.close();
 } );
 

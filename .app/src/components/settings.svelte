@@ -98,21 +98,22 @@
   <label>
     <input
       type="checkbox"
-      checked={ $choice.enabled && !$choice.blocked }
-      disabled={ $choice.blocked }
+      checked={ $choice.enabled }
       on:change={ e => analytics.setEnabled( e.target.checked ) }
     />
     Count my visits
   </label>
   <p class="legend-note">
-    {#if $choice.blocked}
+    {#if $choice.dnt}
       Your browser asks websites not to track you (Do Not Track or Global Privacy Control), so
-      your visits are not counted.
+      your visits are not counted unless you tick this box. F.A.T.T. then counts visits and which
+      features are used on its own statistics server, without cookies and without storing your
+      IP address.
     {:else}
       F.A.T.T. counts visits and which features are used (clicked buttons and options, opened
       tabs, searches that found something, changed settings) on its own statistics server,
       without cookies and without storing your IP address. When your browser sends Do Not Track
-      or Global Privacy Control, your visits are not counted.
+      or Global Privacy Control, your visits are only counted when you tick this box.
     {/if}
     The viewers in the Stats tab count everyone: an open map sends a random number, kept in this
     browser while you watch and replaced after 5 minutes away; the server forgets it then too.

@@ -83,7 +83,7 @@ F.A.T.T. can stand for any of the following:
   shaking and flashing.
 - Shows a message when no shard is online or the war data cannot be loaded.
 - Reloads itself shortly after a new version goes online, keeping the view and settings.
-- Counts visitors without cookies and never with Do Not Track; see
+- Counts visitors without cookies, and with Do Not Track only when they opt in; see
   [Visitor statistics](#visitor-statistics).
 
 ## How it is built
@@ -216,9 +216,9 @@ one; without them nothing is tracked. It sends:
 - the words of a search, only when a result is chosen.
 
 The tracker runs without cookies. When the browser sends Do Not Track or Global Privacy
-Control, or the visitor unticks "Count my visits" in the Settings tab, nothing is sent; with
-Do Not Track or Global Privacy Control the box cannot be ticked. The Settings tab explains
-this.
+Control, the box "Count my visits" in the Settings tab starts unticked and nothing is sent
+until the visitor ticks it; otherwise it starts ticked and unticking it stops counting. The
+choice is remembered in the browser, and the Settings tab explains this.
 
 The viewers in the Stats tab do not come from Matomo. While a map is open and visible, its
 requests for map data carry a random id, kept in the browser so that reloads and other tabs

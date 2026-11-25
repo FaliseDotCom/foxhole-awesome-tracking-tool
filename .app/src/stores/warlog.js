@@ -345,7 +345,7 @@ const add = ( list, added, shown ) =>
 
 /**
  * Delay between a launch's effects and an impact that arrives with it, in ms: the time the arc
- * takes to draw.
+ * takes to draw (duration in components/map/rocket-flight.svelte).
  * @type {number}
  */
 const flight_time = 2000;

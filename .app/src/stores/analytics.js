@@ -12,7 +12,8 @@ import { config } from './config';
  */
 
 /**
- * localStorage key of the viewer's choice; "off" when they turned counting off.
+ * localStorage key of the viewer's choice: "off" when they turned counting off, "on" when they
+ * turned it on themselves (needed while the browser asks not to be tracked).
  * @type {string}
  */
 const choice_key = 'fatt-tracking';
@@ -95,20 +96,24 @@ const optedOut = () =>
 };
 
 /**
- * Read whether the viewer turned counting off.
+ * Read whether visits may be counted: the viewer's own choice, otherwise yes unless the browser
+ * asks not to be tracked.
  *
- * @returns {boolean} True unless they turned it off.
+ * @param {boolean} dnt Whether the browser asks not to be tracked.
+ * @returns {boolean} True when visits may be counted.
  */
-const readChoice = () =>
+const readChoice = dnt =>
 {
   try
   {
-    return window.localStorage.getItem( choice_key ) !== 'off';
+    const saved = window.localStorage.getItem( choice_key );
+    if ( saved === 'on' || saved === 'off' ) return saved === 'on';
   }
   catch
   {
-    return true;
+    // storage can be unavailable (private mode): the default then
   }
+  return !dnt;
 };
 
 /**
@@ -121,8 +126,7 @@ const saveChoice = enabled =>
 {
   try
   {
-    if ( enabled ) window.localStorage.removeItem( choice_key );
-    else window.localStorage.setItem( choice_key, 'off' );
+    window.localStorage.setItem( choice_key, enabled ? 'on' : 'off' );
   }
   catch
   {
@@ -131,24 +135,21 @@ const saveChoice = enabled =>
 };
 
 /**
- * Whether visits may be counted: blocked when the browser asks not to be tracked (the viewer
- * cannot turn it on then), enabled by the viewer's own choice in the Settings tab.
- * @type {import('svelte/store').Writable<{ blocked: boolean, enabled: boolean }>}
+ * Whether visits may be counted, and whether the browser asks not to be tracked. With Do Not
+ * Track or Global Privacy Control counting is off until the viewer turns it on themselves in
+ * the Settings tab; otherwise on until they turn it off.
+ * @type {import('svelte/store').Writable<{ dnt: boolean, enabled: boolean }>}
  */
 const choice = writable( typeof window === 'undefined'
-  ? { blocked: true, enabled: false }
-  : { blocked: optedOut(), enabled: readChoice() } );
+  ? { dnt: true, enabled: false }
+  : { dnt: optedOut(), enabled: readChoice( optedOut() ) } );
 
 /**
  * Whether anything may be sent now.
  *
- * @returns {boolean} True when not blocked and enabled.
+ * @returns {boolean} True when enabled.
  */
-const allowed = () =>
-{
-  const { blocked, enabled } = get( choice );
-  return !blocked && enabled;
-};
+const allowed = () => get( choice ).enabled;
 
 /**
  * Fetch where to send the statistics from the server.
@@ -248,15 +249,14 @@ export const analytics = {
   choice: { subscribe: choice.subscribe },
 
   /**
-   * Turn counting this viewer's visits on or off, and remember it. Turning it on again starts
-   * counting when it had not started yet. Ignored while the browser asks not to be tracked.
+   * Turn counting this viewer's visits on or off, and remember it. Turning it on starts counting
+   * when it had not started yet, also when the browser asks not to be tracked: the viewer chose.
    *
    * @param {boolean} enabled Whether visits may be counted.
    * @returns {void}
    */
   setEnabled( enabled )
   {
-    if ( get( choice ).blocked ) return;
     choice.update( current => ( { ...current, enabled } ) );
     saveChoice( enabled );
     if ( enabled ) analytics.start();
@@ -278,7 +278,8 @@ export const analytics = {
 
     started = true;
     window._paq = window._paq || [];
-    push( 'setDoNotTrack', true );
+    // no setDoNotTrack: start() only runs when counting is allowed, and with Do Not Track that
+    // means the viewer turned it on themselves
     push( 'disableCookies' );
     // the hash holds the view (shard, map point, zoom); count the page, not the view
     push( 'setCustomUrl', window.location.origin + window.location.pathname );

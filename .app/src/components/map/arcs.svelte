@@ -7,7 +7,7 @@
 
   import { warlog } from '@stores/warlog'
   import { rocketCountdowns } from '@stores/countdowns'
-  import RocketHead from './rocket-head.svelte'
+  import RocketFlight from './rocket-flight.svelte'
 
   /**
    * Rockets fired, from the war log, with their launch site in from.
@@ -62,9 +62,8 @@
 
 {#each $rockets as rocket ( rocket.id )}
   <g class="rocket">
-    <path class="rocket-arc" d={ arcPath( rocket.from, rocket ) } pathLength="1"/>
     <circle class="rocket-site" cx={ rocket.from.x } cy={ rocket.from.y }/>
     <circle class="rocket-impact" cx={ rocket.x } cy={ rocket.y }/>
-    <RocketHead from={ rocket.from } to={ rocket } control={ controlPoint( rocket.from, rocket ) }/>
+    <RocketFlight d={ arcPath( rocket.from, rocket ) }/>
   </g>
 {/each}
