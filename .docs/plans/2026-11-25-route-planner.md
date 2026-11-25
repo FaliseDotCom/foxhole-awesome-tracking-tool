@@ -63,7 +63,8 @@ The lib modules are pure and run in Node; the stores feed them the live data.
    start to the destination goes through enemy territory").
 7. **Result.** Total distance in km with one decimal (road plus off-road), per leg when there
    are stops, how much of it runs through friendly, neutral, contested and enemy territory,
-   and the fuel estimate, with a warning when it is more than the smallest tank of the class.
+   and the fuel estimate (distance and fuel in two boxes of the same size, each with an (i)
+   saying what the road network does not know and how the fuel is estimated), with a warning when it is more than the smallest tank of the class.
    A new complete route is fitted on screen beside the open panel (the view store's box
    request, as for rockets in the war log, now with the width the panel covers); "Show the
    route" fits it again.
@@ -87,13 +88,16 @@ side. Chosen while building, the simplest sensible option each time:
 - **Snapping** to the nearest point on a road, not the nearest junction, within 300 px.
 - **Regions per piece of road**: by the middle of each polyline segment (segments are short,
   a few to a few dozen pixels); an edge is not split exactly at region borders.
-- **Stops**: every place can move up and down, so a stop moved above the start becomes the
-  start; empty stops are skipped; only stops can be removed. The order is the user's (no
-  travelling salesman).
+- **Stops**: "Add stop" adds an empty place at the bottom, so the old destination becomes a
+  stop. Every place can move up and down, so a stop moved above the start becomes the start.
+  Empty fields are skipped: any two chosen places make a route. Any place, empty or not, can
+  be removed while more than two remain. The order is the user's (no travelling salesman).
 - **Picking on the map**: a crosshair button per place; the next click on the map (not a drag)
   picks it; Escape or the button again stops; closing the panel stops it too.
-- **Choosing a place** moves the map to it while the route is not complete; once it is, the
-  route is fitted on screen.
+- **Choosing a place** with the search moves the map to it while the route is not complete;
+  once it is, the route is fitted on screen. A place picked on the map, and adding, moving or
+  removing a place, leaves the map where it is (2026-11-25, after the owner found the zoom
+  jumps confusing).
 - **Units**: km with one decimal; fuel in whole litres, rounded up.
 
 ### Vehicle classes and fuel

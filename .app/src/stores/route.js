@@ -221,29 +221,54 @@ const listed = derived( points, $points => $points.map( ( point, index ) => ( {
 } ) ) );
 
 /**
- * Whether the start and the destination are both chosen.
+ * The points that have a place; empty fields are left out of the route.
+ *
+ * @param {RoutePoint[]} list Points.
+ * @returns {RoutePoint[]} Points with a place, in order.
+ */
+const placed = list => list.filter( point => point.place );
+
+/**
+ * Whether at least two places are chosen, wherever they are in the list.
  *
  * @param {RoutePoint[]} list Points.
  * @returns {boolean} True when a route can be planned.
  */
-const isComplete = list => Boolean( list[ 0 ].place && list[ list.length - 1 ].place );
+const isComplete = list => placed( list ).length > 1;
 
 /**
- * Set or clear the place of a point; a lone place is shown on the map, a complete route is
- * fitted on screen by the panel.
+ * Whether the panel should fit the route on screen once it is planned: when the route becomes
+ * complete, and after a place is chosen with the search. Adding, removing, moving or picking a
+ * place on the map leaves the map where the viewer is looking.
+ * @type {boolean}
+ */
+let fit_due = true;
+
+// an incomplete route is fitted again once it is complete
+points.subscribe( list =>
+{
+  if ( !isComplete( list ) ) fit_due = true;
+} );
+
+/**
+ * Set or clear the place of a point. A place chosen with the search is shown: on its own while
+ * the route is not complete, else with the whole route, fitted by the panel. A place picked on
+ * the map is already in view, so it is only marked.
  *
  * @param {number}                                    id    Point number.
  * @param {{ name: string, x: number, y: number }|null} place Place, null to clear it.
- * @param {boolean}                                   [move] Whether to move the map to a lone
- *   place (true); a place picked on the map is already in view.
+ * @param {boolean}                                   [move] Whether to bring the place into
+ *   view (true, from the search); false for a place picked on the map.
  * @returns {void}
  */
 const setPlace = ( id, place, move = true ) =>
 {
   points.update( list => list.map( point => point.id === id ? { ...point, place } : point ) );
   if ( !place ) return;
-  if ( move && !isComplete( get( points ) ) ) view.focus( { x: place.x, y: place.y, scale: place_scale } );
-  else view.mark( place );
+  view.mark( place );
+  if ( !move ) return;
+  if ( isComplete( get( points ) ) ) fit_due = true;
+  else view.focus( { x: place.x, y: place.y, scale: place_scale } );
 };
 
 /**
@@ -326,7 +351,7 @@ const result = derived( [ prefs, points, graph, territory.states, territory.figh
 {
   if ( !$prefs.team || !$graph || !isComplete( $points ) ) return null;
 
-  // empty stops are left out
+  // empty fields are left out
   const chosen = $points
     .map( ( point, index ) => ( { ...point, index, count: $points.length, label: labelOf( index, $points.length ) } ) )
     .filter( point => point.place );
@@ -362,26 +387,6 @@ const result = derived( [ prefs, points, graph, territory.states, territory.figh
     fuel: estimateFuel( road, offroad, $prefs.vehicle )
   };
 } );
-
-/**
- * Signature of the start and destination of the last route fitted on screen, so a route is
- * fitted once when it is complete or its ends change, not on every refresh of the territory,
- * nor when a stop is added, picked, moved or removed: that keeps the map where the viewer is
- * looking.
- * @type {string}
- */
-let fitted = '';
-
-/**
- * Signature of the start and the destination of the route.
- *
- * @returns {string} Both places.
- */
-const endsSignature = () =>
-{
-  const list = get( points );
-  return [ list[ 0 ], list[ list.length - 1 ] ].map( point => point.place ? `${ point.place.x },${ point.place.y }` : '' ).join( ';' );
-};
 
 export const route = {
   prefs: { subscribe: prefs.subscribe },
@@ -439,28 +444,24 @@ export const route = {
   },
 
   /**
-   * Add an empty stop before the destination.
+   * Add an empty place at the bottom: the new destination, the old one becoming a stop.
    *
    * @returns {void}
    */
   addStop()
   {
-    points.update( list => [ ...list.slice( 0, -1 ), createPoint(), list[ list.length - 1 ] ] );
+    points.update( list => [ ...list, createPoint() ] );
   },
 
   /**
-   * Remove a stop; the start and the destination stay.
+   * Remove a place, empty or not, while more than two remain.
    *
    * @param {number} id Point number.
    * @returns {void}
    */
-  removeStop( id )
+  remove( id )
   {
-    points.update( list =>
-    {
-      const index = list.findIndex( point => point.id === id );
-      return index > 0 && index < list.length - 1 ? list.filter( point => point.id !== id ) : list;
-    } );
+    points.update( list => list.length > 2 ? list.filter( point => point.id !== id ) : list );
     if ( get( picking ) === id ) picking.set( 0 );
   },
 
@@ -568,16 +569,16 @@ export const route = {
   },
 
   /**
-   * Fit the route on screen when its start or destination changed since the last fit.
+   * Fit the route on screen when it became complete or a place was searched since the last
+   * fit; not on every refresh of the territory.
    *
    * @param {{ left: number, right: number }} [inset] Screen width covered by the panel.
    * @returns {void}
    */
   fitNew( inset = { left: 0, right: 0 } )
   {
-    const signature = endsSignature();
-    if ( signature === fitted ) return;
-    fitted = signature;
+    if ( !fit_due ) return;
+    fit_due = false;
     route.fit( inset );
   },
 
@@ -589,7 +590,6 @@ export const route = {
   clear()
   {
     picking.set( 0 );
-    fitted = '';
     points.set( [ createPoint(), createPoint() ] );
   }
 };
