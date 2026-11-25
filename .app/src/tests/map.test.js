@@ -906,7 +906,12 @@ test( 'visits can be left uncounted, and with Do Not Track only counted when cho
   await dnt.getByRole( 'tab', { name: 'Settings' } ).click();
   const panel = dnt.getByRole( 'tabpanel', { name: 'Settings' } );
   await expect( panel.getByLabel( 'Count my visits' ) ).not.toBeChecked();
-  await expect( panel ).toContainText( 'Your browser asks websites not to track you' );
+  // the explanation sits behind the (i) button
+  const about = panel.getByRole( 'tooltip' );
+  await expect( about ).toBeHidden();
+  await panel.getByRole( 'button', { name: 'About counting visits' } ).click();
+  await expect( about ).toBeVisible();
+  await expect( about ).toContainText( 'Your browser asks websites not to track you' );
   await panel.getByLabel( 'Count my visits' ).check();
   await dnt.reload();
   await dnt.getByRole( 'tab', { name: 'Settings' } ).click();
