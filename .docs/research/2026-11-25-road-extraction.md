@@ -1,6 +1,7 @@
 # Research: extracting the road network from the map images
 
-Date: 25 November 2026. Status: data step done, no app code. Follows
+Date: 25 November 2026, extended the same day with [towns and bridges](#towns-and-bridges).
+Status: data step done; used by the road layer and the route planner. Follows
 [route navigation](2026-11-25-route-navigation.md), whose decision was to trace the roads
 ourselves from the map images.
 
@@ -9,10 +10,13 @@ ourselves from the map images.
 - `.scripts/roads/extract-roads.py` (with `requirements.txt`) turns the 53 hex images into one
   road graph in world map pixels, `assets/data/roads.json`, in about 5 minutes and without
   manual input. It is deterministic: a rerun on the same images writes the same file.
-- **676 km of road**: 3,714 nodes, 4,773 edges, 21,642 points. **732,744 bytes**
-  (716 KB), **164 KB gzipped**.
+- **693 km of road**: 3,683 nodes, 4,917 edges, 22,329 points. **752,882 bytes**
+  (735 KB), **168 KB gzipped**.
+- Two rules fill in what the images do not show by themselves: **bridges are always roads**
+  (27 bridges added) and **towns are never dead ends** (239 links through towns). Before them
+  the network had 676 km, 63 pieces and 756 dead ends; now 42 pieces and 566 dead ends.
 - Quality, judged by eye per hex: **31 good, 20 usable, 2 poor** (table below).
-- **84.8 % of the road length is in one connected network** that covers the whole mainland.
+- **85.2 % of the road length is in one connected network** that covers the whole mainland.
   The rest is the western land mass, the south-eastern land mass and the island hexes: the
   images draw no bridge or road to them, so they are separate networks (see
   [Connectivity](#connectivity)).
@@ -73,14 +77,16 @@ ourselves from the map images.
        mostly over water. This closes roads through towns and over ground of their own colour.
      In mottled terrain only facing ends are joined. The final run closed 265 short gaps, 109
      bridges and 117 facing ends.
-5. **World graph.** Polylines simplified with Douglas–Peucker (1.5 px), moved to world pixels
+5. **Bridges and towns** (added later the same day): bridges are always roads, and towns are
+   never dead ends. See [Towns and bridges](#towns-and-bridges).
+6. **World graph.** Polylines simplified with Douglas–Peucker (1.5 px), moved to world pixels
    (`x = int( col * 1024 / 1.333 ) + x`, `y = int( row * 888 / 2 ) + y`, pixel centres at
    +0.5).
-6. **Join across hex borders.** Road ends within 14 px of their hexagon edge are paired with the
+7. **Join across hex borders.** Road ends within 14 px of their hexagon edge are paired with the
    nearest road end of another hex within 26 px; both move to their midpoint and become one
    node (335 joins). Ends left over snap to a road of the neighbouring hex within 16 px.
-7. **Corrections** from `.scripts/roads/corrections.json`, when it exists (see below).
-8. **Write** the json, and with `--overlays DIR` an overlay per hex and a world overview.
+8. **Corrections** from `.scripts/roads/corrections.json`, when it exists (see below).
+9. **Write** the json, and with `--overlays DIR` an overlay per hex and a world overview.
 
 All parameters are constants at the top of the script, with a comment each.
 
@@ -93,9 +99,11 @@ python -m venv .venv-roads
 ```
 
 `--cache DIR` keeps the probability maps, so a rerun that only changes the graph steps takes
-20 seconds instead of 5 minutes. `--hex <WorldDataKey>` (repeatable) processes single hexes and
+40 seconds instead of 5 minutes (the cache keeps them as 16-bit floats, so a run from the cache
+can differ from a fresh run by a link or two; write the final json with a fresh run). `--hex <WorldDataKey>` (repeatable) processes single hexes and
 writes no json unless `--out` is given. Rerun after `build-hexes.js` brings new images, and
-check the overlays of the changed hexes.
+check the overlays of the changed hexes. The unit tests of the town and bridge rules run with
+`.venv-roads/Scripts/python -m unittest discover -s .scripts/roads -p "test_*.py"`.
 
 ## The json format
 
@@ -183,6 +191,10 @@ or separate pieces. **Poor**: large parts wrong.
 
 ## Connectivity
 
+Measured on the first run, before the town and bridge rules (the figures after them are in
+[Towns and bridges](#towns-and-bridges): 42 components, the largest 85.2 %, 276,645 of
+324,761 px; the land masses below are still separate).
+
 63 connected components; the largest holds 84.8 % of the road length (268,603 of 316,877 px).
 
 | Component | Share | Hexes |
@@ -214,17 +226,146 @@ reality; those links are missed roads, not water.
   island hexes) gives false pieces and the occasional false join, and hides some real roads.
 - **Towns**: streets are drawn in the colour of the town plots; some towns have few or no
   streets (Dead Lands centre, Endless Shore west, Sableport inside the railway loop) or a
-  coarse knot instead of a grid. Through-roads are usually joined by the facing-ends rule.
-- **Thin bridges** that are not in line with the road ends are missed (Terminus, Tyrant
-  Foothills); a dashed or broken bridge is never joined.
+  coarse knot instead of a grid. The town rule now leads road ends through the town, but its
+  links are drawn along the cheapest way over land, not along the real streets, and some cross
+  open ground inside the town circle. The town centre is the region label, not the town hall.
+- **Thin bridges**: the bridge rule found the Terminus one; a bridge with no road or town on a
+  bank (Tyrant Foothills in the south) is still not joined, and a dashed or broken bridge is
+  never joined.
 - **Islands and new hexes** (Lykos Isle, Godcrofts, Stema Landing, Oarbreaker) are the weakest:
   speckled texture, few roads, and no training labels for that style.
 - **Road ends** at the outer edge of the world, at the water and at dead-end sites are correct
-  ends, but some ends are missed joins; 756 nodes are dead ends.
+  ends, but some ends are missed joins; 756 nodes were dead ends, 566 after the town and
+  bridge rules.
 - **No tiers, no region per edge, no railways.** Railways are recognised as not-road (they
   were not yellow in 2022), which is right for vehicles but means no rail data.
 - Junction positions are approximate (skeleton of a wide crossing) and town knots can add a
   few pixels of detour; harmless for routing and distances.
+
+## Towns and bridges
+
+Added on 25 November 2026, after the owner looked at the road layer: "assume a town never is
+a dead end; bridges are always roads". His example was Saltbrook Channel in Endless Shore, with
+Liegehearth just south across a water channel: the roads stopped at the edge of the town, the
+town streets were not traced, and the two bridges over the channel were missing, so north and
+south were joined only by a 4.8 km detour. That is typical: the classifier loses roads inside
+built-up areas (streets have the colour of the town plots) and on bridges (drawn in the colour
+of the ground, or as a thin light line). Both rules run in the script, per hex, after the gap
+closing (`HexTracer.link_bridges_and_towns`), so a rerun keeps them; nothing is edited by hand.
+
+### Where the towns are
+
+- **Towns** are the region name labels of `world_data.json` (`areas`, the War API's "Major"
+  map text). They lie next to the region's town hall or relic base: compared with the town
+  halls and relic bases of the War API's map items (October 2026), a median of 6 px away, 21 px
+  for 90 % of them, at most 66 px. They need no extra data and change with the map when
+  `build-hexes.js` rebuilds it. **Radius 90 px** (about 190 m), so the plots of a large town
+  such as Saltbrook Channel (about 100 by 150 px) are covered even when the label is off-centre.
+- **Minor places** are the other labels (villages, but also hills and woods). Liegehearth is
+  one of them. **Radius 60 px** (about 130 m), and only when at least **two** road ends lead
+  into them, so a lone road ending near a hill name is left alone. A label that repeats a
+  town's name close by is skipped.
+
+### Towns are never dead ends
+
+For every place, towns first:
+
+1. The **centre** is the label, moved to the nearest land pixel.
+2. Every road end within the radius that **leads into** the town is taken, nearest to the
+   centre first: it points towards the centre within 120°, or lies within 35 % of the radius
+   of it. Road ends near the hex border are left to the border join. An end inside two
+   places is taken by the first that links it.
+3. From the end, the cheapest way over land is found (`skimage.graph.MCP_Geometric`): inside
+   the circle, never over water, never over a bridge band (those are roads already), never
+   behind the end, never back along its own road; a pixel costs 1, falling to 0.5 where the
+   image looks like a street. The way stops at the first goal it meets: **another road or an
+   earlier link that lies closer to the centre than the end** (at least 5 px), or the centre
+   itself. The roads within 25 px behind the end are no goal. So a road end is led on into
+   the town and joins the nearest street, instead of running along the edge of the town to a
+   road outside it.
+4. A way is dropped when it is longer than 1.8 times the straight distance plus 15 px, or when
+   more than 35 % of it runs within 6 px of the end's own roads (it would only draw a second
+   line beside them).
+5. A centre that only one link reached is taken out again (it would be a new dead end), and so
+   is everything that only led to it.
+
+Road ends that point away from the town (a road leaving it and ending in a field), roads
+ending at the water (docks, piers) and roads ending at the town hall with no other road nearby
+stay dead ends: those are real.
+
+### Bridges are always roads
+
+A bridge interrupts the water. The rule uses its own water mask: less blurred than the one of
+the gap rules and up to the shore line (the rim of the water is a little warmer), so that the
+gap a bridge leaves is no wider than the bridge, and with **thin light lines left out of the
+water**, so a narrow bridge drawn as a pale line also leaves a gap. Then:
+
+1. The water mask is **closed** with a disk of 12 px: whatever land the closing fills is a
+   band at most 12 px wide with water on both sides.
+2. A band is a **bridge** when it touches land at two places (the banks) 6 to 160 px apart,
+   water runs along at least 40 % of its outline, and the straight line between the banks
+   does not cross open water (a curved shore). A band with only one bank is a pier or spit.
+3. It is skipped when a traced road already runs within 3 px of half of that line.
+4. Each bank is joined to: a road within 5 px; else, in a town, a node of its own that the
+   town rule then links to its streets; else a road end within 30 px that points at the bank
+   (60°); else a road within 25 px over land. A bridge is added only when both banks are
+   joined, and not when the roads already join the two banks within twice the bridge length.
+5. A bridge whose town bank no link reached is taken out again.
+
+### Result
+
+| | Before | After |
+| --- | --- | --- |
+| Road | 676 km | 693 km |
+| Nodes, edges | 3,714, 4,773 | 3,683, 4,917 |
+| File | 732,744 bytes, 164 KB gzipped | 752,882 bytes, 168 KB gzipped |
+| Components | 63 | 42 |
+| Largest component | 84.8 % of the length | 85.2 % |
+| Dead ends | 756 | 566 |
+| Dead ends within 90 px of a town label | 515 | 342 |
+| Dead ends within 60 px of a minor label | 132 | 79 |
+| Saltbrook Channel to Liegehearth (route planner, shortest) | 4.77 km | 0.14 km |
+
+The run added **27 bridges** and **239 town links**. The largest network hardly grows,
+as the mainland was already one network; the gain is inside it (direct routes instead of
+detours around a town or a channel) and in the smaller land masses, whose pieces now join more
+(the second and third networks grew from 3.4 and 2.1 % to 3.5 and 2.8 %). The western
+and south-eastern land masses and the islands remain separate: still no road or bridge to them
+is drawn.
+
+Most remaining dead ends near a town are real: an access road that ends at the town hall,
+roads to the water, and roads that leave the town and end outside it. A check of two dozen of
+the remaining ends that point into a town found those kinds, and towns whose streets are not
+traced at all (Headstone in Mooring County), where there is nothing to link to.
+
+Per hex, the share of road in the largest network rose to 100 % in Callahan's Passage,
+Clahstra, Dead Lands (87.6 % before), Linn Mercy, Stonecradle (91.7 %) and Viper Pit, and to
+99.1 % in Reaching Trail.
+
+### Checked by eye
+
+- **All 27 added bridges**, on crops of the map with the roads drawn over it. Among them the
+  two Saltbrook Channel bridges, thin bridges in Terminus (the one the first run missed), Ash
+  Fields, Nevish Line, Great March, Stonecradle (the west peninsula is now joined), Piper's
+  Enclave, Onyx and Farranac Coast, and channel crossings in the Dead Lands centre.
+- Bridge candidates in towns that were not added: spits, sandbars and shore bands, no bridges.
+- Town links on contact sheets, and the towns Saltbrook Channel and Liegehearth (Endless
+  Shore: both bridges, north and south joined through both towns), the Dead Lands centre,
+  Farranac Coast, Basin Sionnach, Callum's Cape, Clanshead Valley and Callahan's Passage.
+  Most links fill missing town streets; some cross open ground inside the circle (a square of
+  snow in Callum's Cape, a field in Acrithia), because the town plots cannot be told apart from
+  the ground reliably.
+
+### Tests
+
+`.scripts/roads/test_extract_roads.py` (run with
+`.venv-roads/Scripts/python -m unittest discover -s .scripts/roads -p "test_*.py"`) draws small
+maps and checks the rules: a land band over a channel joins the road ends on both banks, open
+water does not, a pier is no bridge, the banks are found; road ends in a town are joined
+through it, not without the town, not over a river, not for a single road end at a minor
+place, and not for a road pointing away; places come from the world data. The route planner's
+unit tests (`.app/src/tests/routing.unit.js`) check on the real network that Saltbrook Channel
+to Liegehearth is a short route over the channel.
 
 ## What a human still needs to fix, and how
 
@@ -232,10 +373,11 @@ Most of the remaining work is a few dozen local fixes, not tracing:
 
 1. Decide the sea question for the west and the south-east (link or no link).
 2. Join the pieces inside the west and south-east land masses, the Kuura Strand village, the
-   Stonecradle peninsula, the Sableport town and the Westgate island where the map shows a
-   road.
-3. Remove the false pieces in north Dead Lands, and add its centre town if needed.
-4. Spot-check towns used as route ends.
+   Sableport town and the Westgate island where the map shows a road. (The Stonecradle
+   peninsula and the Dead Lands centre town are joined by the bridge and town rules.)
+3. Remove the false pieces in north Dead Lands.
+4. Spot-check towns used as route ends, and the town links that cross open ground; a wrong
+   link can be removed with a `remove` box in the corrections.
 
 **Suggested workflow: a correction file merged by the script** (already supported).
 `.scripts/roads/corrections.json`, applied after the border joins:
@@ -268,6 +410,7 @@ and could add a tier per edge by hand for main roads if the route planner needs 
 ## Files
 
 - `.scripts/roads/extract-roads.py`: the script, documented at the top.
+- `.scripts/roads/test_extract_roads.py`: unit tests of the town and bridge rules.
 - `.scripts/roads/requirements.txt`: Python packages (numpy, pillow, scipy, scikit-image,
   scikit-learn), pinned to the tested versions.
 - `assets/data/roads.json`: the network.
