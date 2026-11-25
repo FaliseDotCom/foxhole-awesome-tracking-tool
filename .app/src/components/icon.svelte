@@ -6,8 +6,8 @@
    */
 
   /**
-   * Which icon: search, map, list, legend, settings, shard, target, info, clock, chart, up, down,
-   * left, right, plus, minus or fit.
+   * Which icon: search, map, list, legend, settings, shard, target, info, clock, chart, route,
+   * close, trash, up, down, left, right, plus, minus or fit.
    * @type {string}
    */
   export let name = '';
@@ -20,7 +20,8 @@
 
 </script>
 
-<svg class="icon" viewBox="0 0 24 24" width={ size } height={ size } aria-hidden="true" focusable="false">
+<!-- icon-<name> lets the stylesheet move arrows on hover, see main.css -->
+<svg class={ `icon icon-${ name }` } viewBox="0 0 24 24" width={ size } height={ size } aria-hidden="true" focusable="false">
   {#if name === 'search'}
     <circle cx="10.5" cy="10.5" r="6.5"/>
     <line x1="15.5" y1="15.5" x2="21" y2="21"/>
@@ -89,6 +90,19 @@
     <!-- the map at that moment -->
     <circle cx="12" cy="12" r="9"/>
     <polyline points="12 7 12 12 15.5 14"/>
+  {:else if name === 'route'}
+    <!-- a winding road between two points -->
+    <circle cx="6" cy="19" r="2.2"/>
+    <circle cx="18" cy="5" r="2.2"/>
+    <path d="M8.2 19 H15 a3.5 3.5 0 0 0 0 -7 H9 a3.5 3.5 0 0 1 0 -7 H15.8"/>
+  {:else if name === 'close'}
+    <line x1="6" y1="6" x2="18" y2="18"/>
+    <line x1="18" y1="6" x2="6" y2="18"/>
+  {:else if name === 'trash'}
+    <!-- a bin: empty everything -->
+    <polyline points="4 7 20 7"/>
+    <path d="M9 7 V4 h6 v3"/>
+    <path d="M6 7 l1 13 h10 l1 -13"/>
   {:else if name === 'shard'}
     <!-- servers -->
     <rect x="3" y="4" width="18" height="7" rx="2"/>

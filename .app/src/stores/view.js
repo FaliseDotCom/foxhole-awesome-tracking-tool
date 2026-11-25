@@ -13,7 +13,8 @@ const marker_time = 2500;
 
 /**
  * Latest view request: { x, y } in map pixels plus either `box` ({ width, height } that must
- * fit on screen) or `scale`.
+ * fit on screen) or `scale`, and optionally `inset` ({ left, right }: screen width in CSS
+ * pixels covered by a panel, which the view keeps clear).
  * @type {import('svelte/store').Writable<object|null>}
  */
 const request = writable( null );
@@ -58,8 +59,9 @@ const mark = point =>
 /**
  * Move the map to a place and highlight it briefly.
  *
- * @param {{ x: number, y: number, box?: { width: number, height: number }, scale?: number, marker?: boolean }} target
- *   Map point to centre, the box to fit or the scale to use, and marker: false to skip the ring.
+ * @param {{ x: number, y: number, box?: { width: number, height: number }, scale?: number, marker?: boolean, inset?: { left: number, right: number } }} target
+ *   Map point to centre, the box to fit or the scale to use, marker: false to skip the ring,
+ *   and the screen width covered by a panel on either side.
  * @returns {void}
  */
 const focus = target =>

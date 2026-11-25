@@ -102,12 +102,13 @@
    * @param {number} width  Box width in map pixels.
    * @param {number} height Box height in map pixels.
    * @param {number} margin Room around the box: 1.2 leaves 20% of empty space.
+   * @param {number} [covered] Screen width covered by a panel, in CSS pixels (0).
    * @returns {number} Scale.
    */
-  const fitScale = ( width, height, margin = 1 ) =>
+  const fitScale = ( width, height, margin = 1, covered = 0 ) =>
   {
     const scale = Math.min(
-      window.innerWidth / ( width * margin ),
+      ( window.innerWidth - covered ) / ( width * margin ),
       window.innerHeight / ( height * margin )
     );
     return Math.min( zoom.max, Math.max( zoom.min, scale ) );
@@ -175,10 +176,27 @@
   {
     if ( !request || !pz ) return;
 
-    const scale = request.box
-      ? fitScale( request.box.width, request.box.height, 1.3 )
-      : Math.min( zoom.max, Math.max( zoom.min, request.scale ) );
-    showPoint( request.x, request.y, scale, 500 );
+    const inset = usableInset( request.inset ),
+          scale = request.box
+            ? fitScale( request.box.width, request.box.height, 1.3, inset.left + inset.right )
+            : Math.min( zoom.max, Math.max( zoom.min, request.scale ) );
+    // the point goes in the middle of the part of the screen no panel covers
+    showPoint( request.x + ( inset.right - inset.left ) / 2 / scale, request.y, scale, 500 );
+  }
+
+  /**
+   * The screen width a view request leaves to a panel on the left and the right, or none when
+   * too little of the screen would be left (a panel over the whole width on a phone).
+   *
+   * @param {{ left: number, right: number }|undefined} inset Covered widths in CSS pixels.
+   * @returns {{ left: number, right: number }} The covered widths to keep clear.
+   */
+  const usableInset = inset =>
+  {
+    if ( !inset ) return { left: 0, right: 0 };
+    const left = Math.max( 0, inset.left || 0 ),
+          right = Math.max( 0, inset.right || 0 );
+    return window.innerWidth - left - right < window.innerWidth * .4 ? { left: 0, right: 0 } : { left, right };
   }
 
   onDestroy( view.request.subscribe( onViewRequest ) );

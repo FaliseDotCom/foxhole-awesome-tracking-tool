@@ -16,6 +16,19 @@
   --clr-colonials-region: #94b37a;
   --clr-scorched-region: #d9816c;
 
+  /* buttons (button.svelte, panels.css): hover on light buttons and choices, the destructive
+     variant */
+  --clr-hover: rgba( 255, 165, 0, .25 );
+  --clr-chosen: rgba( 255, 165, 0, .45 );
+  --clr-danger: #c0392b;
+  --clr-danger-hover: #a93226;
+
+  /* the planned route on the map (route.css), per territory class it runs through */
+  --clr-route: #ffb000;
+  --clr-route-contested: #ff6a00;
+  --clr-route-enemy: #d40000;
+  --clr-route-casing: rgba( 0, 0, 0, .65 );
+
   --clr-black: #222;
   --clr-white: #eee;
   --clr-focus: orange;

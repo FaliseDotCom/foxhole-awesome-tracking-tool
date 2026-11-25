@@ -52,6 +52,9 @@ F.A.T.T. can stand for any of the following:
   it). Structures are listed as "type – nearest place", so "hosp dead" finds the hospitals in
   Dead Lands. Choosing a result brings it on screen and marks it briefly. The last five choices
   show when the field is empty.
+- Plans routes over the roads in the Route tab (see below) and draws them on the map: the road
+  in the route colour, orange through contested and red through enemy territory, dashed lines
+  from each place to its road, and a lettered marker per place (A, the stops, B).
 - Keeps the current shard and view in the address bar (`#able/3109/3108/0.80`: shard, map
   point at the screen centre, zoom), so a link opens the same view.
 - Has tabs at the top right, with only their icons on phones:
@@ -66,6 +69,17 @@ F.A.T.T. can stand for any of the following:
     with the most fighting in the last hour, over the whole war, the last 7 days, 24 hours,
     8 or 4 hours. The charts share one time axis: hovering one marks that moment in all of
     them.
+  - **Route** — a route planner over the road network. Choose your team (Wardens or
+    Colonials) first; then a start, stops and a destination with the same search as the map
+    search, or by clicking the map. Stops can be added, removed and moved. **Shortest** takes
+    the shortest road; **Safest** (the default) weighs every km by its territory, so it keeps
+    to friendly ground. Options: through contested territory (hexes with casualties in the
+    last hour; on), through enemy territory (off), avoid neutral regions and avoid scorched
+    regions (both off); a place in such territory switches its option by itself and says so.
+    Shows the distance in km, per leg too, and a fuel estimate for a speed class of logistics
+    vehicles, on the high side; or why there is no route. The team, route kind, options and
+    vehicle class are remembered in the browser. See
+    [the plan](.docs/plans/2026-11-25-route-planner.md).
   - **Legend** — region colours, team colours, and every structure type on the map with its
     in-game name.
   - **Settings** — icon brightness, hex shading (fighting in the last hour, or changes in the
@@ -164,7 +178,7 @@ without spaces. The official source images are the `.TGA` files in the War API r
 ### The road network
 
 `assets/data/roads.json` is the road network of the whole map as one graph in map pixels, for
-route planning. It is traced from the hex images by `.scripts/roads/extract-roads.py` (Python;
+the route planner, which loads it when the Route tab first opens. It is traced from the hex images by `.scripts/roads/extract-roads.py` (Python;
 install `.scripts/roads/requirements.txt`, then run the script; the usage is at its top), in
 about 5 minutes. Corrections by hand go in `.scripts/roads/corrections.json`, which the script
 merges. Run it again after the hex images change. The method, the quality per hex and the

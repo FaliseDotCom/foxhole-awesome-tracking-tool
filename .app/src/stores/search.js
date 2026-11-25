@@ -330,26 +330,11 @@ const saveRecent = ids =>
   }
 };
 
-const query = writable( '' ),
-      open = writable( false ),
-      active = writable( -1 ),
-      recent = writable( typeof window === 'undefined' ? [] : readRecent() );
-
 /**
- * What the list shows: suggestions for the query, or recent choices when the field is empty.
- * Structures in recent choices that no longer exist are left out.
- * @type {import('svelte/store').Readable<{ heading: string, entries: object[] }>}
+ * Recent choices, shared by every place field: entry ids, newest first.
+ * @type {import('svelte/store').Writable<string[]>}
  */
-const list = derived( [ query, recent, world ], ( [ $query, $recent, $world ] ) =>
-{
-  if ( $query.trim() ) return { heading: '', entries: find( $query, $world ) };
-
-  const all = [ ...getPlaces(), ...getStructures( $world ) ];
-  const entries = $recent
-    .map( id => all.find( entry => entryId( entry ) === id ) )
-    .filter( Boolean );
-  return { heading: entries.length ? 'Recent' : '', entries };
-} );
+const recent = writable( typeof window === 'undefined' ? [] : readRecent() );
 
 /**
  * Remember a chosen entry at the top of the recent list.
@@ -363,6 +348,175 @@ const remember = entry =>
         ids = [ id, ...get( recent ).filter( other => other !== id ) ].slice( 0, max_recent );
   recent.set( ids );
   saveRecent( ids );
+};
+
+/**
+ * Move the map to an entry, as the map search does when one is chosen.
+ *
+ * @param {object} entry Search entry.
+ * @returns {void}
+ */
+const focusEntry = entry =>
+{
+  const target = { x: entry.x, y: entry.y };
+  if ( entry.box ) target.box = entry.box;
+  else target.scale = entry.kind === 'area' ? region_scale : point_scale;
+  view.focus( target );
+};
+
+/**
+ * A place field: its own text, list and highlight over the shared index and recent choices,
+ * for components/place-field.svelte. The map search is one; the route planner has one per
+ * place of the route.
+ *
+ * @param {{ onChoose: function( object ): void, onClear?: function(): void }} handlers What to
+ *   do with a chosen entry, and when the field is emptied.
+ * @returns {object} The field: stores query, open, active and list, and its methods.
+ */
+const createField = ( { onChoose, onClear = () => {} } ) =>
+{
+  const query = writable( '' ),
+        open = writable( false ),
+        active = writable( -1 );
+
+  /**
+   * What the list shows: suggestions for the query, or recent choices when the field is empty.
+   * Structures in recent choices that no longer exist are left out.
+   * @type {import('svelte/store').Readable<{ heading: string, entries: object[] }>}
+   */
+  const list = derived( [ query, recent, world ], ( [ $query, $recent, $world ] ) =>
+  {
+    if ( $query.trim() ) return { heading: '', entries: find( $query, $world ) };
+
+    const all = [ ...getPlaces(), ...getStructures( $world ) ];
+    const entries = $recent
+      .map( id => all.find( entry => entryId( entry ) === id ) )
+      .filter( Boolean );
+    return { heading: entries.length ? 'Recent' : '', entries };
+  } );
+
+  /**
+   * Show an entry's name in the field, remember it, and hand it on.
+   *
+   * @param {object} entry Search entry.
+   * @returns {void}
+   */
+  const choose = entry =>
+  {
+    // only searches that found something are counted; a recent choice has no search words
+    analytics.search( normalise( get( query ) ), entry.kind, get( list ).entries.length );
+
+    query.set( entry.name );
+    open.set( false );
+    active.set( -1 );
+    remember( entry );
+    onChoose( entry );
+  };
+
+  return {
+    query: { subscribe: query.subscribe },
+    open: { subscribe: open.subscribe },
+    active: { subscribe: active.subscribe },
+    list: { subscribe: list.subscribe },
+    choose,
+
+    /**
+     * Update the query and open the list.
+     *
+     * @param {string} text Field contents.
+     * @returns {void}
+     */
+    setQuery( text )
+    {
+      query.set( text );
+      active.set( -1 );
+      open.set( true );
+    },
+
+    /**
+     * Show a text in the field without searching, such as the name of a point picked on the
+     * map.
+     *
+     * @param {string} text Text to show.
+     * @returns {void}
+     */
+    show( text )
+    {
+      query.set( text );
+      open.set( false );
+      active.set( -1 );
+    },
+
+    /**
+     * Show or hide the list.
+     *
+     * @param {boolean} value Whether the list is open.
+     * @returns {void}
+     */
+    setOpen( value )
+    {
+      open.set( value );
+      if ( !value ) active.set( -1 );
+    },
+
+    /**
+     * Move the highlight through the list, wrapping at both ends.
+     *
+     * @param {number} step 1 for down, -1 for up.
+     * @returns {void}
+     */
+    move( step )
+    {
+      const count = get( list ).entries.length;
+      if ( !count ) return;
+      open.set( true );
+      active.update( index =>
+      {
+        // nothing highlighted yet: down starts at the top, up at the bottom
+        if ( index < 0 ) return step > 0 ? 0 : count - 1;
+        return ( index + step + count ) % count;
+      } );
+    },
+
+    /**
+     * Choose the highlighted entry, or the first one when none is highlighted.
+     *
+     * @returns {boolean} Whether something was chosen.
+     */
+    chooseActive()
+    {
+      const entries = get( list ).entries;
+      if ( !entries.length ) return false;
+      choose( entries[ Math.max( 0, get( active ) ) ] );
+      return true;
+    },
+
+    /**
+     * Remove an entry from the recent list.
+     *
+     * @param {object} entry Search entry.
+     * @returns {void}
+     */
+    forget( entry )
+    {
+      const ids = get( recent ).filter( id => id !== entryId( entry ) );
+      recent.set( ids );
+      saveRecent( ids );
+    },
+
+    /**
+     * Empty the field and close the list.
+     *
+     * @returns {void}
+     */
+    clear()
+    {
+      query.set( '' );
+      open.set( false );
+      active.set( -1 );
+      onClear();
+    }
+  };
 };
 
 export const search = {
@@ -386,114 +540,10 @@ export const search = {
     return place ? `${ place }, ${ title }` : title;
   },
 
-  query: { subscribe: query.subscribe },
-  open: { subscribe: open.subscribe },
-  active: { subscribe: active.subscribe },
-  list: { subscribe: list.subscribe },
   kinds,
   entryId,
+  createField,
 
-  /**
-   * Update the query and open the list.
-   *
-   * @param {string} text Field contents.
-   * @returns {void}
-   */
-  setQuery( text )
-  {
-    query.set( text );
-    active.set( -1 );
-    open.set( true );
-  },
-
-  /**
-   * Show or hide the list.
-   *
-   * @param {boolean} value Whether the list is open.
-   * @returns {void}
-   */
-  setOpen( value )
-  {
-    open.set( value );
-    if ( !value ) active.set( -1 );
-  },
-
-  /**
-   * Move the highlight through the list, wrapping at both ends.
-   *
-   * @param {number} step 1 for down, -1 for up.
-   * @returns {void}
-   */
-  move( step )
-  {
-    const count = get( list ).entries.length;
-    if ( !count ) return;
-    open.set( true );
-    active.update( index =>
-    {
-      // nothing highlighted yet: down starts at the top, up at the bottom
-      if ( index < 0 ) return step > 0 ? 0 : count - 1;
-      return ( index + step + count ) % count;
-    } );
-  },
-
-  /**
-   * Choose the highlighted entry, or the first one when none is highlighted.
-   *
-   * @returns {boolean} Whether something was chosen.
-   */
-  chooseActive()
-  {
-    const entries = get( list ).entries;
-    if ( !entries.length ) return false;
-    this.choose( entries[ Math.max( 0, get( active ) ) ] );
-    return true;
-  },
-
-  /**
-   * Move the map to an entry, show its name in the field, and remember it.
-   *
-   * @param {object} entry Search entry.
-   * @returns {void}
-   */
-  choose( entry )
-  {
-    const target = { x: entry.x, y: entry.y };
-    if ( entry.box ) target.box = entry.box;
-    else target.scale = entry.kind === 'area' ? region_scale : point_scale;
-    view.focus( target );
-
-    // only searches that found something are counted; a recent choice has no search words
-    analytics.search( normalise( get( query ) ), entry.kind, get( list ).entries.length );
-
-    query.set( entry.name );
-    open.set( false );
-    active.set( -1 );
-    remember( entry );
-  },
-
-  /**
-   * Remove an entry from the recent list.
-   *
-   * @param {object} entry Search entry.
-   * @returns {void}
-   */
-  forget( entry )
-  {
-    const ids = get( recent ).filter( id => id !== entryId( entry ) );
-    recent.set( ids );
-    saveRecent( ids );
-  },
-
-  /**
-   * Empty the field and close the list.
-   *
-   * @returns {void}
-   */
-  clear()
-  {
-    query.set( '' );
-    open.set( false );
-    active.set( -1 );
-  }
+  // the map search at the top: choosing an entry moves the map to it
+  ...createField( { onChoose: focusEntry } )
 };

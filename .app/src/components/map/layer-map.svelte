@@ -18,13 +18,21 @@
   import HexPoints from '@components/map/hex/points.svelte';
   import Marker from '@components/map/marker.svelte';
   import Arcs from '@components/map/arcs.svelte';
+  import Route from '@components/map/route.svelte';
   import Roads from '@components/map/roads.svelte';
   import Effects from '@components/map/effects.svelte';
   import { config } from '@stores/config.js'
   import { zoom } from '@stores/zoom'
   import { settings } from '@stores/settings'
+  import { route } from '@stores/route'
 	import Scaler from '../scaler.svelte';
 	import Polygon from './polygon.svelte';
+
+  /**
+   * Whether a route has something to draw on the map.
+   * @type {import('svelte/store').Readable<boolean>}
+   */
+  const routeShown = route.shown;
 </script>
 
 <Scaler>
@@ -47,6 +55,10 @@
       {/if}
       {#if $settings.rockets}
         <Arcs/>
+      {/if}
+      <!-- only while a route has a place, so the map does not load what routes need -->
+      {#if $routeShown}
+        <Route/>
       {/if}
       <Effects/>
       <Marker/>

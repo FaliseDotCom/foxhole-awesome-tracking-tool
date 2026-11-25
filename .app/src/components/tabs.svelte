@@ -1,9 +1,9 @@
 <script>
 
   /**
-   * Tabs at the top right: war log, stats, legend, settings, and the shard picker when there is more
-   * than one live shard. One panel at a time opens below the tabs; clicking the open tab, or
-   * Escape, closes it.
+   * Tabs at the top right: war log, stats, route, legend, settings, and the shard picker when
+   * there is more than one live shard. One panel at a time opens below the tabs; clicking the
+   * open tab, or Escape, closes it.
    */
 
   import { onMount } from 'svelte';
@@ -12,6 +12,7 @@
   import Settings from '@components/settings.svelte'
   import Shard from '@components/shard.svelte'
   import Stats from '@components/stats.svelte'
+  import Route from '@components/route.svelte'
   import { warlog } from '@stores/warlog'
   import { shards } from '@stores/shards'
   import Icon from '@components/icon.svelte'
@@ -26,6 +27,7 @@
   $: tabs = [
     { key: 'warlog', title: 'Log', icon: 'list', component: Warlog },
     { key: 'stats', title: 'Stats', icon: 'chart', component: Stats },
+    { key: 'route', title: 'Route', icon: 'route', component: Route },
     { key: 'legend', title: 'Legend', icon: 'legend', component: Legend },
     { key: 'settings', title: 'Settings', icon: 'settings', component: Settings },
     ...( $available.length > 1 ? [ { key: 'shard', title: 'Shard', icon: 'shard', component: Shard } ] : [] )
@@ -75,7 +77,8 @@
 
 </script>
 
-<svelte:window on:keydown={ e => { if ( e.key === 'Escape' && !e.target.closest( 'input' ) ) open = '' } }/>
+<!-- Escape closes the panel, unless a field or the panel itself used it (picking a route point) -->
+<svelte:window on:keydown={ e => { if ( e.key === 'Escape' && !e.defaultPrevented && !e.target.closest( 'input' ) ) open = '' } }/>
 
 <div class="tabs">
   <!-- opening a tab is counted by show(), not as a click -->

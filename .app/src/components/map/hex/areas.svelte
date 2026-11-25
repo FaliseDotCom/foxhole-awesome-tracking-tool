@@ -6,7 +6,7 @@
 
 	import DataHex from './data.svelte';
   import { grid } from '@stores/grid';
-  import { icons } from '@stores/icons';
+  import { regionState } from '@stores/territory';
 	import { afterUpdate, onMount } from 'svelte';
   import { config } from '@stores/config.js';
 
@@ -85,38 +85,14 @@
     }
   }
 
-  // set area colors based on owned bases
+  // set area colours from the team holding each region's base, and mark scorched regions
   const colorAreas = () =>
   {
-    // get scorched items
-    const scorched_items = data.d.filter( icons.isScorched );
-
-    if ( scorched_items.length && log ) console.log( name + ' has scorched: ' + scorched_items.length );
-
-    // get region bases for this hex
-    const region_bases = data.d.filter( item => item.t && icons.isRegionBase( item.i ) )
-
-    if ( log && region_bases.length ) console.log( name + ' region bases', region_bases );
-
-    // go over each area
+    const states = regionState( name, data.d );
     Object.keys( details ).forEach( key =>
     {
-      // find bases per area, should be ONE, could be NONE
-      const area_bases = region_bases.filter( item => grid.areaContains( name, key, item ) );
-
-      // find scorched items in this area
-      const area_scorched = scorched_items.filter( item => grid.areaContains( name, key, item ) );
-
-      if ( area_scorched.length && log ) console.log(  name + ', ' + key + ' has scorched: ' + area_scorched.length );
-
-      if ( log ) 
-      {
-        console.log( name + ', ' + key + ' area bases', area_bases );
-        console.log( name + ', ' + key + ' scorched items', area_scorched );
-      }
-      
-      details[ key ].scorched = area_scorched.length > 0;
-      details[ key ].team = area_bases.length ? area_bases[ 0 ].t : '';
+      details[ key ].scorched = Boolean( states[ key ] && states[ key ].scorched );
+      details[ key ].team = states[ key ] ? states[ key ].team : '';
     } );
   }
 

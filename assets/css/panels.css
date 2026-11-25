@@ -429,6 +429,118 @@
   margin: 4px 0;
 }
 
+/* buttons with an icon and a label (button.svelte): filled for the main or adding action,
+   light for secondary actions, red for destructive ones; square with only the icon */
+.button
+{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.2;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color var( --transition-time );
+}
+
+.button-icon
+{
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.button-main
+{
+  color: var( --clr-black );
+  background-color: var( --clr-chosen );
+}
+
+.button-main:hover,
+.button-main:focus-visible
+{
+  background-color: var( --clr-focus );
+}
+
+.button-light
+{
+  color: var( --clr-black );
+  background-color: rgba( 0, 0, 0, .06 );
+}
+
+.button-light:hover,
+.button-light:focus-visible,
+.button-light[aria-pressed="true"]
+{
+  background-color: var( --clr-hover );
+}
+
+.button-light[aria-pressed="true"]
+{
+  box-shadow: inset 0 0 0 2px var( --clr-focus );
+}
+
+.button-danger
+{
+  color: #fff;
+  background-color: var( --clr-danger );
+}
+
+.button-danger:hover,
+.button-danger:focus-visible
+{
+  background-color: var( --clr-danger-hover );
+}
+
+.button:disabled
+{
+  opacity: .35;
+  cursor: default;
+}
+
+.button-light:disabled
+{
+  background-color: rgba( 0, 0, 0, .06 );
+}
+
+/* one of a row of choices (choice-row.svelte), the chosen one pressed: the stats time spans,
+   the route planner's team, route and vehicle */
+.choice-row
+{
+  display: flex;
+  gap: 2px;
+  margin: 0 0 8px 0;
+}
+
+.choice
+{
+  flex: 1;
+  padding: 3px 0;
+  font-family: inherit;
+  font-size: 12px;
+  color: var( --clr-black );
+  background: rgba( 0, 0, 0, .04 );
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.choice:hover,
+.choice:focus-visible
+{
+  background: var( --clr-hover );
+}
+
+.choice[aria-pressed="true"]
+{
+  font-weight: bold;
+  background: var( --clr-chosen );
+}
+
 /* search field that filters a tab panel's list (filter-field.svelte): an icon for what it
    searches before it, a search icon after */
 .filter-field
