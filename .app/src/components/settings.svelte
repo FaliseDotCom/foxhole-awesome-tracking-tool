@@ -2,7 +2,7 @@
 
   /**
    * Viewer settings, remembered in the browser: icon brightness, hex shading, how the map looks
-   * (team colours, region colour strength, icon size, hex names), rocket trajectories and
+   * (team colours, region colour strength, icon size, hex names, roads), rocket trajectories and
    * sounds, and whether visits are counted
    */
 
@@ -78,6 +78,10 @@
   <label>
     <input type="checkbox" checked={ $settings.names } on:change={ e => settings.set( 'names', e.target.checked ) }/>
     Hex names
+  </label>
+  <label>
+    <input type="checkbox" checked={ $settings.roads } on:change={ e => settings.set( 'roads', e.target.checked ) }/>
+    Road network
   </label>
 </fieldset>
 

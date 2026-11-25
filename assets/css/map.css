@@ -207,6 +207,19 @@ svg text
   }
 }
 
+/* the road network, switched on in Settings; under the icons, the same width at every zoom */
+
+.roads
+{
+  fill: none;
+  stroke: #b35900;
+  stroke-opacity: .85;
+  stroke-width: calc( 2px / var( --scale ) );
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
 /* rocket trajectories from the war log; sizes divided by --scale stay the same on screen */
 
 .rocket

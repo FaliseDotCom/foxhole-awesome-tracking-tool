@@ -18,6 +18,7 @@
   import HexPoints from '@components/map/hex/points.svelte';
   import Marker from '@components/map/marker.svelte';
   import Arcs from '@components/map/arcs.svelte';
+  import Roads from '@components/map/roads.svelte';
   import Effects from '@components/map/effects.svelte';
   import { config } from '@stores/config.js'
   import { zoom } from '@stores/zoom'
@@ -34,6 +35,9 @@
       <Layer class="areas" component={ HexAreas } show={ true }/>   
       <Layer class="shades" component={ HexShade } show={ $settings.shading !== 'none' }/>
       <Layer class="borders" component={ HexBorder } show={ true }/>
+      {#if $settings.roads}
+        <Roads/>
+      {/if}
       <Layer class="summaries" component={ HexSummary } show={ $zoom.toFixed( 1 ) < .4 }/>
       <Layer class="dynamics" component={ HexDynamic } show={ $zoom.toFixed( 1 ) >= .4 }/>
       <Layer class="labels-major" component={ HexMajor } show={  $zoom >= .6 }/> 

@@ -70,7 +70,8 @@ F.A.T.T. can stand for any of the following:
     in-game name.
   - **Settings** — icon brightness, hex shading (fighting in the last hour, or changes in the
     last 6 hours), colour-blind team colours (blue and orange), region colour strength, icon
-    size, hex names, the tabs on the right or the left, rocket trajectories, sound, and whether
+    size, hex names, the road network, the tabs on the right or the left, rocket trajectories,
+    sound, and whether
     your visits are counted. Remembered in the browser.
   - **Shard** — switch between live shards. Since May 2026 Foxhole runs a single shard, so
     this tab is hidden until there is more than one.

@@ -473,6 +473,11 @@ test( 'a rocket launch and impact show as one entry with an arc', async ( { page
   await page.getByRole( 'tab', { name: 'Settings' } ).click();
   await page.getByLabel( 'Rocket trajectories on the map' ).uncheck();
   await expect( page.locator( 'path.rocket-arc' ) ).toHaveCount( 0 );
+
+  // the road network can be shown from Settings too
+  await expect( page.locator( 'path.roads' ) ).toHaveCount( 0 );
+  await page.getByLabel( 'Road network' ).check();
+  await expect( page.locator( 'path.roads' ) ).toHaveCount( 1 );
 } );
 
 /**
