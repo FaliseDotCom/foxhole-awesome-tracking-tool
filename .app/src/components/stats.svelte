@@ -8,6 +8,7 @@
 
   import { stats } from '@stores/stats'
   import Chart from '@components/chart.svelte'
+  import ChoiceRow from '@components/choice-row.svelte'
   import { ago } from '@lib/time'
 
   import { onDestroy } from 'svelte'
@@ -24,6 +25,12 @@
    * @type {number}
    */
   const max_hexes = 8;
+
+  /**
+   * The time spans as choices, with what choosing one shows.
+   * @type {import('@components/choice-row.svelte').Option[]}
+   */
+  const spanOptions = stats.spans.map( option => ( { key: option.key, title: option.title, hint: `Show ${ option.label }` } ) );
 
   const number = value => Math.round( value ).toLocaleString( 'en' );
 
@@ -52,17 +59,12 @@
 {:else if !$stats}
   <p class="stats-note">No statistics yet. They are recorded every 5 minutes from now on.</p>
 {:else}
-  <div class="stats-spans" role="group" aria-label="Time span of the charts">
-    {#each stats.spans as option ( option.key )}
-      <button
-        type="button"
-        class="stats-span"
-        aria-pressed={ $span === option.key }
-        title={ `Show ${ option.label }` }
-        on:click={ () => stats.setSpan( option.key ) }
-      >{ option.title }</button>
-    {/each}
-  </div>
+  <ChoiceRow
+    options={ spanOptions }
+    value={ $span }
+    label="Time span of the charts"
+    on:choose={ e => stats.setSpan( e.detail ) }
+  />
 
   {#if young}
     <p class="stats-note">Statistics started recording less than an hour ago and fill up over time.</p>

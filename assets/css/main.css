@@ -26,6 +26,43 @@ html, body
   stroke-linejoin: round;
 }
 
+/* an arrow or chevron in a button moves a little in the direction it points on hover and
+   keyboard focus, unless the viewer asks for reduced motion */
+@media ( prefers-reduced-motion: no-preference )
+{
+  button .icon-up,
+  button .icon-down,
+  button .icon-left,
+  button .icon-right
+  {
+    transition: transform .15s;
+  }
+
+  button:hover:not( :disabled ) .icon-up,
+  button:focus-visible .icon-up
+  {
+    transform: translateY( -2px );
+  }
+
+  button:hover:not( :disabled ) .icon-down,
+  button:focus-visible .icon-down
+  {
+    transform: translateY( 2px );
+  }
+
+  button:hover:not( :disabled ) .icon-left,
+  button:focus-visible .icon-left
+  {
+    transform: translateX( -2px );
+  }
+
+  button:hover:not( :disabled ) .icon-right,
+  button:focus-visible .icon-right
+  {
+    transform: translateX( 2px );
+  }
+}
+
 /* slider knobs cover the line behind them */
 .icon .icon-knob
 {

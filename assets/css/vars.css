@@ -16,6 +16,13 @@
   --clr-colonials-region: #94b37a;
   --clr-scorched-region: #d9816c;
 
+  /* buttons (button.svelte, panels.css): hover on light buttons and choices, the destructive
+     variant */
+  --clr-hover: rgba( 255, 165, 0, .25 );
+  --clr-chosen: rgba( 255, 165, 0, .45 );
+  --clr-danger: #c0392b;
+  --clr-danger-hover: #a93226;
+
   --clr-black: #222;
   --clr-white: #eee;
   --clr-focus: orange;
