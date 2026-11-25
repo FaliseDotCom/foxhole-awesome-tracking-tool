@@ -364,18 +364,24 @@ const result = derived( [ prefs, points, graph, territory.states, territory.figh
 } );
 
 /**
- * Signature of the places of the last route fitted on screen, so a route is fitted once when
- * it is complete, not on every refresh of the territory.
+ * Signature of the start and destination of the last route fitted on screen, so a route is
+ * fitted once when it is complete or its ends change, not on every refresh of the territory,
+ * nor when a stop is added, picked, moved or removed: that keeps the map where the viewer is
+ * looking.
  * @type {string}
  */
 let fitted = '';
 
 /**
- * Signature of the places of the route.
+ * Signature of the start and the destination of the route.
  *
- * @returns {string} Places in order.
+ * @returns {string} Both places.
  */
-const placesSignature = () => get( points ).map( point => point.place ? `${ point.place.x },${ point.place.y }` : '' ).join( ';' );
+const endsSignature = () =>
+{
+  const list = get( points );
+  return [ list[ 0 ], list[ list.length - 1 ] ].map( point => point.place ? `${ point.place.x },${ point.place.y }` : '' ).join( ';' );
+};
 
 export const route = {
   prefs: { subscribe: prefs.subscribe },
@@ -562,14 +568,14 @@ export const route = {
   },
 
   /**
-   * Fit the route on screen when its places changed since the last fit.
+   * Fit the route on screen when its start or destination changed since the last fit.
    *
    * @param {{ left: number, right: number }} [inset] Screen width covered by the panel.
    * @returns {void}
    */
   fitNew( inset = { left: 0, right: 0 } )
   {
-    const signature = placesSignature();
+    const signature = endsSignature();
     if ( signature === fitted ) return;
     fitted = signature;
     route.fit( inset );
