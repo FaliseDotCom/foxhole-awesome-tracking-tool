@@ -555,13 +555,14 @@ test( 'the tabs switch panels and close again', async ( { page } ) =>
   await expect( warlog ).toHaveAttribute( 'aria-selected', 'true' );
   await expect( page.getByRole( 'tabpanel', { name: 'Log', exact: true } ) ).toBeVisible();
 
-  // arrow keys move to the next tab
+  // the tabs come in this order, and arrow keys move to the next one
+  await expect( page.getByRole( 'tab' ) ).toHaveText( [ /Log/, /Route/, /Stats/, /Legend/, /Settings/ ] );
   await warlog.focus();
   await page.keyboard.press( 'ArrowRight' );
-  await expect( page.getByRole( 'tabpanel', { name: 'Stats' } ) ).toBeVisible();
+  await expect( page.getByRole( 'tabpanel', { name: 'Route' } ) ).toBeVisible();
 
   // clicking the open tab closes its panel
-  await page.getByRole( 'tab', { name: 'Stats' } ).click();
+  await page.getByRole( 'tab', { name: 'Route' } ).click();
   await expect( page.getByRole( 'tabpanel' ) ).toHaveCount( 0 );
 } );
 

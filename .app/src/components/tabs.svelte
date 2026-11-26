@@ -26,8 +26,8 @@
 
   $: tabs = [
     { key: 'warlog', title: 'Log', icon: 'list', component: Warlog },
-    { key: 'stats', title: 'Stats', icon: 'chart', component: Stats },
     { key: 'route', title: 'Route', icon: 'route', component: Route },
+    { key: 'stats', title: 'Stats', icon: 'chart', component: Stats },
     { key: 'legend', title: 'Legend', icon: 'legend', component: Legend },
     { key: 'settings', title: 'Settings', icon: 'settings', component: Settings },
     ...( $available.length > 1 ? [ { key: 'shard', title: 'Shard', icon: 'shard', component: Shard } ] : [] )
